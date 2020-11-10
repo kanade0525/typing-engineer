@@ -8,6 +8,7 @@ const qs = require('qs');
 
 var config = require('./config');
 
+// テンプレートファイル
 const indexPage = fs.readFileSync('/Users/k/Documents/GitHub/coda/public/index.ejs', 'utf-8');
 const styleCss = fs.readFileSync('/Users/k/Documents/GitHub/coda/public/css/styles.css', 'utf-8');
 const scriptJs = fs.readFileSync('/Users/k/Documents/GitHub/coda/public/js/main.js', 'utf-8');

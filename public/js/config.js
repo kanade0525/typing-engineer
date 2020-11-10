@@ -1,2 +1,2 @@
 exports.port = 3333;
-exports.db = 'codadb';
+exports.db = 'codadb';　//DB名
