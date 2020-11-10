@@ -15,10 +15,6 @@
   // 様々なモードに対応する場合は別ファイルから参照した方が良い？
   const words = [
     'String',
-    '<html>',
-    'console.log();',
-    'System.out.println',
-    'getElementById',
   ];
   let word;
   // 今打っている文字が何番目か取得するlocation
@@ -33,34 +29,38 @@
   // 単語が表示されるエリアのid
   const target = document.getElementById('target');
   const typedLetter = document.getElementById('typedLetter');
+  let correctTypecount = 0;
+  //#HACK!: ゲーム開始時にスペースキーを押す時の分を考慮しての-1だが絶対よくない
+  let wrongTypecount = -1;
 
-  // スペースキーが押されたらゲームが開始する
   document.addEventListener('keydown', e => {
     // # HACK:　keycodeは推奨されていない
     if (isPlaying === true) {
       return;
     }
-    isPlaying = true;
     if (e.keyCode === 32) {
+      // スペースキーが押されたらゲームが開始する
+      isPlaying = true;
       startTime = Date.now();
-      typingSound.play();
       setWord();
     }
   })
 
   document.addEventListener('keydown', e => {
-    if (e.key !== word[loc]) {
+    if (e.key !== word[loc] ) {
       // この条件に該当しないということは打った値が正しいということ
       // アーリーリターンしておく
       if (e.keyCode !== 16) {
-        // シフトキーを押した時にエラー音がならないようにする
+      // シフトキーを押した時にエラー音がならないようにする例外処理
         wrongSound.currentTime = 0;
         wrongSound.play();
+        wrongTypecount++;
       }
       return;
     }
 
     loc++
+    correctTypecount++;
     typedLetter.textContent = word.slice(0, loc);
     // 現在正しく打ち込めているところまでをアンダースコアで置き換え、
     // substringメソッドでloc以降の文字列を取得し組み合わせていく
@@ -74,7 +74,7 @@
         // ゲームが開始されてから最後の単語を打ち終えるまでの時間を計算
         const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
         const result = document.getElementById('result');
-        result.textContent = `Finished! ${elapsedTime}sec`
+        result.textContent = `Finished! ${elapsedTime}sec correct type: ${correctTypecount} wrong type: ${wrongTypecount}`
       }
       setWord();
     }
@@ -89,3 +89,4 @@
 // ・コードをダウンロードできるようにする
 // ・スペースキーの入力に対応できるようにする
 // ・先生モードcsv書き込みも
+// リセットボタン追加
