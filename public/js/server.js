@@ -5,13 +5,15 @@ var fs     = require('fs');
 var ejs    = require('ejs');
 const url = require('url');
 const qs = require('qs');
+const path = require('path');
 
 var config = require('./config');
 
 // テンプレートファイル
-const indexPage = fs.readFileSync('/Users/k/Documents/GitHub/coda/public/index.ejs', 'utf-8');
-const styleCss = fs.readFileSync('/Users/k/Documents/GitHub/coda/public/css/styles.css', 'utf-8');
-const scriptJs = fs.readFileSync('/Users/k/Documents/GitHub/coda/public/js/main.js', 'utf-8');
+__dirname = path.resolve(__dirname, '../');
+const indexPage = fs.readFileSync( __dirname + '/index.ejs', 'utf-8');
+const styleCss = fs.readFileSync( __dirname + '/css/styles.css', 'utf-8');
+const scriptJs = fs.readFileSync( __dirname + '/js/main.js', 'utf-8');
 
 function RouteSetting(req, res) {
   const url_parts = url.parse(req.url);
