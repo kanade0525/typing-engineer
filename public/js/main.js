@@ -30,19 +30,18 @@
   const target = document.getElementById('target');
   const typedLetter = document.getElementById('typedLetter');
   let correctTypecount = 0;
-  //#HACK!: ゲーム開始時にスペースキーを押す時の分を考慮しての-1だが絶対よくない
-  let wrongTypecount = -1;
+  let wrongTypecount = 0;
+
+  document.addEventListener('click', () => {
+    isPlaying = true;
+    startTime = Date.now();
+    setWord();
+  })
 
   document.addEventListener('keydown', e => {
     // # HACK:　keycodeは推奨されていない
     if (isPlaying === true) {
       return;
-    }
-    if (e.keyCode === 32) {
-      // スペースキーが押されたらゲームが開始する
-      isPlaying = true;
-      startTime = Date.now();
-      setWord();
     }
   })
 
