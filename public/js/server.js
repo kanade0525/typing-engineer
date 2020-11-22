@@ -45,4 +45,4 @@ function RouteSetting(req, res) {
   }
 }
 
-server.listen(process.env.PORT || config.port);
+server.listen(process.env.PORT || 3333);
