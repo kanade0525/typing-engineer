@@ -6,16 +6,19 @@ body {
   text-align: center;
 }
 
-.word_area {
+.dispaly_area {
   font-size: 32px;
   letter-spacing: 0.1em;
   opacity: 0.8;
-  display: flex;
-  justify-content: center;
   border: #35E02E 2px solid;
   border-radius: 10px;
   margin: 0 auto;
   width: 75%;
+}
+
+.word_area {
+  display: flex;
+  justify-content: center;
 }
 
 #target {
@@ -29,6 +32,15 @@ body {
   text-shadow:0 0 10px #14c50e;
 }
 
-#result {
+.result_area {
   font-size: 18px;
+}
+
+#questionnaireArea > a {
+  text-decoration: none;
+  color: #35E02E;
+}
+
+#questionnaireArea > a:hover {
+  text-shadow:0 0 10px #14c50e;
 }
