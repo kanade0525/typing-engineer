@@ -18,7 +18,7 @@
     'hello&nbspworld',
     'body&nbsp{font-size:&nbsp42px;}',
     // 'text-decoration: none;',
-    // 'display: flex;',
+    'display:&nbspflex;',
   ];
   let word;
   // 今打っている文字が何番目か取得するlocation

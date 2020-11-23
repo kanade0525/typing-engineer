@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node public/js/server.js",
+    "start-watch": "nodemon public/js/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +21,7 @@
     "ejs": "^3.1.5",
     "fs": "0.0.1-security",
     "mongodb": "^3.6.3",
+    "nodemon": "^2.0.6",
     "path": "^0.12.7",
     "qs": "^6.9.4",
     "url": "^0.11.0"
