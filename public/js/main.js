@@ -7,14 +7,18 @@
     // spliceメソッドで重複を回避する（ランダムに一つ削除しつつ、その値をwordに投げる）
     // spliceの返り値は必ず配列なのでインデックスナンバーを指定[0]
     word = words.splice(Math.floor(Math.random() * words.length), 1)[0];
-    target.textContent = word;
-    typedLetter.textContent = null;
+    target.innerHTML = word;
+    typedLetter.innerHTML = null;
     loc = 0;
   }
 
   // 様々なモードに対応する場合は別ファイルから参照した方が良い？
   const words = [
-    'String',
+    'System.out.println',
+    'hello&nbspworld',
+    'body&nbsp{font-size:&nbsp42px;}',
+    // 'text-decoration: none;',
+    // 'display: flex;',
   ];
   let word;
   // 今打っている文字が何番目か取得するlocation
@@ -27,46 +31,47 @@
   let wrongSound = "UklGRi4FAABXQVZFZm10IBAAAAABAAEAESsAABErAAABAAgAZGF0YQoFAACAgICAgICAgICAgICAgICAgYGBgYGBgYGBgYGAgICAgICBg4aLkpukrbOzqZBtTTkwM0FWboSXpq6xrqedkIN2al9YVFRXXWZweoOMk5mcnp2blpCKgntzbWhlZGZpbnR6gIWJjI6Pj46MioeEgH57eHZ2dnh6fYCBg4ODgoCAfn59fX5/gIGChIWHiYqLi4uJhoF+eHNwbWxtcHR5f4SKkJWZm5ycmpaPiIB3bmZgXVxfZGt0foiSnKSpra2rpp6UiHtuYVdQTExQV2FufYqZpbC3u7u4sKWYiHlpWk5GQkJHUF1sfY2drLe/w8K9tKeYhnVkVEhAPD1DTVprfY6gr7vDx8bAtqiXhXNhUUU9OTpASllqfY+hsb7GysnCt6mXhHFfT0M6Nzg+SVdpfZCjs8DJzMvEuKmXg3BdTUE4NTY8R1dpfZCjtMHKzszEuKiVgW5cTD83MzU8R1dpfpGltsPM0M3GuaiVgW1aSj41MjQ7R1dqfpKmt8TN0M3FuKeTgGxZST01MjQ8SFhrf5Ont8TMz8zEt6aSf2tZSj43NDc+SlpsgJSnt8PLzcrCtaWSf2xaS0A5NjlATFttgJOmtcHIy8e/s6ORf2xbTEE7OTxDT15vgZSls7/Fx8S8sKCPfmxcTkQ+PD9HUmFyg5SlsrzCw8C4rZ6OfWxdUEZBP0NKVmR0hJSjsLm+v7y0qZyMfW1fU0pGRUlQW2h2hJOgqrG1trOso5eKfXBkWlNPT1NaY256hZCaoaapqaahmpGIfnVsZWBeX2JnbnZ/hYySlZiYmJWSjomEgHp2cnBvcHN2en6BhIaHh4aFhYSDgoGAgIB/f4CAgYOFhoaFhIF/e3h1dHR1d3p9gISIjI+Sk5STko6Jgnx0bWhkYmNmbHJ7gouTmqCkpaWinJWLgHVpX1dSUFJXYGp3g5Ccp6+0trSvp5uOgHBhVUtFQ0VMVmR0g5SjsLm/wb+4rqCPf21dT0Q+PD9HU2JzhJamtL7FxsO7r6CPfWtaTEE7Oj1FUWByhJeot8HHycW9sKCOfGlYST85ODtEUGBzhZmqucTKy8e+saCNemdVRzw3NjpCUGBzhpqsu8bMzci+sJ+LeGRTRTs1NTlCUGF1iZ2vvsjOzsm+r52JdWJQQzk0NDlDUWN3i5+xwMrPz8i9rZqGcl9OQTgzNDpFVGZ7jqO0wszQzse7qpeDb11MQDc0NjxIV2l9kaS1wsvOy8S3p5SAbVtMQDk2OUBMW22AlKa2wsnLyL+yopB9allLQDo4O0NQX3KEl6i3wsjJxbyvn417aFhKQDs6PkZTY3SGmKm2wMXGwbirm4p5Z1hLQj09QkpXZneImai1vsLCvbSomYl4aFlNRUFBRk9banqJmaaxuby7t66jlYZ4aVxRS0pOV2RzgY+aoaWjnpaKf3JmXFRPTlFXYW59jJyqtr7Dw761qJmJeWpcUkpISU5YZHOCk6Kvub/AvbWpmop6a11RSUVFSlJebX2NnKq1vL+9tqyejn5uX1NKRENGTllndoaWpbG6vr24r6GSgnJjVktFQ0VLVWJxgZKhrri9vrqyppeHd2dbVFFTWF5lbHN4fYCDhIWGhoaGhoWFhYWFhISEhISDg4ODgoKCgoKBgYGBgYGBgYGBgYGBgYGBgYGAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIA="
   wrongSound = new Audio("data:audio/wav;base64," + wrongSound);
   // 単語が表示されるエリアのid
-  const target = document.getElementById('target');
-  const typedLetter = document.getElementById('typedLetter');
+  let target = document.getElementById('target');
+  let typedLetter = document.getElementById('typedLetter');
   let correctTypecount = 0;
   let wrongTypecount = 0;
 
   document.addEventListener('click', () => {
+    if (isPlaying === true) {
+      return;
+    }
     isPlaying = true;
     startTime = Date.now();
     setWord();
   })
 
   document.addEventListener('keydown', e => {
-    // # HACK:　keycodeは推奨されていない
-    if (isPlaying === true) {
+    if (e.key === word[loc]) {
+      loc++
+      correctTypecount++;
+      typedLetter.innerHTML = word.slice(0, loc);
+      // 現在正しく打ち込めているところまでをアンダースコアで置き換え、
+      // substringメソッドでloc以降の文字列を取得し組み合わせていく
+      target.innerHTML = word.substring(loc);
+      // 再生し終わるのを待たずに連続再生させるため再生位置を最初に戻す
+      typingSound.currentTime = 0;
+      typingSound.play();
+    } else if (e.keyCode == 16){
+      // シフトキーが押されてもノーカウントにする
+      return;
+    } else if (e.keyCode == 32 && word[loc] == '&') {
+      // 半角スペースを入力できるようにする例外処理
+      typingSound.play();
+      loc += 5;
+      typedLetter.innerHTML = word.slice(0, loc);
+      target.innerHTML = word.substring(loc);
+      // スペースが入力されたかよくわからない
+    } else {
+      wrongSound.currentTime = 0;
+      wrongSound.play();
+      wrongTypecount++;
       return;
     }
-  })
-
-  document.addEventListener('keydown', e => {
-    if (e.key !== word[loc] ) {
-      // この条件に該当しないということは打った値が正しいということ
-      // アーリーリターンしておく
-      if (e.keyCode !== 16) {
-      // シフトキーを押した時にエラー音がならないようにする例外処理
-        wrongSound.currentTime = 0;
-        wrongSound.play();
-        wrongTypecount++;
-      }
-      return;
-    }
-
-    loc++
-    correctTypecount++;
-    typedLetter.textContent = word.slice(0, loc);
-    // 現在正しく打ち込めているところまでをアンダースコアで置き換え、
-    // substringメソッドでloc以降の文字列を取得し組み合わせていく
-    target.textContent = word.substring(loc);
-    // 再生し終わるのを待たずに連続再生させるため再生位置を最初に戻す
-    typingSound.currentTime = 0;
-    typingSound.play();
     // 単語を最後まで打ち込んだ時にsetWordを呼び出す
     if (loc === word.length) {
       if (words.length === 0) {
@@ -74,6 +79,8 @@
         const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
         const result = document.getElementById('result');
         result.textContent = `Finished! ${elapsedTime}sec correct type: ${correctTypecount} wrong type: ${wrongTypecount}`
+        typedLetter.textContent= '';
+        return;
       }
       setWord();
     }
@@ -82,10 +89,9 @@
 
 // TASKS-----------
 // ・複数のモードを追加
-// ・違うキーを打った時の効果音追加
-  // ・ゲーム開始時にもなってしまうバグ修正
 // ・アンダースコアだけだとスペースを打ち込んだ時わからない
+// targetにundefinedが
+// あとクリックできちゃう
 // ・コードをダウンロードできるようにする
-// ・スペースキーの入力に対応できるようにする
 // ・先生モードcsv書き込みも
 // リセットボタン追加
