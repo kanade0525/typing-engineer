@@ -14,11 +14,11 @@
 
   // 様々なモードに対応する場合は別ファイルから参照した方が良い？
   const words = [
-    'System.out.println',
+    // 'System.out.println',
     'hello&nbspworld',
-    'body&nbsp{font-size:&nbsp42px;}',
+    // 'body&nbsp{font-size:&nbsp42px;}',
     // 'text-decoration: none;',
-    // 'display: flex;',
+    // 'display:&nbspflex;',
   ];
   let word;
   // 今打っている文字が何番目か取得するlocation
@@ -33,8 +33,12 @@
   // 単語が表示されるエリアのid
   let target = document.getElementById('target');
   let typedLetter = document.getElementById('typedLetter');
-  let correctTypecount = 0;
-  let wrongTypecount = 0;
+  let elapsedTimeArea = document.getElementById('elapsedTimeArea');
+  let correctTypeCountArea = document.getElementById('correctTypeCountArea');
+  let wrongTypeCountArea = document.getElementById('wrongTypeCountArea');
+  let accuracyArea = document.getElementById('accuracyArea');
+  let correctTypeCount = 0;
+  let wrongTypeCount = 0;
 
   document.addEventListener('click', () => {
     if (isPlaying === true) {
@@ -48,7 +52,7 @@
   document.addEventListener('keydown', e => {
     if (e.key === word[loc]) {
       loc++
-      correctTypecount++;
+      correctTypeCount++;
       typedLetter.innerHTML = word.slice(0, loc);
       // 現在正しく打ち込めているところまでをアンダースコアで置き換え、
       // substringメソッドでloc以降の文字列を取得し組み合わせていく
@@ -69,7 +73,7 @@
     } else {
       wrongSound.currentTime = 0;
       wrongSound.play();
-      wrongTypecount++;
+      wrongTypeCount++;
       return;
     }
     // 単語を最後まで打ち込んだ時にsetWordを呼び出す
@@ -77,9 +81,17 @@
       if (words.length === 0) {
         // ゲームが開始されてから最後の単語を打ち終えるまでの時間を計算
         const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
+        let typeCount = correctTypeCount + wrongTypeCount;
+        let accuracy = ((correctTypeCount / typeCount).toFixed(2) * 100);
         const result = document.getElementById('result');
-        result.textContent = `Finished! ${elapsedTime}sec correct type: ${correctTypecount} wrong type: ${wrongTypecount}`
+        let questionnaireArea = document.getElementById('questionnaireArea');
         typedLetter.textContent= '';
+        result.textContent = 'Finished!';
+        elapsedTimeArea.textContent = `time: ${elapsedTime}`;
+        correctTypeCountArea.textContent = `correct type: ${correctTypeCount}`;
+        wrongTypeCountArea.textContent = `wrong type: ${wrongTypeCount}`;
+        accuracyArea.textContent = `accuracy: ${accuracy}%`;
+        questionnaireArea.innerHTML = `<a href="https://docs.google.com/forms/d/e/1FAIpQLSeJejn-vHqPgMSA69kCMQ46lnoFCByYuvwl42uYyvGbxwSlXA/viewform" target="_blank" >アンケートにご協力ください</a>`;
         return;
       }
       setWord();
