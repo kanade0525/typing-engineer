@@ -1,22 +1,44 @@
 body {
   background: #000;
   color: #35E02E;
-  padding-top: 40px;
+  height: 100%;
   font-family: 'Courier New', monospace;
   text-align: center;
+  padding: 0;
+  margin: 0;
 }
 
-.dispaly_area {
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.navbar {
+  background: #35E02E;
+  color: #000;
+  text-align: left;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 36px;
+  padding-left: 12px;
+  text-decoration: none;
+}
+
+.navbar > a:hover {
+  opacity: 0.7;
+}
+
+.dispalyArea {
   font-size: 32px;
   letter-spacing: 0.1em;
   opacity: 0.8;
   border: #35E02E 2px solid;
   border-radius: 10px;
-  margin: 0 auto;
+  margin: 48px auto;
   width: 75%;
 }
 
-.word_area {
+#wordArea {
   display: flex;
   justify-content: center;
 }
@@ -26,21 +48,31 @@ body {
 
 #typedLetter {
   font-weight: bold;
-  font-size: 34px;
+  font-size: 33px;
   border-bottom: #35E02E 1px solid;
   opacity: 1;
   text-shadow:0 0 10px #14c50e;
 }
 
-.result_area {
+#resultArea {
   font-size: 18px;
 }
 
 #questionnaireArea > a {
-  text-decoration: none;
   color: #35E02E;
 }
 
 #questionnaireArea > a:hover {
   text-shadow:0 0 10px #14c50e;
+}
+
+footer {
+  width: 100%;
+  color: #35E02E;
+  text-align: center;
+  padding: 12px 0;
+  font-size: 8px;
+  position: absolute;
+  bottom: 0;
+  border-top: #35E02E 2px solid;
 }

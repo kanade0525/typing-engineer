@@ -4,21 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/styles.css">
-  <title>typing game</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" integrity="sha384-Bfad6CLCknfcloXFOyFnlgtENryhrpZCe29RTifKEixXQZ38WheV+i/6YWSzkz3V" crossorigin="anonymous">
+  <link rel="icon" href="https://typing-engineer.s3.ap-northeast-1.amazonaws.com/favicon.ico?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjED8aDmFwLW5vcnRoZWFzdC0xIkYwRAIgNH8ySb0PdZfD%2FIvFG%2BeTKV9ARIupAXyPGsHydHb%2B2vMCIDj1Rf2b2rNcOqfaelsBmL62wE1J2iMS0NhCJfvSeA2lKv8CCLj%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMODk5MDkyMTM5NDMxIgw7UEf6qYl3aaQHrGcq0wJrCUe0Pt8TrLBt19NrVQkO0UoVasgSKDj2SviyPx8DjSnh8IGo37%2BjsT6lpMm%2F8hl1552EK%2FJql2Hi911zK9W0TJpJz9sorOOKRFOYwMG46gGDb7o%2F0ZccOkGGwqaqmKXs7runaWvgtnPVX8vHtXluNe0o4Qd%2F%2BeauTAfPahsGr%2B8X9mAR8E8%2Fr8Vx4LK0TpHEPqzJsuLz1U0DlBLnuVWag3jn5foqC1NySDrRGw6iR%2B%2BWoI%2Fwu5K%2Fhn8jNYNeh7LfPN3PzGxZZNsL6pvYzGsU%2F5IaZcTrCRa4e%2B3kRmIoLbvJoi2r3HJJCieyi0IbYRF14k7QpXscmcHwsfejOF6qscYscTb%2F8YssTNeAYrfIzVjh%2BTlC%2F0IrCmViWMUQcRCq1hT263gI%2F6%2Bt5dUwGHcolYtbDP5GCGsw5oIoKK15kmQfycJxwaFpb2nYuPDSIPW1pg4w%2BsLt%2FQU6tALMEjCPK3Oj9gQ%2FtNbtPENVW0Vmiawod8JLeg0K3SANC850v4Jf%2Br%2B4jCrCbFkZzS5FWfkGiHDzsXY6mP52dY%2B2CMhXEMPuOpc%2F9bHW%2F9hGtMETr3cwsb6gr2cUxdwSFPdyr%2BVyfsYJNWueq3K%2Fu9HHTYnWMrC%2F3WZysbr3mtZyE%2FS5AwviO8%2FXu4UnJecX2TUtEjniJcv8WOqKsvwKqP21LwKrnCgSeqDCADHnV5QKpTVj218Du1BqEQdMrUUZ9Uqm%2FUY%2B2znGjCLsNxvvGveAljhwbbBxFLcGLkGcEcrYjcop51vGxVM2p517uUjJLbbcrCGR6HNrw6xn0u%2BocOe0q4Np%2Fg5k1yFQ4ZLnUdf8xzfHrHP84kha5cKAhNDX1XDrOnJxYwDZTBDduxiJN%2FpNwX4%2FqQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201123T071713Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIA5CVQRJWT2UX2YEQD%2F20201123%2Fap-northeast-1%2Fs3%2Faws4_request&X-Amz-Signature=97eee71390e9be6bd7da0f40163119cbf82efb085504d38a2aa3298daaac3802">
+  <title>typing engineer</title>
 </head>
 <body>
+  <header class="navbar">
+    <a href="/"><i class="fas fa-terminal"></i> Typing Engineer</a>
+  </header>
   <!-- <div id="select_difficulty">
     <div id="difficulty_easy">EASY</div>
     <div id="difficulty_normal">NORMAL</div>
     <div id="difficulty_hard">HARD</div>
     <div id="difficulty_proffesional">PROFFESSIONAL</div>
   </div> -->
-  <div class="dispaly_area">
-    <div class="word_area">
+  <div class="dispalyArea">
+    <div id="wordArea">
       <p id="typedLetter"></p>
       <p id="target">Click to start</p>
     </div>
-    <div class="result_area">
+    <div id="resultArea">
       <p id="result" />
       <p id="elapsedTimeArea" />
       <p id="correctTypeCountArea" />
@@ -27,6 +32,9 @@
       <p id="questionnaireArea"></p>
     </div>
   </div>
+  <footer class="footer">
+    <small>© 2020 kanade ishida.</small>
+  </footer>
   <script src="js/main.js"></script>
 </body>
 </html>
