@@ -89,7 +89,7 @@
         let wordArea = document.getElementById('wordArea');
         wordArea.style.display ="none";
         result.textContent = 'Finished!';
-        elapsedTimeArea.textContent = `time: ${elapsedTime}`;
+        elapsedTimeArea.textContent = `time: ${elapsedTime}sec`;
         correctTypeCountArea.textContent = `correct type: ${correctTypeCount}`;
         wrongTypeCountArea.textContent = `wrong type: ${wrongTypeCount}`;
         accuracyArea.textContent = `accuracy: ${accuracy}%`;
