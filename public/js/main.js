@@ -14,8 +14,9 @@
 
   // 様々なモードに対応する場合は別ファイルから参照した方が良い？
   const words = [
+      'hello&nbspworld'
     // 'System.out.println',
-    'hello&nbspworld',
+    // 'console.log("はろー")',日本語未対応
     // 'body&nbsp{font-size:&nbsp42px;}',
     // 'text-decoration: none;',
     // 'display:&nbspflex;',
@@ -85,25 +86,26 @@
         let accuracy = ((correctTypeCount / typeCount).toFixed(2) * 100);
         const result = document.getElementById('result');
         let questionnaireArea = document.getElementById('questionnaireArea');
-        typedLetter.textContent= '';
+        let wordArea = document.getElementById('wordArea');
+        wordArea.style.display ="none";
         result.textContent = 'Finished!';
         elapsedTimeArea.textContent = `time: ${elapsedTime}`;
         correctTypeCountArea.textContent = `correct type: ${correctTypeCount}`;
         wrongTypeCountArea.textContent = `wrong type: ${wrongTypeCount}`;
         accuracyArea.textContent = `accuracy: ${accuracy}%`;
-        questionnaireArea.innerHTML = `<a href="https://docs.google.com/forms/d/e/1FAIpQLSeJejn-vHqPgMSA69kCMQ46lnoFCByYuvwl42uYyvGbxwSlXA/viewform" target="_blank" >アンケートにご協力ください</a>`;
+        questionnaireArea.innerHTML = `<a href="https://docs.google.com/forms/d/e/1FAIpQLSeJejn-vHqPgMSA69kCMQ46lnoFCByYuvwl42uYyvGbxwSlXA/viewform" target="_blank" >アンケートにご協力ください<i class="fas fa-external-link-alt"></i></a>`;
+        resultArea.style.display ="block";
         return;
       }
       setWord();
     }
   })
+  let resultArea = document.getElementById('resultArea');
+  resultArea.style.display ="none";
 }
 
 // TASKS-----------
 // ・複数のモードを追加
-// ・アンダースコアだけだとスペースを打ち込んだ時わからない
-// targetにundefinedが
-// あとクリックできちゃう
 // ・コードをダウンロードできるようにする
 // ・先生モードcsv書き込みも
 // リセットボタン追加
