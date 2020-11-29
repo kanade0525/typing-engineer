@@ -6,7 +6,8 @@
     // 配列の中からランダムなインデックスナンバーで取得
     // spliceメソッドで重複を回避する（ランダムに一つ削除しつつ、その値をwordに投げる）
     // spliceの返り値は必ず配列なのでインデックスナンバーを指定[0]
-    word = words.splice(Math.floor(Math.random() * words.length), 1)[0];
+    word = words.shift()
+    // word = words.splice(Math.floor(Math.random() * words.length), 1)[0];
     target.innerHTML = word;
     typedLetter.innerHTML = null;
     loc = 0;
@@ -14,12 +15,16 @@
 
   // 様々なモードに対応する場合は別ファイルから参照した方が良い？
   const words = [
-      'hello&nbspworld'
-    // 'System.out.println',
-    // 'console.log("はろー")',日本語未対応
-    // 'body&nbsp{font-size:&nbsp42px;}',
-    // 'text-decoration: none;',
-    // 'display:&nbspflex;',
+    "&lt;!DOCTYPE&nbsphtml&gt;",
+    "&lt;html&nbsplang=\"en\"&gt;",
+    "&lt;head&gt;",
+    "&lt;meta&nbspcharset=\"UTF-8\"&gt;",
+    "&lt;title&gt;hello&nbspworld&lt;/title&gt;",
+    "&lt;/head&gt;",
+    "&lt;body&gt;",
+    "&lt;h1&gt;hello&nbspworld!&lt;/h1&gt;",
+    "&lt;/body&gt;",
+    "&lt;/html&gt;"
   ];
   let word;
   // 今打っている文字が何番目か取得するlocation
@@ -64,13 +69,24 @@
     } else if (e.keyCode == 16){
       // シフトキーが押されてもノーカウントにする
       return;
-    } else if (e.keyCode == 32 && word[loc] == '&') {
+    } else if (e.keyCode == 32 && word[loc] == '&' && word[loc + 1] == 'n') {
       // 半角スペースを入力できるようにする例外処理
       typingSound.play();
       loc += 5;
       typedLetter.innerHTML = word.slice(0, loc);
       target.innerHTML = word.substring(loc);
-      // スペースが入力されたかよくわからない
+    } else if (e.keyCode == 188 && word[loc] == '&' && word[loc + 1] == 'l') {
+      // < を入力できるようにする例外処理
+      typingSound.play();
+      loc += 4;
+      typedLetter.innerHTML = word.slice(0, loc);
+      target.innerHTML = word.substring(loc);
+    } else if (e.keyCode == 190 && word[loc] == '&' && word[loc + 1] == 'g') {
+      // > を入力できるようにする例外処理
+      typingSound.play();
+      loc += 4;
+      typedLetter.innerHTML = word.slice(0, loc);
+      target.innerHTML = word.substring(loc);
     } else {
       wrongSound.currentTime = 0;
       wrongSound.play();
@@ -90,9 +106,10 @@
         wordArea.style.display ="none";
         result.textContent = 'Finished!';
         elapsedTimeArea.textContent = `time: ${elapsedTime}sec`;
-        correctTypeCountArea.textContent = `correct type: ${correctTypeCount}`;
-        wrongTypeCountArea.textContent = `wrong type: ${wrongTypeCount}`;
-        accuracyArea.textContent = `accuracy: ${accuracy}%`;
+        // # TODO: タイプカウントミスってるのでいったん表示停止
+        // correctTypeCountArea.textContent = `correct type: ${correctTypeCount}`;
+        // wrongTypeCountArea.textContent = `wrong type: ${wrongTypeCount}`;
+        // accuracyArea.textContent = `accuracy: ${accuracy}%`;
         questionnaireArea.innerHTML = `<a href="https://docs.google.com/forms/d/e/1FAIpQLSeJejn-vHqPgMSA69kCMQ46lnoFCByYuvwl42uYyvGbxwSlXA/viewform" target="_blank" >アンケートにご協力ください<i class="fas fa-external-link-alt"></i></a>`;
         resultArea.style.display ="block";
         return;
