@@ -68,6 +68,14 @@ a {
   text-shadow:0 0 10px #14c50e;
 }
 
+#repoArea > a {
+  color: #35E02E;
+}
+
+#repoArea > a:hover {
+  text-shadow:0 0 10px #14c50e;
+}
+
 .redo {
   border: #35E02E 2px solid;
   display: inline-block;
