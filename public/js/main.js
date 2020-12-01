@@ -102,6 +102,7 @@
         let accuracy = ((correctTypeCount / typeCount).toFixed(2) * 100);
         const result = document.getElementById('result');
         let questionnaireArea = document.getElementById('questionnaireArea');
+        let repoArea = document.getElementById('repoArea');
         let wordArea = document.getElementById('wordArea');
         wordArea.style.display ="none";
         result.textContent = 'Finished!';
@@ -111,6 +112,7 @@
         // wrongTypeCountArea.textContent = `wrong type: ${wrongTypeCount}`;
         // accuracyArea.textContent = `accuracy: ${accuracy}%`;
         questionnaireArea.innerHTML = `<a href="https://docs.google.com/forms/d/e/1FAIpQLSeJejn-vHqPgMSA69kCMQ46lnoFCByYuvwl42uYyvGbxwSlXA/viewform" target="_blank" >アンケートにご協力ください<i class="fas fa-external-link-alt"></i></a>`;
+        repoArea.innerHTML = `<a href="https://github.com/kanade0525/typing-engineer" target="_blank" >プルリク大歓迎です<i class="fab fa-git-alt"></i></a>`;
         resultArea.style.display ="block";
         return;
       }
