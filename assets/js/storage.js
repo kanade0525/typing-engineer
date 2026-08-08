@@ -136,3 +136,29 @@ export function clearAll() {
 
 /** 記録の置き場所。マイページに出して隠さない */
 export const STORAGE_KEYS = [KEY, STATS];
+
+/**
+ * 書き出した JSON を読み戻す。中身を確かめてから入れ替える。
+ * @returns {{ok:boolean, reason?:string}}
+ */
+export function importAll(text) {
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return { ok: false, reason: 'JSON として読めませんでした' };
+  }
+  if (!data || data.app !== 'typing-engineer') {
+    return { ok: false, reason: 'Typing Engineer の書き出しファイルではありません' };
+  }
+  if (typeof data.best !== 'object' || typeof data.stats !== 'object') {
+    return { ok: false, reason: '中身が足りません（best と stats が要ります）' };
+  }
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data.best || {}));
+    localStorage.setItem(STATS, JSON.stringify(data.stats || {}));
+  } catch {
+    return { ok: false, reason: 'このブラウザに保存できませんでした' };
+  }
+  return { ok: true };
+}

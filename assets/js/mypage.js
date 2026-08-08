@@ -5,7 +5,7 @@
 
 import { LESSONS, findLesson, lessonsByGroup } from './lessons.js';
 import { TROPHIES, rankOf } from './trophies.js';
-import { getBest, getStats, exportAll, clearAll, STORAGE_KEYS } from './storage.js';
+import { getBest, getStats, exportAll, clearAll, importAll, STORAGE_KEYS } from './storage.js';
 
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
@@ -185,6 +185,29 @@ function dataBox(onChange) {
     URL.revokeObjectURL(url);
   });
 
+  const load = el('button', 'btn', '記録を読み込む（JSON）');
+  load.type = 'button';
+  const file = el('input');
+  file.type = 'file';
+  file.accept = 'application/json,.json';
+  file.hidden = true;
+  load.addEventListener('click', () => file.click());
+  file.addEventListener('change', async () => {
+    const f = file.files && file.files[0];
+    if (!f) return;
+    if (!confirm('いまの記録を、読み込んだ内容で置き換えます。元に戻せません。よろしいですか。')) {
+      file.value = '';
+      return;
+    }
+    const res = importAll(await f.text());
+    file.value = '';
+    if (!res.ok) {
+      alert(`読み込めませんでした。\n${res.reason}`);
+      return;
+    }
+    onChange();
+  });
+
   const wipe = el('button', 'btn btn--danger', 'すべて消す');
   wipe.type = 'button';
   wipe.addEventListener('click', () => {
@@ -193,7 +216,7 @@ function dataBox(onChange) {
     onChange();
   });
 
-  row.append(save, wipe);
+  row.append(save, load, file, wipe);
   box.append(row);
   return box;
 }
