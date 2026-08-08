@@ -49,6 +49,11 @@ export class TypingEngine {
     }
   }
 
+  /** カウントダウンが明けた瞬間から測る */
+  begin() {
+    if (this.startedAt == null) this.startedAt = performance.now();
+  }
+
   get expected() {
     return this.index < this.code.length ? this.code[this.index] : null;
   }

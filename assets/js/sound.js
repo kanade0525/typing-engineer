@@ -54,6 +54,14 @@ export class Clicker {
     this.blip({ freq: 1180, type: 'triangle', dur: 0.035, gain: 0.05, drop: 400 });
   }
 
+  count() {
+    this.blip({ freq: 540, type: 'triangle', dur: 0.11, gain: 0.05 });
+  }
+
+  go() {
+    this.blip({ freq: 940, type: 'triangle', dur: 0.24, gain: 0.06 });
+  }
+
   miss() {
     this.blip({ freq: 190, type: 'sawtooth', dur: 0.09, gain: 0.045 });
   }

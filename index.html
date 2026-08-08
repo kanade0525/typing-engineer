@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Typing Engineer — 打つほど、できあがる</title>
-<meta name="description" content="HTML と CSS を一字ずつ打つと、その場でプレビューが組み上がっていくタイピング練習。">
+<title>Typing Engineer — 打つほど、ページができあがる</title>
+<meta name="description" content="HTML と CSS を打つと、右側のページがその場で組み上がる。タイムを競うタイピングゲーム。">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23161922'/%3E%3Cpath d='M11.5 11 L7 16 L11.5 21 M20.5 11 L25 16 L20.5 21' stroke='%237aa2f7' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='14.8' y='9.5' width='2.4' height='13' rx='1.2' fill='%239ece6a'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/css/app.css">
@@ -20,12 +20,15 @@
         <span class="eyebrow__mark">&lt;/&gt;</span> Typing Engineer<span class="caret"></span>
       </p>
       <p class="rabbit" id="rabbit" aria-hidden="true" hidden></p>
-      <h1 class="home__title">打つほど、<br>できあがる。</h1>
-      <p class="home__lead">HTML と CSS を一字ずつ打ちます。打った分だけ、右側のプレビューがその場で組み上がっていきます。</p>
+      <h1 class="home__title">打つほど、<br>ページができあがる。</h1>
+      <p class="home__lead">
+        HTML と CSS を一字ずつ打つと、右側のページがその場で組み上がります。
+        <b>打ち終わるまでのタイムを競うゲーム</b>です。自分の最速と競えます。
+      </p>
 
       <p class="start">
-        <button type="button" class="btn btn--primary btn--big" id="btnStart">最初の一本を打つ</button>
-        <span class="start__sub">はじめてのページ &middot; 167 打 &middot; 1 分ほど</span>
+        <button type="button" class="btn btn--primary btn--big" id="btnStart">▶ スタート</button>
+        <span class="start__sub" id="startSub">はじめてのページ &middot; 167 打</span>
       </p>
 
       <p class="warn">
@@ -75,9 +78,12 @@
       <span class="window__file" id="fileName">index.html</span>
 
       <span class="stats" id="stats">
+        <span class="stat stat--time"><b id="statTime">0.0</b><small>s</small></span>
         <span class="stat"><b id="statWpm">0</b><small>wpm</small></span>
         <span class="stat"><b id="statAcc">100</b><small>%</small></span>
-        <span class="stat"><b id="statTime">0.0</b><small>s</small></span>
+        <span class="stat stat--best" id="statBestWrap" hidden>
+          <small>best</small><b id="statBest">-</b><i class="delta" id="statDelta"></i>
+        </span>
       </span>
 
       <span class="bar__tools">
@@ -105,9 +111,14 @@
         </p>
         <div class="code" id="code" tabindex="-1"></div>
         <div class="progress">
-          <span class="progress__track"><i class="progress__fill" id="progressFill"></i></span>
+          <span class="progress__track">
+            <i class="progress__fill" id="progressFill"></i>
+            <i class="progress__ghost" id="progressGhost" hidden></i>
+          </span>
           <span class="progress__num" id="progressNum">0%</span>
         </div>
+
+        <div class="count" id="count" hidden><b id="countNum">3</b></div>
 
         <!-- 結果はコード側にだけ被せる。できあがったプレビューを隠さないため -->
         <div class="result" id="result" hidden>
@@ -116,13 +127,15 @@
             <h2 class="result__title" id="resultTitle">はじめてのページ</h2>
 
             <div class="result__hero">
-              <b id="resultWpm">0</b><small>wpm</small>
+              <b id="resultTime">0.0</b><small>秒</small>
               <span class="result__best" id="resultBest" hidden>自己ベスト更新</span>
             </div>
 
+            <p class="result__vs" id="resultVs" hidden></p>
+
             <dl class="result__grid">
+              <div><dt>速さ</dt><dd id="resultWpm">0</dd></div>
               <div><dt>正確さ</dt><dd id="resultAcc">100%</dd></div>
-              <div><dt>時間</dt><dd id="resultTime">0.0s</dd></div>
               <div><dt>打鍵</dt><dd id="resultKeys">0</dd></div>
               <div><dt>ミス</dt><dd id="resultMiss">0</dd></div>
             </dl>

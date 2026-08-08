@@ -6,8 +6,135 @@
 
 export const LESSONS = [
   {
+    id: 'css-first',
+    group: '見た目が変わる',
+    lang: 'css',
+    file: 'first.css',
+    level: 1,
+    title: 'はじめての一行',
+    subtitle: '一行ごとに効く',
+    note: '素の文字列が、七行で真ん中の光るカードになる。',
+    scaffold: `<div class="box">Hello</div>`,
+    code: `body {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  margin: 0;
+  background: #0f172a;
+}
+
+.box {
+  padding: 30px 44px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #22d3ee, #6366f1);
+  color: #ffffff;
+  font: 700 28px system-ui, sans-serif;
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.45);
+}
+`,
+  },
+
+  {
+    id: 'css-grid',
+    group: '見た目が変わる',
+    lang: 'css',
+    file: 'grid.css',
+    level: 3,
+    title: '面で並べる',
+    subtitle: 'grid-template-areas',
+    note: '縦に積まれた四枚が、areas を打ち終えた瞬間に画面の形になる。',
+    scaffold: `<div class="page">
+  <header class="hd">header</header>
+  <aside class="sd">side</aside>
+  <main class="mn">main</main>
+  <footer class="ft">footer</footer>
+</div>`,
+    code: `body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.page {
+  display: grid;
+  grid-template-areas:
+    "hd hd"
+    "sd mn"
+    "ft ft";
+  grid-template-columns: 170px 1fr;
+  grid-template-rows: 62px 1fr 54px;
+  gap: 10px;
+  height: 100vh;
+  padding: 10px;
+  background: #eef2ff;
+}
+
+.hd { grid-area: hd; background: #4338ca; color: #ffffff; }
+.sd { grid-area: sd; background: #c7d2fe; }
+.mn { grid-area: mn; background: #ffffff; }
+.ft { grid-area: ft; background: #e0e7ff; }
+
+.page > * {
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #312e81;
+}
+`,
+  },
+
+  {
+    id: 'css-hover',
+    group: '見た目が変わる',
+    lang: 'css',
+    file: 'hover.css',
+    level: 2,
+    title: '触ると動く',
+    subtitle: 'transition・transform',
+    note: '打ち終わったら、右のカードにマウスを乗せてみる。',
+    scaffold: `<div class="row">
+  <a class="tile" href="#">Hover me</a>
+  <a class="tile" href="#">And me</a>
+  <a class="tile" href="#">Me too</a>
+</div>`,
+    code: `body {
+  margin: 0;
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  background: #0f172a;
+  font-family: system-ui, sans-serif;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+}
+
+.tile {
+  display: grid;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  border-radius: 18px;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 14px;
+  text-decoration: none;
+  transition: transform 0.25s, background 0.25s, box-shadow 0.25s;
+}
+
+.tile:hover {
+  transform: translateY(-9px) scale(1.05);
+  background: #6366f1;
+  box-shadow: 0 18px 32px rgba(99, 102, 241, 0.5);
+}
+`,
+  },
+
+  {
     id: 'html-hello',
-    group: '基礎',
+    group: 'HTML の骨組み',
     lang: 'html',
     file: 'index.html',
     level: 1,
@@ -30,7 +157,7 @@ export const LESSONS = [
 
   {
     id: 'html-profile',
-    group: '基礎',
+    group: 'HTML の骨組み',
     lang: 'html',
     file: 'profile.html',
     level: 2,
@@ -94,11 +221,6 @@ export const LESSONS = [
     <option value="pro" selected>Pro</option>
   </select>
 
-  <label class="check">
-    <input type="checkbox" name="news" checked>
-    Send me product news
-  </label>
-
   <button type="submit">Sign up</button>
 </form>
 `,
@@ -145,7 +267,7 @@ export const LESSONS = [
 
   {
     id: 'css-card',
-    group: '基礎',
+    group: '見た目が変わる',
     lang: 'css',
     file: 'card.css',
     level: 2,
@@ -208,7 +330,7 @@ export const LESSONS = [
 
   {
     id: 'css-flex',
-    group: '基礎',
+    group: '見た目が変わる',
     lang: 'css',
     file: 'layout.css',
     level: 3,
@@ -279,7 +401,7 @@ export const LESSONS = [
 
   {
     id: 'css-anim',
-    group: '基礎',
+    group: '見た目が変わる',
     lang: 'css',
     file: 'motion.css',
     level: 4,
@@ -362,13 +484,7 @@ export const LESSONS = [
     <cite>Kent Beck</cite>
   </blockquote>
 
-  <h2>The fix</h2>
-  <p>We stream the changes instead. See <code>render()</code>
-    if you want the details.</p>
-
-  <footer>
-    <a href="/blog">Back to all posts</a>
-  </footer>
+  <p>So we stream the changes instead. See <code>render()</code>.</p>
 </article>
 `,
   },
@@ -394,13 +510,6 @@ export const LESSONS = [
     <label for="pw">Password</label>
     <input id="pw" name="pw" type="password"
            autocomplete="current-password" required>
-
-    <div class="row">
-      <label class="check">
-        <input type="checkbox" name="keep"> Keep me signed in
-      </label>
-      <a href="/reset">Forgot?</a>
-    </div>
 
     <button type="submit">Sign in</button>
     <p class="alt">No account? <a href="/signup">Create one</a></p>
@@ -437,13 +546,6 @@ export const LESSONS = [
     <ul>
       <li><a href="/features">Features</a></li>
       <li><a href="/pricing">Pricing</a></li>
-    </ul>
-  </nav>
-  <nav>
-    <h2>Company</h2>
-    <ul>
-      <li><a href="/about">About</a></li>
-      <li><a href="/careers">Careers</a></li>
     </ul>
   </nav>
   <small>&copy; 2026 ACME Inc.</small>
@@ -786,8 +888,8 @@ blockquote {
   },
 ];
 
-/** 一覧の並び。基礎から入って王道パターンへ */
-export const GROUPS = ['基礎', '王道パターン'];
+/** 一覧の並び。打った通りに見た目が変わるものを先に置く */
+export const GROUPS = ['見た目が変わる', '王道パターン', 'HTML の骨組み'];
 
 export function lessonsByGroup() {
   return GROUPS.map((name) => ({
