@@ -77,6 +77,25 @@ body::before {
   z-index: 1;
 }
 
+/* 既定の下線と青は使わない。
+   見出しやカードまで <a> で囲っているので、そのままだと全部に線が出る */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* 単独で置いてある文字のリンクだけ、狙って線を引く */
+.credit a {
+  text-decoration: underline;
+  text-decoration-color: rgba(53, 224, 46, 0.32);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.credit a:hover {
+  text-decoration-color: currentColor;
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
