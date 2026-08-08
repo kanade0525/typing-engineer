@@ -13,6 +13,17 @@
 
 <canvas id="rain" aria-hidden="true" hidden></canvas>
 
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#/"><span>&lt;/&gt;</span> Typing Engineer</a>
+  <nav class="nav__links">
+    <a href="#/" data-nav="/">ステージ</a>
+    <a href="#/mypage" data-nav="/mypage">マイページ</a>
+  </nav>
+  <a class="nav__score" href="#/mypage">
+    <b id="navRank">ROOKIE</b><span id="navScore">SCORE 0</span>
+  </a>
+</header>
+
 <section class="screen screen--home" id="screenHome">
   <div class="home">
     <header class="home__head">
@@ -47,15 +58,22 @@
 
     <section class="shelf" id="shelf">
       <h2 class="group__name">
-        ACHIEVEMENTS
+        あなたの記録
         <span class="group__count">SCORE <b id="tokenTotal">0</b></span>
       </h2>
       <p class="shelf__lead">
         クリアするたびにスコアが入ります。<b>打鍵数 × 正確さ × 速さ</b>で決まるので、
-        速いだけでも正確なだけでも伸びません。記録はこのブラウザにだけ残ります。
+        速いだけでも正確なだけでも伸びません。
+        記録は<b>このブラウザ</b>にだけ残り、サーバーには送っていません。
       </p>
-      <dl class="tally" id="tally"></dl>
-      <div class="trophies" id="trophies"></div>
+      <a class="mine" href="#/mypage">
+        <span class="mine__rank">
+          <b id="homeRank">ROOKIE</b>
+          <small>ランク</small>
+        </span>
+        <dl class="tally" id="tally"></dl>
+        <span class="mine__go">マイページで詳しく見る →</span>
+      </a>
     </section>
 
     <footer class="home__foot">
@@ -72,6 +90,10 @@
       </p>
     </footer>
   </div>
+</section>
+
+<section class="screen screen--mypage" id="screenMypage" hidden>
+  <div class="mypage" id="mypage"></div>
 </section>
 
 <section class="screen screen--play" id="screenPlay" hidden>

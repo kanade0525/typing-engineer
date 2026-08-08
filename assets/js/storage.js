@@ -42,9 +42,11 @@ const EMPTY = {
   bestWpm: 0,
   bestAcc: 0,
   tokens: 0,
-  cleared: {}, // 課題ごとの打ち切った回数
+  cleared: {}, // ステージごとのクリア回数
   days: [], // 打った日
-  earned: {}, // 取ったトロフィー → 取った日
+  earned: {}, // 取ったアチーブメント → 取った日
+  history: [], // 直近の記録。新しいものが先頭
+  since: null, // はじめて打った日
 };
 
 export function getStats() {
@@ -58,6 +60,7 @@ export function getStats() {
   s.cleared = { ...saved.cleared };
   s.earned = { ...saved.earned };
   s.days = Array.isArray(saved.days) ? saved.days : [];
+  s.history = Array.isArray(saved.history) ? saved.history : [];
   s.streak = streakOf(s.days);
   return s;
 }
@@ -74,7 +77,7 @@ function writeStats(s) {
  * 一本ぶんを記録する。
  * @returns {{stats:object, gained:number, earned:object[]}}
  */
-export function recordRun({ lessonId, keys, accuracy, wpm, misses }) {
+export function recordRun({ lessonId, keys, accuracy, wpm, misses, seconds }) {
   const s = getStats();
   const today = dayKey();
   const hour = new Date().getHours();
@@ -93,9 +96,43 @@ export function recordRun({ lessonId, keys, accuracy, wpm, misses }) {
   const gained = tokensFor({ keys, accuracy, wpm });
   s.tokens += gained;
 
+  if (!s.since) s.since = today;
+  s.history.unshift({ at: new Date().toISOString(), id: lessonId, seconds, wpm, accuracy, score: gained });
+  s.history = s.history.slice(0, 200);
+
   const earned = newlyEarned(s);
   for (const t of earned) s.earned[t.id] = today;
 
   writeStats(s);
   return { stats: s, gained, earned };
 }
+
+// ---------------------------------------------------------------- 持ち出しと消去
+
+/** 手元の記録をまるごと JSON にする */
+export function exportAll() {
+  return JSON.stringify(
+    {
+      app: 'typing-engineer',
+      exportedAt: new Date().toISOString(),
+      best: readAll(),
+      stats: getStats(),
+    },
+    null,
+    2
+  );
+}
+
+/** 手元の記録をぜんぶ消す。戻せない */
+export function clearAll() {
+  try {
+    localStorage.removeItem(KEY);
+    localStorage.removeItem(STATS);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** 記録の置き場所。マイページに出して隠さない */
+export const STORAGE_KEYS = [KEY, STATS];

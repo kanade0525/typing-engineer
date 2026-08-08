@@ -273,7 +273,7 @@ export const LESSONS = [
     level: 2,
     title: '部品をカードにまとめる',
     subtitle: '余白 · 角丸 · 影',
-    note: '素の見出しとボタンが、一行ごとにカードになっていく。',
+    note: '中身の余白だけを決めていく。外側の置き方は前の単元でやった。',
     scaffold: `<div class="card">
   <span class="tag">NEW</span>
   <h2>Typing Engineer</h2>
@@ -281,12 +281,10 @@ export const LESSONS = [
   <button class="btn">Start typing</button>
 </div>`,
     code: `body {
+  margin: 0;
+  padding: 40px;
   background: #eef2f7;
   font-family: system-ui, sans-serif;
-  display: grid;
-  place-items: center;
-  height: 100vh;
-  margin: 0;
 }
 
 .card {

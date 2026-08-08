@@ -110,6 +110,23 @@ export const TROPHIES = [
   },
 ];
 
+/** スコアで上がる称号。上二つは映画から借りている */
+export const RANKS = [
+  { at: 0, name: 'ROOKIE' },
+  { at: 300, name: 'CODER' },
+  { at: 1200, name: 'BUILDER' },
+  { at: 3000, name: 'ENGINEER' },
+  { at: 8000, name: 'ARCHITECT' },
+  { at: 20000, name: 'OPERATOR' },
+  { at: 50000, name: 'THE ONE' },
+];
+
+export function rankOf(score) {
+  let i = 0;
+  while (i + 1 < RANKS.length && score >= RANKS[i + 1].at) i++;
+  return { ...RANKS[i], next: RANKS[i + 1] || null };
+}
+
 /**
  * 一本ぶんの取り分。速さだけでも正確さだけでも伸びないようにする。
  * 600 打・正確さ 100%・60 wpm でおよそ 96。
