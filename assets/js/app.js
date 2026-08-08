@@ -6,12 +6,19 @@ import { Clicker } from './sound.js';
 import { getBest, saveBest, getStats, recordRun } from './storage.js';
 import { TROPHIES } from './trophies.js';
 import { Rain, Rabbit } from './matrix.js';
+import { renderMypage } from './mypage.js';
+import { rankOf } from './trophies.js';
 
 const $ = (id) => document.getElementById(id);
 
 const el = {
   home: $('screenHome'),
   play: $('screenPlay'),
+  mypageScreen: $('screenMypage'),
+  mypage: $('mypage'),
+  nav: $('nav'),
+  navRank: $('navRank'),
+  navScore: $('navScore'),
   lessonList: $('lessonList'),
   fileName: $('fileName'),
   lessonLabel: $('lessonLabel'),
@@ -53,9 +60,9 @@ const el = {
   resultEarned: $('resultEarned'),
   tokenTotal: $('tokenTotal'),
   tally: $('tally'),
+  homeRank: $('homeRank'),
   tip: $('tip'),
   btnStart: $('btnStart'),
-  trophies: $('trophies'),
   btnSound: $('btnSound'),
   soundIco: $('soundIco'),
   btnRetry: $('btnRetry'),
@@ -150,12 +157,14 @@ function lessonCard(l) {
 
 function renderShelf() {
   const s = getStats();
+  const got = TROPHIES.filter((t) => s.earned[t.id]).length;
 
   el.tokenTotal.textContent = s.tokens.toLocaleString('en');
+  el.homeRank.textContent = rankOf(s.tokens).name;
 
   const rows = [
     ['CLEAR', `${s.runs}`],
-    ['総打鍵', s.keys.toLocaleString('en')],
+    ['アチーブメント', `${got} / ${TROPHIES.length}`],
     ['ベスト', `${s.bestWpm} wpm`],
     ['連続', `${s.streak} 日`],
   ];
@@ -168,23 +177,6 @@ function renderShelf() {
       dd.textContent = v;
       wrap.append(dt, dd);
       return wrap;
-    })
-  );
-
-  el.trophies.replaceChildren(
-    ...TROPHIES.map((t) => {
-      const got = Boolean(s.earned[t.id]);
-      const chip = document.createElement('span');
-      chip.className = `trophy${got ? ' is-got' : ''}`;
-      chip.title = got ? `${t.hint}（${s.earned[t.id]}）` : t.hint;
-
-      const name = document.createElement('b');
-      name.textContent = got ? t.name : 'LOCKED';
-      const hint = document.createElement('small');
-      hint.textContent = t.hint;
-
-      chip.append(name, hint);
-      return chip;
     })
   );
 }
@@ -214,7 +206,7 @@ function renderHome() {
 
 el.lessonList.addEventListener('click', (e) => {
   const card = e.target.closest('.lesson');
-  if (card) start(card.dataset.id);
+  if (card) location.hash = `#/play/${card.dataset.id}`;
 });
 
 // ---------------------------------------------------------------- 課題の組み立て
@@ -447,6 +439,7 @@ function start(id) {
   syncPreviewChrome();
 
   el.home.hidden = true;
+  el.mypageScreen.hidden = true;
   el.play.hidden = false;
   state = 'play';
   syncFlavor();
@@ -485,6 +478,7 @@ function finish() {
     accuracy: engine.accuracy,
     wpm: engine.wpm,
     misses: engine.misses,
+    seconds,
   });
 
   el.resultTitle.textContent = lesson.title;
@@ -561,18 +555,73 @@ function finish() {
   el.btnNext.focus();
 }
 
-function goHome() {
+function leavePlay() {
   clearInterval(ticker);
   ticker = null;
   stopCountdown();
-  state = 'home';
   engine = null;
   el.result.hidden = true;
   el.play.hidden = true;
+}
+
+function goHome() {
+  location.hash = '#/';
+}
+
+function syncNav(path) {
+  const s = getStats();
+  const rank = rankOf(s.tokens);
+  el.navRank.textContent = rank.name;
+  el.navScore.textContent = `SCORE ${s.tokens.toLocaleString('en')}`;
+  el.nav.hidden = path.startsWith('/play/');
+  for (const a of el.nav.querySelectorAll('[data-nav]')) {
+    a.classList.toggle('is-on', a.dataset.nav === path);
+  }
+}
+
+function showHome() {
+  leavePlay();
+  state = 'home';
+  el.mypageScreen.hidden = true;
   el.home.hidden = false;
   renderHome();
   syncFlavor();
 }
+
+function showMypage() {
+  leavePlay();
+  state = 'home'; // 打鍵は受け取らない
+  el.home.hidden = true;
+  el.mypageScreen.hidden = false;
+  renderMypage(el.mypage, () => route());
+  syncFlavor();
+  window.scrollTo(0, 0);
+}
+
+/** 画面は URL で決まる。戻るボタンと共有が効くようにするため */
+function route() {
+  const path = (location.hash || '#/').slice(1) || '/';
+  syncNav(path);
+
+  if (path.startsWith('/play/')) {
+    const id = decodeURIComponent(path.slice(6));
+    if (findLesson(id)) {
+      el.mypageScreen.hidden = true;
+      start(id);
+      return;
+    }
+    location.replace('#/');
+    return;
+  }
+
+  if (path === '/mypage') {
+    showMypage();
+    return;
+  }
+  showHome();
+}
+
+window.addEventListener('hashchange', route);
 
 // ---------------------------------------------------------------- 打鍵
 
@@ -662,14 +711,15 @@ el.btnRetry.addEventListener('click', () => start(lesson.id));
 el.btnBack.addEventListener('click', goHome);
 el.btnAgain.addEventListener('click', () => start(lesson.id));
 el.btnHome.addEventListener('click', goHome);
-el.btnStart.addEventListener('click', () => start(LESSONS[0].id));
+el.btnStart.addEventListener('click', () => {
+  location.hash = `#/play/${LESSONS[0].id}`;
+});
 el.ready.addEventListener('click', beginRun);
 el.startSub.textContent = `${LESSONS[0].title} · ${countKeystrokes(LESSONS[0].code)} 打`;
 el.btnNext.addEventListener('click', () => {
   const n = nextLesson(lesson.id);
-  if (n) start(n.id);
+  if (n) location.hash = `#/play/${n.id}`;
 });
 
-syncFlavor();
 syncSoundButton();
-renderHome();
+route();

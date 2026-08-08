@@ -1482,3 +1482,358 @@ kbd {
     opacity: 1;
   }
 }
+
+/* ---------------------------------------------------------------- ヘッダー */
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 0 28px;
+  height: 54px;
+  background: rgba(0, 4, 0, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.nav__brand {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-shadow: 0 0 12px rgba(53, 224, 46, 0.4);
+}
+
+.nav__brand span {
+  opacity: 0.5;
+}
+
+.nav__links {
+  display: flex;
+  gap: 4px;
+}
+
+.nav__links a {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  color: var(--fg-dim);
+}
+
+.nav__links a:hover {
+  color: var(--fg);
+  background: rgba(53, 224, 46, 0.07);
+}
+
+.nav__links a.is-on {
+  color: var(--accent);
+  background: rgba(53, 224, 46, 0.11);
+}
+
+.nav__score {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-family: var(--mono);
+}
+
+.nav__score:hover {
+  border-color: #2a8f26;
+}
+
+.nav__score b {
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.nav__score span {
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+/* ---------------------------------------------------------------- マイページ */
+
+.mypage {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 44px 28px 60px;
+  display: grid;
+  gap: 18px;
+}
+
+.card {
+  padding: 22px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--fg-mid);
+}
+
+.card__count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.card--rank .tally {
+  margin-bottom: 0;
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.rank {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.rank__name {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-shadow: 0 0 22px rgba(53, 224, 46, 0.5);
+}
+
+.rank__score {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--fg-mid);
+}
+
+.rank__bar {
+  height: 4px;
+  margin: 14px 0 8px;
+  border-radius: 99px;
+  background: #0d2f0b;
+  overflow: hidden;
+}
+
+.rank__bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #1f8c1b, #35e02e);
+  box-shadow: 0 0 10px rgba(53, 224, 46, 0.6);
+}
+
+.rank__next {
+  margin: 0 0 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--fg-dim);
+}
+
+.rec {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.rec th {
+  padding: 0 10px 9px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--fg-dim);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.rec td {
+  padding: 9px 10px;
+  border-bottom: 1px solid rgba(12, 50, 10, 0.55);
+  color: var(--fg);
+}
+
+.rec tr:last-child td {
+  border-bottom: 0;
+}
+
+.rec td b {
+  display: block;
+  font-weight: 600;
+}
+
+.rec td small {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-dim);
+}
+
+.rec .num,
+.rec .when {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.rec .when {
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.rec tr.is-untouched td {
+  color: var(--fg-dim);
+  opacity: 0.6;
+}
+
+.trophy__when {
+  margin-top: 3px;
+  font-family: var(--mono);
+  color: var(--fg-dim) !important;
+  opacity: 0.8 !important;
+}
+
+.empty {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--fg-dim);
+}
+
+.data__lead {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--fg-mid);
+}
+
+.data__lead b {
+  color: var(--accent);
+}
+
+.data__keys {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+}
+
+.data__row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn--danger {
+  color: #ff8b8b;
+  border-color: rgba(255, 77, 77, 0.4);
+}
+
+.btn--danger:hover {
+  color: #ffd7d7;
+  background: rgba(60, 8, 8, 0.6);
+  border-color: rgba(255, 77, 77, 0.7);
+}
+
+@media (max-width: 760px) {
+  .nav {
+    padding: 0 18px;
+    gap: 12px;
+  }
+  .nav__brand span,
+  .nav__score span {
+    display: none;
+  }
+  .mypage {
+    padding: 28px 16px 44px;
+  }
+  .card {
+    padding: 16px;
+  }
+  .rec {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+/* 一覧の下に置く要約。詳しくはマイページへ */
+.mine {
+  display: block;
+  padding: 18px 20px 16px;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.mine:hover {
+  border-color: #2a8f26;
+  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.16);
+}
+
+.mine__rank {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-bottom: 4px;
+}
+
+.mine__rank b {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-shadow: 0 0 16px rgba(53, 224, 46, 0.45);
+}
+
+.mine__rank small {
+  font-size: 10.5px;
+  color: var(--fg-dim);
+}
+
+.mine .tally {
+  border-bottom: 0;
+  padding-bottom: 4px;
+  margin-bottom: 0;
+}
+
+.mine__go {
+  display: block;
+  font-size: 12px;
+  color: var(--fg-mid);
+}
+
+.mine:hover .mine__go {
+  color: var(--accent);
+}
+
+.rec tr.is-group td {
+  padding: 16px 10px 6px;
+  border-bottom: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  color: var(--fg-dim);
+}
+
+.rec tbody tr.is-group:first-child td {
+  padding-top: 4px;
+}
