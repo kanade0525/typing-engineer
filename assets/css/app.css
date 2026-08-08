@@ -262,6 +262,26 @@ body::before {
   color: var(--accent);
 }
 
+/* 心臓の形はインライン SVG。アイコン配信には出ていかない */
+.sponsor {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sponsor svg {
+  color: #db61a2;
+  transition: transform 0.16s ease;
+}
+
+.credit .sponsor:hover {
+  color: #db61a2;
+}
+
+.sponsor:hover svg {
+  transform: scale(1.18);
+}
+
 .credit .sep {
   opacity: 0.4;
 }
