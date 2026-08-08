@@ -716,8 +716,8 @@ blockquote {
     lang: 'css',
     file: 'hero.css',
     level: 4,
-    title: 'トップの一画面',
-    subtitle: '全画面の見出し',
+    title: 'ヒーロー',
+    subtitle: 'トップの一画面',
     note: 'サイトを開いて最初に見える一画面。素の文字列が見せ場になる。',
     scaffold: `<section class="hero">
   <p class="eyebrow">2026.03.14 SAT / SHIBUYA</p>
