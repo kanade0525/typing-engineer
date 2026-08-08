@@ -105,6 +105,62 @@ body::before {
   color: var(--accent);
 }
 
+.home__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* 端末の点滅カーソル */
+.caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.4em;
+  vertical-align: -0.16em;
+  background: var(--accent);
+  animation: caret 1.06s steps(1) infinite;
+}
+
+/* 配色の切り替え */
+.themes {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.themes button {
+  padding: 5px 11px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+
+.themes button:hover {
+  color: var(--fg);
+}
+
+.themes button[aria-pressed="true"] {
+  color: var(--fg);
+  background: var(--line-soft);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.themes--bar {
+  margin-right: 6px;
+  background: transparent;
+}
+
 .home__title {
   margin: 20px 0 0;
   font-size: clamp(38px, 6.4vw, 66px);
@@ -129,11 +185,45 @@ body::before {
   word-break: auto-phrase;
 }
 
+.groups {
+  display: grid;
+  gap: 42px;
+  margin-top: 46px;
+}
+
+.group__name {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--fg-mid);
+}
+
+.group__name::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+.group__count {
+  padding: 2px 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--fg-dim);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+}
+
 .lessons {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
   gap: 14px;
-  margin-top: 46px;
 }
 
 .lesson {
@@ -952,4 +1042,315 @@ kbd {
   .c.is-cur::before {
     opacity: 1;
   }
+}
+
+/* ================================================================
+   matrix — 2020 年の版の面影
+   黒地に #35E02E、打った字に燐光、走査線、四角い端末カーソル。
+   プレビューだけは緑にしない。あそこに出るのは本物のページだから。
+   ================================================================ */
+
+:root[data-theme="matrix"] {
+  --bg: #000000;
+  --panel: #04120a;
+  --panel-2: #010601;
+  --line: #165213;
+  --line-soft: #0c320a;
+
+  --fg: #35e02e;
+  --fg-mid: #2ab024;
+  --fg-dim: #1f8c1b;
+
+  --accent: #35e02e;
+  --accent-soft: rgba(53, 224, 46, 0.18);
+  --good: #9dff5c;
+  --bad: #ff4d4d;
+
+  --pending: #249c1f;
+
+  --tok-tag: #35e02e;
+  --tok-attr: #7dff6f;
+  --tok-string: #b8ff9f;
+  --tok-text: #d8ffcf;
+  --tok-punct: #1f9c1a;
+  --tok-doctype: #7dff6f;
+  --tok-comment: #136e10;
+  --tok-atrule: #7dff6f;
+  --tok-selector: #5cff4f;
+  --tok-prop: #35e02e;
+  --tok-value: #a8ff8f;
+  --tok-number: #c9ff4a;
+}
+
+:root[data-theme="matrix"] body::before {
+  background:
+    radial-gradient(880px 520px at 20% -12%, rgba(53, 224, 46, 0.13), transparent 62%),
+    radial-gradient(700px 420px at 92% 6%, rgba(53, 224, 46, 0.07), transparent 64%);
+}
+
+/* 走査線。プレビューには掛けない */
+:root[data-theme="matrix"] .screen--home::after,
+:root[data-theme="matrix"] .pane--editor::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0 2px,
+    rgba(0, 0, 0, 0.17) 2px 3px
+  );
+}
+
+:root[data-theme="matrix"] .home__title {
+  text-shadow: 0 0 24px rgba(53, 224, 46, 0.3);
+}
+
+:root[data-theme="matrix"] .caret {
+  box-shadow: 0 0 9px var(--fg);
+}
+
+:root[data-theme="matrix"] .lesson {
+  background: linear-gradient(180deg, #04120a, #010801);
+}
+
+:root[data-theme="matrix"] .lesson:hover {
+  border-color: #2a8f26;
+  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.18), 0 16px 38px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="matrix"] .lesson--html .lesson__lang {
+  color: #35e02e;
+  background: rgba(53, 224, 46, 0.14);
+}
+
+:root[data-theme="matrix"] .lesson--css .lesson__lang {
+  color: #b8ff9f;
+  background: rgba(184, 255, 159, 0.12);
+}
+
+:root[data-theme="matrix"] .lesson__sub {
+  color: #5cff4f;
+}
+
+:root[data-theme="matrix"] .lesson__level {
+  color: #1a6b17;
+}
+
+/* 上帯を緑で塗る。2020 年の版で一番目に残っていた所 */
+:root[data-theme="matrix"] .window__bar {
+  background: #35e02e;
+  border-bottom-color: #35e02e;
+}
+
+:root[data-theme="matrix"] .window__bar .window__file,
+:root[data-theme="matrix"] .window__bar .stat b,
+:root[data-theme="matrix"] .window__bar .stat small,
+:root[data-theme="matrix"] .window__bar .ghost,
+:root[data-theme="matrix"] .window__bar .themes button {
+  color: #04120a;
+}
+
+:root[data-theme="matrix"] .window__bar .ghost:hover,
+:root[data-theme="matrix"] .window__bar .themes button:hover {
+  color: #000;
+  background: rgba(0, 0, 0, 0.14);
+  border-color: transparent;
+}
+
+:root[data-theme="matrix"] .window__bar .themes {
+  border-color: rgba(0, 0, 0, 0.22);
+}
+
+:root[data-theme="matrix"] .window__bar .themes button[aria-pressed="true"] {
+  color: #35e02e;
+  background: #04120a;
+  box-shadow: none;
+}
+
+:root[data-theme="matrix"] .window__bar .themes button[aria-pressed="false"] {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="matrix"] .dots i {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="matrix"] .window {
+  border-color: #1c6318;
+  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.12), 0 30px 90px rgba(0, 0, 0, 0.8);
+}
+
+/* 打った字が燐光する。2020 年の版は typedLetter にだけ影を落としていた */
+:root[data-theme="matrix"] .c.is-done {
+  text-shadow: 0 0 7px currentColor;
+}
+
+/* 四角い端末カーソル */
+:root[data-theme="matrix"] .c.is-cur::before {
+  display: none;
+}
+
+:root[data-theme="matrix"] .c.is-cur {
+  border-radius: 0;
+  animation: block 1.06s steps(1) infinite;
+}
+
+@keyframes block {
+  0%,
+  54% {
+    background: #35e02e;
+    color: #000;
+    text-shadow: none;
+  }
+  55%,
+  100% {
+    background: transparent;
+    color: #35e02e;
+    text-shadow: 0 0 7px #35e02e;
+  }
+}
+
+:root[data-theme="matrix"] .c.nl.is-cur::after {
+  color: #000;
+  opacity: 0.7;
+}
+
+:root[data-theme="matrix"] .row.is-active {
+  background: rgba(53, 224, 46, 0.06);
+}
+
+:root[data-theme="matrix"] .row__num {
+  color: #14580f;
+}
+
+:root[data-theme="matrix"] .progress__track {
+  background: #0d2f0b;
+}
+
+:root[data-theme="matrix"] .progress__fill {
+  background: linear-gradient(90deg, #1f8c1b, #35e02e);
+  box-shadow: 0 0 10px rgba(53, 224, 46, 0.6);
+}
+
+:root[data-theme="matrix"] .result {
+  background: rgba(0, 6, 0, 0.8);
+}
+
+:root[data-theme="matrix"] .result__card {
+  background: linear-gradient(180deg, #04120a, #010801);
+  border-color: #1c6318;
+  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.14), 0 30px 80px rgba(0, 0, 0, 0.8);
+}
+
+:root[data-theme="matrix"] .result__hero b {
+  text-shadow: 0 0 18px rgba(53, 224, 46, 0.55);
+}
+
+:root[data-theme="matrix"] .result__best {
+  color: #9dff5c;
+  background: rgba(157, 255, 92, 0.12);
+  border-color: rgba(157, 255, 92, 0.35);
+}
+
+:root[data-theme="matrix"] .btn {
+  background: #061a08;
+  border-color: #1c6318;
+  color: #35e02e;
+}
+
+:root[data-theme="matrix"] .btn:hover {
+  background: #0b2a0d;
+  border-color: #2a8f26;
+}
+
+:root[data-theme="matrix"] .btn--primary {
+  background: #35e02e;
+  border-color: #35e02e;
+  color: #001200;
+}
+
+:root[data-theme="matrix"] .btn--primary:hover {
+  background: #58f050;
+  border-color: #58f050;
+}
+
+:root[data-theme="matrix"] .btn--quiet {
+  background: transparent;
+  border-color: transparent;
+  color: #2ab024;
+}
+
+:root[data-theme="matrix"] kbd {
+  background: #061a08;
+  border-color: #1c6318;
+  color: #35e02e;
+}
+
+:root[data-theme="matrix"] .toast {
+  color: #ffd7d7;
+  background: rgba(40, 4, 4, 0.95);
+  border-color: rgba(255, 77, 77, 0.5);
+}
+
+:root[data-theme="matrix"] .c.is-err {
+  animation: wrong-matrix 0.36s ease-out;
+}
+
+@keyframes wrong-matrix {
+  0% {
+    background: rgba(255, 77, 77, 0.6);
+    box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.22);
+  }
+  100% {
+    background: var(--accent-soft);
+    box-shadow: none;
+  }
+}
+
+:root[data-theme="matrix"] .preview__hint {
+  color: #7c8a7c;
+}
+
+:root[data-theme="matrix"] .sponsor svg {
+  color: #ff5fa8;
+}
+
+:root[data-theme="matrix"] .credit .sponsor:hover {
+  color: #ff5fa8;
+}
+
+/* 降る字。matrix の一覧にいるときだけ JS が出す */
+#rain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  /* 本文が乗るあたりだけ薄める。読めなくなっては元も子もない */
+  -webkit-mask-image: radial-gradient(115% 95% at 26% 26%, rgba(0, 0, 0, 0.18), #000 58%);
+  mask-image: radial-gradient(115% 95% at 26% 26%, rgba(0, 0, 0, 0.18), #000 58%);
+}
+
+/* Neo の画面に出たあの三行 */
+.rabbit {
+  min-height: 1.3em;
+  margin: 16px 0 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.03em;
+  color: #35e02e;
+  text-shadow: 0 0 8px rgba(53, 224, 46, 0.55);
+}
+
+.rabbit::before {
+  content: "> ";
+  opacity: 0.55;
+}
+
+.rabbit::after {
+  content: "▊";
+  margin-left: 1px;
+  animation: caret 1.06s steps(1) infinite;
 }

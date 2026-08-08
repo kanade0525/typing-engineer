@@ -1,9 +1,11 @@
-import { LESSONS, findLesson, nextLesson } from './lessons.js';
+import { findLesson, nextLesson, lessonsByGroup } from './lessons.js';
 import { typeMap } from './highlight.js';
 import { TypingEngine, countKeystrokes } from './engine.js';
 import { Preview } from './preview.js';
 import { Clicker } from './sound.js';
 import { getBest, saveBest } from './storage.js';
+import { initTheme } from './theme.js';
+import { Rain, Rabbit } from './matrix.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -46,6 +48,23 @@ const el = {
 
 const clicker = new Clicker();
 const preview = new Preview(el.preview);
+const rain = new Rain($('rain'));
+const rabbit = new Rabbit($('rabbit'));
+let flavorOn = false;
+
+/** 降る字と白ウサギ。matrix 配色の一覧にいるときだけ */
+function syncFlavor() {
+  const want = document.documentElement.dataset.theme === 'matrix' && state === 'home';
+  if (want === flavorOn) return;
+  flavorOn = want;
+  if (want) {
+    rain.start();
+    rabbit.start();
+  } else {
+    rain.stop();
+    rabbit.stop();
+  }
+}
 
 let state = 'home'; // 'home' | 'play' | 'result'
 let lesson = null;
@@ -68,45 +87,61 @@ function levelDots(n) {
   return '●'.repeat(n) + '○'.repeat(Math.max(0, 4 - n));
 }
 
+function lessonCard(l) {
+  const best = getBest(l.id);
+  const lines = l.code.replace(/\n$/, '').split('\n').length;
+  const keys = countKeystrokes(l.code);
+
+  const card = document.createElement('button');
+  card.type = 'button';
+  card.className = `lesson lesson--${l.lang}`;
+  card.dataset.id = l.id;
+
+  const head = document.createElement('span');
+  head.className = 'lesson__head';
+  head.innerHTML =
+    `<span class="lesson__lang">${l.lang.toUpperCase()}</span>` +
+    `<span class="lesson__level" title="難しさ ${l.level}/4">${levelDots(l.level)}</span>`;
+
+  const title = document.createElement('span');
+  title.className = 'lesson__title';
+  title.textContent = l.title;
+
+  const sub = document.createElement('span');
+  sub.className = 'lesson__sub';
+  sub.textContent = l.subtitle;
+
+  const note = document.createElement('span');
+  note.className = 'lesson__note';
+  note.textContent = l.note;
+
+  const meta = document.createElement('span');
+  meta.className = 'lesson__meta';
+  meta.innerHTML =
+    `<span>${lines} 行</span><span class="dot">·</span><span>${keys} 打</span>` +
+    (best ? `<span class="lesson__best">自己ベスト ${best.wpm} wpm</span>` : '');
+
+  card.append(head, title, sub, note, meta);
+  return card;
+}
+
 function renderHome() {
   const frag = document.createDocumentFragment();
 
-  for (const l of LESSONS) {
-    const best = getBest(l.id);
-    const lines = l.code.replace(/\n$/, '').split('\n').length;
-    const keys = countKeystrokes(l.code);
+  for (const group of lessonsByGroup()) {
+    const section = document.createElement('section');
+    section.className = 'group';
 
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = `lesson lesson--${l.lang}`;
-    card.dataset.id = l.id;
+    const head = document.createElement('h2');
+    head.className = 'group__name';
+    head.innerHTML = `${group.name}<span class="group__count">${group.items.length}</span>`;
 
-    const head = document.createElement('span');
-    head.className = 'lesson__head';
-    head.innerHTML =
-      `<span class="lesson__lang">${l.lang.toUpperCase()}</span>` +
-      `<span class="lesson__level" title="難しさ ${l.level}/4">${levelDots(l.level)}</span>`;
+    const grid = document.createElement('div');
+    grid.className = 'lessons';
+    for (const l of group.items) grid.append(lessonCard(l));
 
-    const title = document.createElement('span');
-    title.className = 'lesson__title';
-    title.textContent = l.title;
-
-    const sub = document.createElement('span');
-    sub.className = 'lesson__sub';
-    sub.textContent = l.subtitle;
-
-    const note = document.createElement('span');
-    note.className = 'lesson__note';
-    note.textContent = l.note;
-
-    const meta = document.createElement('span');
-    meta.className = 'lesson__meta';
-    meta.innerHTML =
-      `<span>${lines} 行</span><span class="dot">·</span><span>${keys} 打</span>` +
-      (best ? `<span class="lesson__best">自己ベスト ${best.wpm} wpm</span>` : '');
-
-    card.append(head, title, sub, note, meta);
-    frag.append(card);
+    section.append(head, grid);
+    frag.append(section);
   }
 
   el.lessonList.replaceChildren(frag);
@@ -261,6 +296,7 @@ function start(id) {
   el.home.hidden = true;
   el.play.hidden = false;
   state = 'play';
+  syncFlavor();
 
   paintProgress();
   updateStats();
@@ -331,6 +367,7 @@ function goHome() {
   el.play.hidden = true;
   el.home.hidden = false;
   renderHome();
+  syncFlavor();
 }
 
 // ---------------------------------------------------------------- 打鍵
@@ -412,5 +449,6 @@ el.btnNext.addEventListener('click', () => {
   if (n) start(n.id);
 });
 
+initTheme(syncFlavor);
 syncSoundButton();
 renderHome();
