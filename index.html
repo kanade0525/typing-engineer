@@ -48,9 +48,12 @@
     <section class="shelf" id="shelf">
       <h2 class="group__name">
         ACHIEVEMENTS
-        <span class="group__count"><b id="tokenTotal">0</b> tokens</span>
+        <span class="group__count">SCORE <b id="tokenTotal">0</b></span>
       </h2>
-      <p class="shelf__lead">クリアするたびにトークンが貯まります。記録はこのブラウザにだけ残ります。</p>
+      <p class="shelf__lead">
+        クリアするたびにスコアが入ります。<b>打鍵数 × 正確さ × 速さ</b>で決まるので、
+        速いだけでも正確なだけでも伸びません。記録はこのブラウザにだけ残ります。
+      </p>
       <dl class="tally" id="tally"></dl>
       <div class="trophies" id="trophies"></div>
     </section>
@@ -107,8 +110,8 @@
           <span class="pane__sub" id="lessonSub"></span>
         </div>
         <p class="tip" id="tip">
-          上から一字ずつ。改行は <kbd>Enter</kbd>。行頭の字下げは自動で送ります。
-          間違えるとカーソルは止まります。
+          上から一字ずつ。改行は <kbd>Enter</kbd>。行頭の字下げと、色コードの
+          <code>#</code> より後ろは自動で埋まります。間違えるとカーソルは止まります。
         </p>
         <div class="code" id="code" tabindex="-1"></div>
         <div class="progress">
