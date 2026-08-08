@@ -1837,3 +1837,14 @@ kbd {
 .rec tbody tr.is-group:first-child td {
   padding-top: 4px;
 }
+
+.how__key {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.how__key kbd {
+  font-size: 10.5px;
+  padding: 1px 6px;
+}

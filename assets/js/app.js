@@ -70,6 +70,7 @@ const el = {
   btnNext: $('btnNext'),
   btnAgain: $('btnAgain'),
   btnHome: $('btnHome'),
+  btnShare: $('btnShare'),
 };
 
 const clicker = new Clicker();
@@ -110,6 +111,7 @@ let phase = 'ready'; // 'ready' → 'count' → 'play'
 let counting = false;
 let countTimer = null;
 let bestSeconds = null;
+let lastResult = null;
 
 // ---------------------------------------------------------------- 一覧
 
@@ -551,6 +553,14 @@ function finish() {
     el.resultEarned.hidden = true;
   }
 
+  lastResult = {
+    id: lesson.id,
+    title: lesson.title,
+    seconds,
+    wpm: engine.wpm,
+    accuracy: engine.accuracy,
+  };
+
   el.result.hidden = false;
   el.btnNext.focus();
 }
@@ -566,6 +576,20 @@ function leavePlay() {
 
 function goHome() {
   location.hash = '#/';
+}
+
+const SITE = 'Typing Engineer';
+
+/** 画面が変わったら題も変える。履歴とタブで何を見ていたか分かるように */
+function setTitle(path) {
+  if (path.startsWith('/play/')) {
+    const l = findLesson(decodeURIComponent(path.slice(6)));
+    document.title = l ? `${l.title} — ${SITE}` : SITE;
+  } else if (path === '/mypage') {
+    document.title = `マイページ — ${SITE}`;
+  } else {
+    document.title = `${SITE} — 打つほど、ページができあがる`;
+  }
 }
 
 function syncNav(path) {
@@ -602,6 +626,7 @@ function showMypage() {
 function route() {
   const path = (location.hash || '#/').slice(1) || '/';
   syncNav(path);
+  setTitle(path);
 
   if (path.startsWith('/play/')) {
     const id = decodeURIComponent(path.slice(6));
@@ -645,7 +670,56 @@ function handle(ch) {
   }
 }
 
+/** 同じ列の上下の行で、いちばん近いカードを探す */
+function cardAbove(cards, i, dir) {
+  if (i < 0) return 0;
+  const here = cards[i].getBoundingClientRect();
+  const rows = cards.filter((c) => {
+    const b = c.getBoundingClientRect();
+    return dir > 0 ? b.top > here.top + 4 : b.top < here.top - 4;
+  });
+  if (!rows.length) return i;
+
+  const tops = rows.map((c) => c.getBoundingClientRect().top);
+  const target = dir > 0 ? Math.min(...tops) : Math.max(...tops);
+  const row = rows.filter((c) => Math.abs(c.getBoundingClientRect().top - target) < 4);
+
+  let best = row[0];
+  let near = Infinity;
+  for (const c of row) {
+    const d = Math.abs(c.getBoundingClientRect().left - here.left);
+    if (d < near) {
+      near = d;
+      best = c;
+    }
+  }
+  return cards.indexOf(best);
+}
+
+/** 一覧は矢印キーで選べる。Enter は button が自分で受ける */
+function homeKeys(e) {
+  if (el.home.hidden) return;
+  const cards = [...el.lessonList.querySelectorAll('.lesson')];
+  if (!cards.length) return;
+
+  const i = cards.indexOf(document.activeElement);
+  let to = -1;
+  if (e.key === 'ArrowRight') to = i < 0 ? 0 : Math.min(cards.length - 1, i + 1);
+  else if (e.key === 'ArrowLeft') to = i <= 0 ? 0 : i - 1;
+  else if (e.key === 'ArrowDown') to = cardAbove(cards, i, 1);
+  else if (e.key === 'ArrowUp') to = cardAbove(cards, i, -1);
+  else return;
+
+  e.preventDefault();
+  cards[to].focus();
+  cards[to].scrollIntoView({ block: 'nearest' });
+}
+
 window.addEventListener('keydown', (e) => {
+  if (state === 'home' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    homeKeys(e);
+    return;
+  }
   if (state !== 'play') {
     if (state === 'result' && e.key === 'Escape') {
       e.preventDefault();
@@ -711,6 +785,30 @@ el.btnRetry.addEventListener('click', () => start(lesson.id));
 el.btnBack.addEventListener('click', goHome);
 el.btnAgain.addEventListener('click', () => start(lesson.id));
 el.btnHome.addEventListener('click', goHome);
+
+/** 結果を外へ。端末が持っていれば共有画面、無ければ X の投稿画面を開く。
+    どちらも最後に人が押さないと出ていかない */
+el.btnShare.addEventListener('click', async () => {
+  if (!lastResult) return;
+  const url = `${location.origin}${location.pathname}#/play/${lastResult.id}`;
+  const text =
+    `Typing Engineer で「${lastResult.title}」を ` +
+    `${lastResult.seconds.toFixed(1)}秒・正確さ ${lastResult.accuracy}% でクリアしました。`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: SITE, text, url });
+      return;
+    } catch {
+      /* 閉じられただけ。下に落ちる */
+    }
+  }
+  window.open(
+    `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+    '_blank',
+    'noopener'
+  );
+});
 el.btnStart.addEventListener('click', () => {
   location.hash = `#/play/${LESSONS[0].id}`;
 });
