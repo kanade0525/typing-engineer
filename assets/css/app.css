@@ -1,0 +1,935 @@
+/* Typing Engineer
+   外部リクエストは使わない。フォントも CDN も無し。
+   昔の版は外部（Heroku / FontAwesome / 期限付きの S3 URL）に寄りかかって死んだ。 */
+
+:root {
+  --bg: #0d0f16;
+  --panel: #141824;
+  --panel-2: #0f121b;
+  --line: #232a3b;
+  --line-soft: #1b2130;
+
+  --fg: #c8d0e4;
+  --fg-mid: #8d97ad;
+  --fg-dim: #626c84;
+
+  --accent: #7aa2f7;
+  --accent-soft: rgba(122, 162, 247, 0.16);
+  --good: #9ece6a;
+  --bad: #f7768e;
+
+  /* まだ打っていない字。読める明るさは保ちつつ、打った字より静かに */
+  --pending: #78849e;
+
+  --tok-tag: #7aa2f7;
+  --tok-attr: #bb9af7;
+  --tok-string: #9ece6a;
+  --tok-text: #d3dbf2;
+  --tok-punct: #7d8ab0;
+  --tok-doctype: #9d7cd8;
+  --tok-comment: #565f89;
+  --tok-atrule: #bb9af7;
+  --tok-selector: #7dcfff;
+  --tok-prop: #7aa2f7;
+  --tok-value: #9ece6a;
+  --tok-number: #ff9e64;
+
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --ui: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 500px at 16% -12%, rgba(122, 162, 247, 0.14), transparent 62%),
+    radial-gradient(760px 440px at 94% 4%, rgba(187, 154, 247, 0.1), transparent 64%);
+}
+
+.screen {
+  position: relative;
+  z-index: 1;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- 一覧 */
+
+.home {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 76px 28px 60px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+  color: var(--fg-mid);
+}
+
+.eyebrow__mark {
+  color: var(--accent);
+}
+
+.home__title {
+  margin: 20px 0 0;
+  font-size: clamp(38px, 6.4vw, 66px);
+  line-height: 1.14;
+  letter-spacing: 0.01em;
+  font-weight: 700;
+}
+
+.home__lead {
+  margin: 20px 0 0;
+  max-width: 33rem;
+  line-height: 2;
+  font-size: 15px;
+  color: var(--fg-mid);
+}
+
+/* 日本語を文節で折る。効かないブラウザでも普通に折れるだけ */
+.home__title,
+.home__lead,
+.lesson__note,
+.note {
+  word-break: auto-phrase;
+}
+
+.lessons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  gap: 14px;
+  margin-top: 46px;
+}
+
+.lesson {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 18px 18px 15px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.lesson:hover {
+  transform: translateY(-2px);
+  border-color: #36415c;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.38);
+}
+
+.lesson:active {
+  transform: translateY(0);
+}
+
+.lesson__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 9px;
+}
+
+.lesson__lang {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+
+.lesson--html .lesson__lang {
+  color: #7aa2f7;
+  background: rgba(122, 162, 247, 0.14);
+}
+
+.lesson--css .lesson__lang {
+  color: #bb9af7;
+  background: rgba(187, 154, 247, 0.14);
+}
+
+.lesson__level {
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: #47536f;
+}
+
+.lesson__title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.lesson__sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.lesson__note {
+  margin-top: 6px;
+  font-size: 12.5px;
+  line-height: 1.85;
+  color: var(--fg-dim);
+}
+
+.lesson__meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--fg-dim);
+}
+
+.lesson__meta .dot {
+  opacity: 0.5;
+}
+
+.lesson__best {
+  margin-left: auto;
+  color: var(--good);
+}
+
+.home__foot {
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.note {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: var(--fg-dim);
+}
+
+.credit {
+  display: flex;
+  gap: 10px;
+  margin: 14px 0 0;
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.credit a {
+  color: var(--fg-mid);
+}
+
+.credit a:hover {
+  color: var(--accent);
+}
+
+.credit .sep {
+  opacity: 0.4;
+}
+
+kbd {
+  font-family: var(--mono);
+  font-size: 0.92em;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #1b2130;
+  border: 1px solid var(--line);
+  color: var(--fg);
+}
+
+/* ---------------------------------------------------------------- 打鍵画面 */
+
+.screen--play {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  padding: 16px;
+}
+
+.window {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
+}
+
+.window__bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 46px;
+  padding: 0 12px 0 15px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.dots {
+  display: flex;
+  gap: 7px;
+}
+
+.dots i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #333c52;
+}
+
+.dots i:nth-child(1) {
+  background: #b8515f;
+}
+.dots i:nth-child(2) {
+  background: #b08a3f;
+}
+.dots i:nth-child(3) {
+  background: #5c8f47;
+}
+
+.window__file {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--fg-mid);
+}
+
+.stats {
+  margin-left: auto;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  font-family: var(--mono);
+}
+
+.stat b {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat small {
+  margin-left: 3px;
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+}
+
+.bar__tools {
+  display: flex;
+  gap: 2px;
+}
+
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--fg-mid);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+
+.ghost:hover {
+  color: var(--fg);
+  background: #1c2333;
+  border-color: var(--line);
+}
+
+.ghost[aria-pressed="false"] {
+  color: var(--fg-dim);
+}
+
+.ghost__ico {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.window__body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 1fr);
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.pane--editor {
+  position: relative; /* 結果カードの受け皿 */
+  border-right: 1px solid var(--line);
+}
+
+.pane__label {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 34px;
+  padding: 0 16px;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.pane__label--mono {
+  font-family: var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pane__sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: #4c5670;
+}
+
+.pane__live {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2b3348;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.pane__live.is-on {
+  background: var(--good);
+  box-shadow: 0 0 9px rgba(158, 206, 106, 0.8);
+}
+
+/* プレビュー側の <title>。head を打っている間はここだけが動く */
+.pane__title {
+  margin-left: auto;
+  max-width: 55%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--fg-mid);
+}
+
+.pane__title:not(:empty)::before {
+  content: "title · ";
+  color: #4c5670;
+}
+
+/* ------------------------------------------------- コード */
+
+.code {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 20px 0;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.78;
+  outline: none;
+}
+
+.row {
+  display: flex;
+  padding-right: 20px; /* 現在行の帯を端まで届かせる */
+}
+
+.row.is-active {
+  background: rgba(122, 162, 247, 0.045);
+}
+
+.row.is-active .row__num {
+  color: var(--accent);
+}
+
+.row__num {
+  flex: none;
+  width: 4em;
+  padding-right: 1.2em;
+  text-align: right;
+  color: #39415a;
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.row__src {
+  flex: 1;
+  min-width: 0;
+  white-space: pre;
+}
+
+.c {
+  position: relative;
+  color: var(--pending);
+  transition: color 0.14s ease;
+}
+
+.c.is-done {
+  color: var(--tok-text);
+}
+.c.is-done.t-tag {
+  color: var(--tok-tag);
+}
+.c.is-done.t-attr {
+  color: var(--tok-attr);
+}
+.c.is-done.t-string {
+  color: var(--tok-string);
+}
+.c.is-done.t-punct {
+  color: var(--tok-punct);
+}
+.c.is-done.t-doctype {
+  color: var(--tok-doctype);
+}
+.c.is-done.t-comment {
+  color: var(--tok-comment);
+}
+.c.is-done.t-atrule {
+  color: var(--tok-atrule);
+}
+.c.is-done.t-selector {
+  color: var(--tok-selector);
+}
+.c.is-done.t-prop {
+  color: var(--tok-prop);
+}
+.c.is-done.t-value {
+  color: var(--tok-value);
+}
+.c.is-done.t-number {
+  color: var(--tok-number);
+}
+
+.c.is-cur {
+  background: var(--accent-soft);
+  border-radius: 2px;
+}
+
+.c.is-cur::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 0.08em;
+  bottom: 0.02em;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: caret 1.06s steps(1) infinite;
+}
+
+@keyframes caret {
+  0%,
+  54% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.c.nl.is-cur::after {
+  content: "↵";
+  position: absolute;
+  left: 0.12em;
+  color: var(--accent);
+  opacity: 0.5;
+  font-size: 0.86em;
+}
+
+.c.is-err {
+  animation: wrong 0.36s ease-out;
+}
+
+@keyframes wrong {
+  0% {
+    background: rgba(247, 118, 142, 0.55);
+    box-shadow: 0 0 0 3px rgba(247, 118, 142, 0.2);
+  }
+  100% {
+    background: var(--accent-soft);
+    box-shadow: none;
+  }
+}
+
+.code.is-done .c.is-cur::before {
+  display: none;
+}
+
+/* ------------------------------------------------- 進み具合 */
+
+.progress {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 12px 18px;
+  background: var(--panel);
+  border-top: 1px solid var(--line-soft);
+}
+
+.progress__track {
+  flex: 1;
+  height: 4px;
+  border-radius: 99px;
+  background: #202737;
+  overflow: hidden;
+}
+
+.progress__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--good));
+  transition: width 0.12s ease-out;
+}
+
+.progress__num {
+  min-width: 3.2em;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------- プレビュー */
+
+.preview {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: #fff;
+}
+
+.preview iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+  color-scheme: light;
+}
+
+.preview__hint {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: #9aa4b8;
+  pointer-events: none;
+}
+
+/* ------------------------------------------------- 注意書き */
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 76px;
+  transform: translateX(-50%);
+  z-index: 6;
+  padding: 9px 16px;
+  font-size: 12.5px;
+  color: #ffc9d2;
+  background: rgba(58, 26, 36, 0.94);
+  border: 1px solid rgba(247, 118, 142, 0.45);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* ------------------------------------------------- 結果 */
+
+/* コード側だけを覆う。できあがったプレビューは隠さない */
+.result {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 16px;
+  background: rgba(8, 10, 16, 0.76);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  animation: fade 0.24s ease-out;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.result__card {
+  width: min(410px, 100%);
+  margin: auto;
+  padding: 24px 24px 20px;
+  text-align: center;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.result__eyebrow {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--fg-dim);
+}
+
+.result__title {
+  margin: 8px 0 0;
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.result__hero {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px 0 18px;
+}
+
+.result__hero b {
+  font-family: var(--mono);
+  font-size: 54px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+}
+
+.result__hero small {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--fg-dim);
+}
+
+.result__best {
+  align-self: center;
+  margin-left: 8px;
+  padding: 3px 9px;
+  font-size: 11px;
+  border-radius: 99px;
+  color: var(--good);
+  background: rgba(158, 206, 106, 0.14);
+  border: 1px solid rgba(158, 206, 106, 0.36);
+}
+
+.result__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin: 0 0 18px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.result__grid dt {
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  color: var(--fg-dim);
+}
+
+.result__grid dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.result__weak {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+  font-size: 12px;
+  color: var(--fg-dim);
+}
+
+.result__weakone {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.result__weakone small {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--fg-dim);
+}
+
+.result__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn {
+  padding: 9px 17px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg);
+  background: #1a2030;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+
+.btn:hover {
+  background: #212939;
+  border-color: #3a4560;
+}
+
+.btn--primary {
+  font-weight: 600;
+  color: #0d1220;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn--primary:hover {
+  background: #94b5f9;
+  border-color: #94b5f9;
+}
+
+.btn--quiet {
+  color: var(--fg-mid);
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn--quiet:hover {
+  background: #1a2030;
+  border-color: var(--line);
+}
+
+/* ---------------------------------------------------------------- 画面が狭いとき */
+
+@media (max-width: 900px) {
+  .window__body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1.05fr) minmax(0, 1fr);
+  }
+
+  .pane--editor {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .ghost__txt {
+    display: none;
+  }
+
+  .stats {
+    gap: 12px;
+  }
+
+  .home {
+    padding: 52px 20px 44px;
+  }
+}
+
+@media (max-width: 560px) {
+  .screen--play {
+    padding: 0;
+  }
+
+  .window {
+    border: 0;
+    border-radius: 0;
+  }
+
+  .window__file {
+    display: none;
+  }
+
+  .result__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .c.is-cur::before {
+    opacity: 1;
+  }
+}
