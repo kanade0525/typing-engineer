@@ -11,8 +11,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'first.css',
     level: 1,
-    title: 'はじめての一行',
-    subtitle: '一行ごとに効く',
+    title: 'カードを画面の中央に置く',
+    subtitle: 'place-items · border-radius',
     note: '素の文字列が、七行で真ん中の光るカードになる。',
     scaffold: `<div class="box">Hello</div>`,
     code: `body {
@@ -40,7 +40,7 @@ export const LESSONS = [
     lang: 'css',
     file: 'grid.css',
     level: 3,
-    title: '面で並べる',
+    title: '画面を四つの面に分ける',
     subtitle: 'grid-template-areas',
     note: '縦に積まれた四枚が、areas を打ち終えた瞬間に画面の形になる。',
     scaffold: `<div class="page">
@@ -89,8 +89,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'hover.css',
     level: 2,
-    title: '触ると動く',
-    subtitle: 'transition・transform',
+    title: 'マウスを乗せたら浮かせる',
+    subtitle: 'transition · transform',
     note: '打ち終わったら、右のカードにマウスを乗せてみる。',
     scaffold: `<div class="row">
   <a class="tile" href="#">Hover me</a>
@@ -134,12 +134,12 @@ export const LESSONS = [
 
   {
     id: 'html-hello',
-    group: 'HTML の骨組み',
+    group: 'HTML の基本',
     lang: 'html',
     file: 'index.html',
     level: 1,
-    title: 'はじめてのページ',
-    subtitle: '見出しと段落',
+    title: 'HTML の骨組みを書く',
+    subtitle: 'DOCTYPE · head · body',
     note: 'HTML の骨組み。閉じタグを打った瞬間に形が決まる。',
     code: `<!DOCTYPE html>
 <html lang="en">
@@ -157,12 +157,12 @@ export const LESSONS = [
 
   {
     id: 'html-profile',
-    group: 'HTML の骨組み',
+    group: 'HTML の基本',
     lang: 'html',
     file: 'profile.html',
     level: 2,
-    title: 'プロフィール',
-    subtitle: 'リスト・リンク・style',
+    title: 'プロフィールページを組む',
+    subtitle: 'ul · a · style',
     note: '頭が長い。<body> に入った途端に、書いた体裁ごと一気に立ち上がる。',
     code: `<!DOCTYPE html>
 <html lang="en">
@@ -203,8 +203,8 @@ export const LESSONS = [
     lang: 'html',
     file: 'signup.html',
     level: 3,
-    title: '申し込みフォーム',
-    subtitle: 'label・input・select',
+    title: '申し込みフォームを組む',
+    subtitle: 'label · input · select',
     note: '属性が多い。引用符とハイフンの往復が効いてくる。',
     code: `<form class="signup" action="/signup" method="post">
   <h2>Create your account</h2>
@@ -232,8 +232,8 @@ export const LESSONS = [
     lang: 'html',
     file: 'pricing.html',
     level: 3,
-    title: '料金表',
-    subtitle: 'table の入れ子',
+    title: '料金表を組む',
+    subtitle: 'table · thead · tbody',
     note: 'tr と td の繰り返し。指が形を覚えるまで打つ。',
     code: `<table class="pricing">
   <caption>Pricing</caption>
@@ -271,8 +271,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'card.css',
     level: 2,
-    title: 'カードを整える',
-    subtitle: '角丸・影・余白',
+    title: '部品をカードにまとめる',
+    subtitle: '余白 · 角丸 · 影',
     note: '素の見出しとボタンが、一行ごとにカードになっていく。',
     scaffold: `<div class="card">
   <span class="tag">NEW</span>
@@ -334,8 +334,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'layout.css',
     level: 3,
-    title: '横に並べる',
-    subtitle: 'Flexbox',
+    title: 'メニューを横一列に並べる',
+    subtitle: 'display: flex · justify-content',
     note: '縦に積まれた要素が display: flex の一行で横を向く。',
     scaffold: `<header class="bar">
   <span class="logo">LOGO</span>
@@ -405,8 +405,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'motion.css',
     level: 4,
-    title: '動かす',
-    subtitle: '@keyframes',
+    title: '玉を順ぐりに跳ねさせる',
+    subtitle: '@keyframes · animation-delay',
     note: '最後の } を打った瞬間に、三つの玉が跳ね始める。',
     scaffold: `<div class="stage">
   <div class="ball"></div>
@@ -460,8 +460,8 @@ export const LESSONS = [
     lang: 'html',
     file: 'post.html',
     level: 3,
-    title: 'ブログ記事',
-    subtitle: 'article・time・blockquote',
+    title: 'ブログ記事を組む',
+    subtitle: 'article · time · blockquote',
     note: '記事の骨格。引用と本文の入れ子を打ち分ける。',
     code: `<article class="post">
   <header>
@@ -495,8 +495,8 @@ export const LESSONS = [
     lang: 'html',
     file: 'login.html',
     level: 3,
-    title: 'ログイン画面',
-    subtitle: 'autocomplete まで書く',
+    title: 'ログイン画面を組む',
+    subtitle: 'form · autocomplete',
     note: 'どのサービスにもある一枚。属性を省かずに打つ。',
     code: `<main class="auth">
   <form class="card" action="/login" method="post">
@@ -524,8 +524,8 @@ export const LESSONS = [
     lang: 'html',
     file: 'shell.html',
     level: 2,
-    title: 'ナビとフッター',
-    subtitle: 'nav・ul・li の反復',
+    title: 'ナビとフッターを組む',
+    subtitle: 'nav · ul · li',
     note: '<li><a href> の繰り返し。手が形を覚えると速くなる。',
     code: `<header class="site">
   <a class="brand" href="/">ACME</a>
@@ -559,8 +559,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'products.css',
     level: 4,
-    title: '商品一覧',
-    subtitle: 'EC・grid・aspect-ratio',
+    title: '商品を格子に並べる',
+    subtitle: 'EC · grid · aspect-ratio',
     note: '縦に並んだ商品が、grid の一行で棚に並ぶ。',
     scaffold: `<h1 class="head">New arrivals</h1>
 <ul class="grid">
@@ -653,8 +653,8 @@ export const LESSONS = [
     lang: 'css',
     file: 'post.css',
     level: 3,
-    title: '記事を読みやすく',
-    subtitle: '行長・行間・引用',
+    title: '本文の行長と行間を決める',
+    subtitle: 'max-width · line-height',
     note: 'べた組みの文章が、max-width 一行で読み物になる。',
     scaffold: `<article>
   <h1>Why we rewrote the editor</h1>
@@ -716,8 +716,8 @@ blockquote {
     lang: 'css',
     file: 'hero.css',
     level: 4,
-    title: 'ヒーロー',
-    subtitle: 'トップの一画面',
+    title: 'トップの一画面をつくる',
+    subtitle: 'ヒーロー · radial-gradient',
     note: 'サイトを開いて最初に見える一画面。素の文字列が見せ場になる。',
     scaffold: `<section class="hero">
   <p class="eyebrow">2026.03.14 SAT / SHIBUYA</p>
@@ -793,8 +793,8 @@ blockquote {
     lang: 'css',
     file: 'admin.css',
     level: 4,
-    title: 'ダッシュボード',
-    subtitle: '管理画面・サイドバー',
+    title: '管理画面の骨格を組む',
+    subtitle: 'ダッシュボード · サイドバー',
     note: '縦積みの数字が、脇に柱の立った管理画面になる。',
     scaffold: `<aside class="side">
   <p class="logo">ACME</p>
@@ -889,7 +889,7 @@ blockquote {
 ];
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
-export const GROUPS = ['見た目が変わる', '王道パターン', 'HTML の骨組み'];
+export const GROUPS = ['見た目が変わる', '王道パターン', 'HTML の基本'];
 
 export function lessonsByGroup() {
   return GROUPS.map((name) => ({
