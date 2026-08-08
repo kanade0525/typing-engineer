@@ -26,11 +26,8 @@ function isAutoSkippable(code, i) {
 const HEX = /[0-9a-fA-F]/;
 const WORD = /[0-9a-zA-Z_-]/;
 
-/**
- * 色コードの中身。#1f2937 の 1f2937 にあたる部分。
- * 実務でも手では打たずコピーしてくる所なので、# を打った時点で埋める。
- */
-function isAutoFilled(code, i) {
+/** #1f2937 の 1f2937 にあたる部分 */
+function inHex(code, i) {
   if (!HEX.test(code[i] || '')) return false;
 
   let s = i;
@@ -43,6 +40,36 @@ function isAutoFilled(code, i) {
 
   // 続きが語なら色ではない（#id セレクタなど）
   return !(code[e] !== undefined && WORD.test(code[e]));
+}
+
+const COLOR_FN = new Set(['rgb', 'rgba', 'hsl', 'hsla']);
+
+/** rgba(15, 23, 42, 0.14) の括弧の中と閉じ括弧 */
+function inColorFn(code, i) {
+  let p = i;
+  let depth = 0;
+  while (p > 0) {
+    p--;
+    const c = code[p];
+    if (c === ')') depth++;
+    else if (c === '(') {
+      if (depth === 0) break;
+      depth--;
+    } else if (c === ';' || c === '{' || c === '}' || c === '\n') return false;
+  }
+  if (code[p] !== '(') return false;
+
+  let s = p;
+  while (s > 0 && /[a-zA-Z-]/.test(code[s - 1])) s--;
+  return COLOR_FN.has(code.slice(s, p).toLowerCase());
+}
+
+/**
+ * 色の値。実務でも手では打たず、コピーしてくる所。
+ * #1f2937 なら # を、rgba(...) なら ( を打った時点で残りが埋まる。
+ */
+function isAutoFilled(code, i) {
+  return inHex(code, i) || inColorFn(code, i);
 }
 
 /** 手で打つ必要のない字 */
