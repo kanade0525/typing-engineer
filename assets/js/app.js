@@ -4,7 +4,6 @@ import { TypingEngine, countKeystrokes } from './engine.js';
 import { Preview } from './preview.js';
 import { Clicker } from './sound.js';
 import { getBest, saveBest } from './storage.js';
-import { initTheme } from './theme.js';
 import { Rain, Rabbit } from './matrix.js';
 
 const $ = (id) => document.getElementById(id);
@@ -52,9 +51,9 @@ const rain = new Rain($('rain'));
 const rabbit = new Rabbit($('rabbit'));
 let flavorOn = false;
 
-/** 降る字と白ウサギ。matrix 配色の一覧にいるときだけ */
+/** 降る字と白ウサギ。一覧にいるときだけ動かす */
 function syncFlavor() {
-  const want = document.documentElement.dataset.theme === 'matrix' && state === 'home';
+  const want = state === 'home';
   if (want === flavorOn) return;
   flavorOn = want;
   if (want) {
@@ -449,6 +448,6 @@ el.btnNext.addEventListener('click', () => {
   if (n) start(n.id);
 });
 
-initTheme(syncFlavor);
+syncFlavor();
 syncSoundButton();
 renderHome();
