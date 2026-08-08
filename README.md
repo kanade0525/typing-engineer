@@ -72,13 +72,39 @@ SCORE = 打鍵数 / 10 × 正確さ × (1 + wpm / 100)
 
 17 本。**打った一行が見た目に効くものを先に置いています。**
 
-**見た目が変わる** … はじめての一行 / 面で並べる（grid-template-areas）/
-触ると動く（transition）/ カードを整える / 横に並べる（Flexbox）/ 動かす（@keyframes）
+題は「その単元で何をするか」を言うものにし、使う技術は副題に置いています。
 
-**王道パターン** … 申し込みフォーム / 料金表 / ブログ記事 / ログイン画面 /
-ナビとフッター / 商品一覧（EC）/ 記事を読みやすく / ヒーロー / ダッシュボード
+### 見た目が変わる
 
-**HTML の骨組み** … はじめてのページ / プロフィール
+| 何をする | 使うもの |
+| --- | --- |
+| カードを画面の中央に置く | `place-items` `border-radius` |
+| 画面を四つの面に分ける | `grid-template-areas` |
+| マウスを乗せたら浮かせる | `transition` `transform` |
+| 部品をカードにまとめる | 余白・角丸・影 |
+| メニューを横一列に並べる | `display: flex` `justify-content` |
+| 玉を順ぐりに跳ねさせる | `@keyframes` `animation-delay` |
+
+### 王道パターン
+
+| 何をする | 使うもの |
+| --- | --- |
+| 申し込みフォームを組む | `label` `input` `select` |
+| 料金表を組む | `table` `thead` `tbody` |
+| ブログ記事を組む | `article` `time` `blockquote` |
+| ログイン画面を組む | `form` `autocomplete` |
+| ナビとフッターを組む | `nav` `ul` `li` |
+| 商品を格子に並べる | EC・`grid`・`aspect-ratio` |
+| 本文の行長と行間を決める | `max-width` `line-height` |
+| トップの一画面をつくる | ヒーロー・`radial-gradient` |
+| 管理画面の骨格を組む | ダッシュボード・サイドバー |
+
+### HTML の基本
+
+| 何をする | 使うもの |
+| --- | --- |
+| HTML の骨組みを書く | `DOCTYPE` `head` `body` |
+| プロフィールページを組む | `ul` `a` `style` |
 
 ## 手元で動かす
 
