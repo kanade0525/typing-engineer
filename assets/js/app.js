@@ -1,9 +1,10 @@
-import { findLesson, nextLesson, lessonsByGroup } from './lessons.js';
+import { LESSONS, findLesson, nextLesson, lessonsByGroup } from './lessons.js';
 import { typeMap } from './highlight.js';
 import { TypingEngine, countKeystrokes } from './engine.js';
 import { Preview } from './preview.js';
 import { Clicker } from './sound.js';
-import { getBest, saveBest } from './storage.js';
+import { getBest, saveBest, getStats, recordRun } from './storage.js';
+import { TROPHIES } from './trophies.js';
 import { Rain, Rabbit } from './matrix.js';
 
 const $ = (id) => document.getElementById(id);
@@ -36,6 +37,13 @@ const el = {
   resultKeys: $('resultKeys'),
   resultMiss: $('resultMiss'),
   resultWeak: $('resultWeak'),
+  resultGain: $('resultGain'),
+  resultEarned: $('resultEarned'),
+  tokenTotal: $('tokenTotal'),
+  tally: $('tally'),
+  tip: $('tip'),
+  btnStart: $('btnStart'),
+  trophies: $('trophies'),
   btnSound: $('btnSound'),
   soundIco: $('soundIco'),
   btnRetry: $('btnRetry'),
@@ -124,6 +132,47 @@ function lessonCard(l) {
   return card;
 }
 
+function renderShelf() {
+  const s = getStats();
+
+  el.tokenTotal.textContent = s.tokens.toLocaleString('en');
+
+  const rows = [
+    ['打ち切った回数', `${s.runs}`],
+    ['通算の打鍵', s.keys.toLocaleString('en')],
+    ['最速', `${s.bestWpm} wpm`],
+    ['連続', `${s.streak} 日`],
+  ];
+  el.tally.replaceChildren(
+    ...rows.map(([k, v]) => {
+      const wrap = document.createElement('div');
+      const dt = document.createElement('dt');
+      dt.textContent = k;
+      const dd = document.createElement('dd');
+      dd.textContent = v;
+      wrap.append(dt, dd);
+      return wrap;
+    })
+  );
+
+  el.trophies.replaceChildren(
+    ...TROPHIES.map((t) => {
+      const got = Boolean(s.earned[t.id]);
+      const chip = document.createElement('span');
+      chip.className = `trophy${got ? ' is-got' : ''}`;
+      chip.title = got ? `${t.hint}（${s.earned[t.id]}）` : t.hint;
+
+      const name = document.createElement('b');
+      name.textContent = got ? t.name : '？？？';
+      const hint = document.createElement('small');
+      hint.textContent = t.hint;
+
+      chip.append(name, hint);
+      return chip;
+    })
+  );
+}
+
 function renderHome() {
   const frag = document.createDocumentFragment();
 
@@ -144,6 +193,7 @@ function renderHome() {
   }
 
   el.lessonList.replaceChildren(frag);
+  renderShelf();
 }
 
 el.lessonList.addEventListener('click', (e) => {
@@ -285,6 +335,7 @@ function start(id) {
   el.lessonSub.textContent = lesson.subtitle;
   el.result.hidden = true;
   el.toast.hidden = true;
+  el.tip.hidden = false;
   el.code.classList.remove('is-done');
 
   buildCode();
@@ -320,6 +371,13 @@ function finish() {
 
   const record = { wpm: engine.wpm, accuracy: engine.accuracy, at: new Date().toISOString() };
   const updated = saveBest(lesson.id, record);
+  const { gained, earned } = recordRun({
+    lessonId: lesson.id,
+    keys: engine.index,
+    accuracy: engine.accuracy,
+    wpm: engine.wpm,
+    misses: engine.misses,
+  });
 
   el.resultTitle.textContent = lesson.title;
   el.resultEyebrow.textContent = `${lesson.file} — できあがり`;
@@ -353,6 +411,27 @@ function finish() {
     el.resultWeak.hidden = true;
   }
 
+  el.resultGain.hidden = false;
+  el.resultGain.textContent = `+${gained} tokens`;
+
+  if (earned.length) {
+    el.resultEarned.hidden = false;
+    el.resultEarned.replaceChildren(
+      ...earned.map((t) => {
+        const chip = document.createElement('span');
+        chip.className = 'trophy trophy--new is-got';
+        const name = document.createElement('b');
+        name.textContent = t.name;
+        const small = document.createElement('small');
+        small.textContent = t.hint;
+        chip.append(name, small);
+        return chip;
+      })
+    );
+  } else {
+    el.resultEarned.hidden = true;
+  }
+
   el.result.hidden = false;
   el.btnNext.focus();
 }
@@ -375,6 +454,7 @@ function handle(ch) {
   const r = engine.input(ch);
   if (r.ok) {
     clicker.hit();
+    el.tip.hidden = true;
     paintProgress();
     queuePreview();
     updateStats();
@@ -443,6 +523,7 @@ el.btnRetry.addEventListener('click', () => start(lesson.id));
 el.btnBack.addEventListener('click', goHome);
 el.btnAgain.addEventListener('click', () => start(lesson.id));
 el.btnHome.addEventListener('click', goHome);
+el.btnStart.addEventListener('click', () => start(LESSONS[0].id));
 el.btnNext.addEventListener('click', () => {
   const n = nextLesson(lesson.id);
   if (n) start(n.id);

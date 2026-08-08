@@ -1061,3 +1061,210 @@ kbd {
   margin-left: 1px;
   animation: caret 1.06s steps(1) infinite;
 }
+
+/* ---------------------------------------------------------------- 初見の人向け */
+
+.start {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 26px 0 0;
+}
+
+.btn--big {
+  padding: 13px 26px;
+  font-size: 14px;
+}
+
+.start__sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--fg-dim);
+}
+
+.warn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 20px 0 0;
+  padding: 11px 14px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #ffd7a8;
+  background: rgba(60, 40, 8, 0.5);
+  border: 1px solid rgba(255, 176, 74, 0.4);
+  border-radius: 10px;
+}
+
+.warn b {
+  font-weight: 600;
+}
+
+.warn kbd {
+  color: #ffd7a8;
+  border-color: rgba(255, 176, 74, 0.45);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.how {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  color: var(--fg-dim);
+}
+
+.how li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.how span {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  border: 1px solid var(--line);
+}
+
+/* 打鍵画面の手引き。最初の一打で消える */
+.tip {
+  flex: none;
+  margin: 0;
+  padding: 9px 16px;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--fg-dim);
+  background: rgba(53, 224, 46, 0.05);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.tip kbd {
+  font-size: 10.5px;
+  padding: 1px 5px;
+}
+
+/* ---------------------------------------------------------------- 積み上げ */
+
+.shelf {
+  margin-top: 46px;
+}
+
+.shelf__lead {
+  margin: 0 0 16px;
+  font-size: 12.5px;
+  color: var(--fg-dim);
+}
+
+.group__count b {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tally {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+  padding: 15px 0;
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.tally dt {
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  color: var(--fg-dim);
+}
+
+.tally dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 17px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.trophies {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 8px;
+}
+
+.trophy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: rgba(4, 18, 10, 0.6);
+}
+
+.trophy b {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #2a4f28;
+}
+
+.trophy small {
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: var(--fg-dim);
+  opacity: 0.75;
+}
+
+.trophy.is-got {
+  border-color: rgba(53, 224, 46, 0.4);
+  background: rgba(53, 224, 46, 0.07);
+}
+
+.trophy.is-got b {
+  color: var(--accent);
+  text-shadow: 0 0 8px rgba(53, 224, 46, 0.45);
+}
+
+.trophy.is-got small {
+  opacity: 1;
+}
+
+/* 結果に出る取り分 */
+.result__gain {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--good);
+  text-shadow: 0 0 10px rgba(157, 255, 92, 0.4);
+}
+
+.result__earned {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 18px;
+  text-align: left;
+}
+
+.trophy--new {
+  animation: pop 0.4s ease-out;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

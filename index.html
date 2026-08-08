@@ -22,14 +22,37 @@
       <p class="rabbit" id="rabbit" aria-hidden="true" hidden></p>
       <h1 class="home__title">打つほど、<br>できあがる。</h1>
       <p class="home__lead">HTML と CSS を一字ずつ打ちます。打った分だけ、右側のプレビューがその場で組み上がっていきます。</p>
+
+      <p class="start">
+        <button type="button" class="btn btn--primary btn--big" id="btnStart">最初の一本を打つ</button>
+        <span class="start__sub">はじめてのページ &middot; 167 打 &middot; 1 分ほど</span>
+      </p>
+
+      <p class="warn">
+        <kbd>英数</kbd> に切り替えてから始めてください。
+        <b>日本語入力のままだと打鍵が届きません。</b>
+      </p>
+
+      <ol class="how">
+        <li><span>1</span>上から一字ずつ打つ</li>
+        <li><span>2</span>改行は <kbd>Enter</kbd>。行頭の字下げは自動</li>
+        <li><span>3</span>間違えるとカーソルは止まる</li>
+      </ol>
     </header>
 
     <div class="groups" id="lessonList"></div>
 
+    <section class="shelf" id="shelf">
+      <h2 class="group__name">
+        積み上げ
+        <span class="group__count"><b id="tokenTotal">0</b> tokens</span>
+      </h2>
+      <p class="shelf__lead">打ち切るごとにトークンが貯まります。記録はこのブラウザにだけ残ります。</p>
+      <dl class="tally" id="tally"></dl>
+      <div class="trophies" id="trophies"></div>
+    </section>
+
     <footer class="home__foot">
-      <p class="note">
-        <kbd>英数</kbd> に切り替えてから始めてください。日本語入力のままだと打鍵を受け取れません。
-      </p>
       <p class="credit">
         <a href="https://github.com/kanade0525/typing-engineer">GitHub</a>
         <span class="sep">/</span>
@@ -76,6 +99,10 @@
           <span id="lessonLabel"></span>
           <span class="pane__sub" id="lessonSub"></span>
         </div>
+        <p class="tip" id="tip">
+          上から一字ずつ。改行は <kbd>Enter</kbd>。行頭の字下げは自動で送ります。
+          間違えるとカーソルは止まります。
+        </p>
         <div class="code" id="code" tabindex="-1"></div>
         <div class="progress">
           <span class="progress__track"><i class="progress__fill" id="progressFill"></i></span>
@@ -101,6 +128,9 @@
             </dl>
 
             <p class="result__weak" id="resultWeak" hidden></p>
+
+            <p class="result__gain" id="resultGain" hidden></p>
+            <div class="result__earned" id="resultEarned" hidden></div>
 
             <div class="result__buttons">
               <button type="button" class="btn btn--primary" id="btnNext">次の課題へ</button>
