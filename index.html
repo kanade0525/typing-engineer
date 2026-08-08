@@ -8,18 +8,38 @@
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23161922'/%3E%3Cpath d='M11.5 11 L7 16 L11.5 21 M20.5 11 L25 16 L20.5 21' stroke='%237aa2f7' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='14.8' y='9.5' width='2.4' height='13' rx='1.2' fill='%239ece6a'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/css/app.css">
+<script>
+  // 最初の描画前に当てる。module は遅れて走るので、ここで当てないと一瞬ちらつく
+  try {
+    document.documentElement.dataset.theme =
+      localStorage.getItem('typing-engineer:theme') === 'matrix' ? 'matrix' : 'editor';
+  } catch (e) {
+    document.documentElement.dataset.theme = 'editor';
+  }
+</script>
 </head>
 <body>
+
+<canvas id="rain" aria-hidden="true" hidden></canvas>
 
 <section class="screen screen--home" id="screenHome">
   <div class="home">
     <header class="home__head">
-      <p class="eyebrow"><span class="eyebrow__mark">&lt;/&gt;</span> Typing Engineer</p>
+      <div class="home__top">
+        <p class="eyebrow">
+          <span class="eyebrow__mark">&lt;/&gt;</span> Typing Engineer<span class="caret"></span>
+        </p>
+        <div class="themes" role="group" aria-label="配色">
+          <button type="button" data-set-theme="editor" aria-pressed="true">editor</button>
+          <button type="button" data-set-theme="matrix" aria-pressed="false">matrix</button>
+        </div>
+      </div>
+      <p class="rabbit" id="rabbit" aria-hidden="true" hidden></p>
       <h1 class="home__title">打つほど、<br>できあがる。</h1>
       <p class="home__lead">HTML と CSS を一字ずつ打ちます。打った分だけ、右側のプレビューがその場で組み上がっていきます。</p>
     </header>
 
-    <div class="lessons" id="lessonList"></div>
+    <div class="groups" id="lessonList"></div>
 
     <footer class="home__foot">
       <p class="note">
@@ -53,6 +73,10 @@
       </span>
 
       <span class="bar__tools">
+        <span class="themes themes--bar" role="group" aria-label="配色">
+          <button type="button" data-set-theme="editor" aria-pressed="true">editor</button>
+          <button type="button" data-set-theme="matrix" aria-pressed="false">matrix</button>
+        </span>
         <button type="button" class="ghost" id="btnSound" aria-pressed="true">
           <span class="ghost__ico" id="soundIco">♪</span><span class="ghost__txt">打鍵音</span>
         </button>
