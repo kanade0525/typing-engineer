@@ -15,43 +15,43 @@ export const TROPHIES = [
   {
     id: 'first',
     name: '最初の一本',
-    hint: '課題を一本打ち切る',
+    hint: 'ステージを一つクリアする',
     check: (s) => s.runs >= 1,
   },
   {
     id: 'basics',
     name: '見た目を操る',
-    hint: '「見た目が変わる」六本をすべて打ち切る',
+    hint: '「見た目が変わる」六つを全クリア',
     check: (s) => clearedAll(s, VISUAL),
   },
   {
     id: 'patterns',
     name: '王道を征く',
-    hint: '王道パターンの九本をすべて打ち切る',
+    hint: '「王道パターン」九つを全クリア',
     check: (s) => clearedAll(s, PATTERNS),
   },
   {
     id: 'complete',
     name: '全課題制覇',
-    hint: '全課題を打ち切る',
+    hint: '全ステージをクリア',
     check: (s) => clearedAll(s, LESSONS.map((l) => l.id)),
   },
   {
     id: 'flawless',
     name: '無傷',
-    hint: 'ミス〇で一本打ち切る',
+    hint: 'ノーミスでクリア',
     check: (s) => s.perfect >= 1,
   },
   {
     id: 'flawless5',
     name: '無傷を五度',
-    hint: 'ミス〇で五本打ち切る',
+    hint: 'ノーミスで五回クリア',
     check: (s) => s.perfect >= 5,
   },
   {
     id: 'sniper',
     name: '狙撃手',
-    hint: '正確さ 98% 以上で打ち切る',
+    hint: '正確さ 98% 以上でクリア',
     check: (s) => s.bestAcc >= 98,
   },
   {
@@ -99,13 +99,13 @@ export const TROPHIES = [
   {
     id: 'night',
     name: '深夜の呼び出し',
-    hint: '午前 0 時から 4 時のあいだに打ち切る',
+    hint: '午前 0 時から 4 時のあいだにクリア',
     check: (s) => s.night >= 1,
   },
   {
     id: 'again',
     name: '同じ道を五度',
-    hint: '同じ課題を五回打ち切る',
+    hint: '同じステージを五回クリア',
     check: (s) => Object.values(s.cleared).some((n) => n >= 5),
   },
 ];

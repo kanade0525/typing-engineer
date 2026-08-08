@@ -16,11 +16,11 @@
 <section class="screen screen--home" id="screenHome">
   <div class="home">
     <header class="home__head">
-      <p class="eyebrow">
-        <span class="eyebrow__mark">&lt;/&gt;</span> Typing Engineer<span class="caret"></span>
-      </p>
+      <h1 class="brand">
+        <span class="brand__mark">&lt;/&gt;</span>Typing&nbsp;Engineer<span class="caret"></span>
+      </h1>
       <p class="rabbit" id="rabbit" aria-hidden="true" hidden></p>
-      <h1 class="home__title">打つほど、<br>ページができあがる。</h1>
+      <p class="tagline">打つほど、ページができあがる。</p>
       <p class="home__lead">
         HTML と CSS を一字ずつ打つと、右側のページがその場で組み上がります。
         <b>打ち終わるまでのタイムを競うゲーム</b>です。自分の最速と競えます。
@@ -47,10 +47,10 @@
 
     <section class="shelf" id="shelf">
       <h2 class="group__name">
-        積み上げ
+        ACHIEVEMENTS
         <span class="group__count"><b id="tokenTotal">0</b> tokens</span>
       </h2>
-      <p class="shelf__lead">打ち切るごとにトークンが貯まります。記録はこのブラウザにだけ残ります。</p>
+      <p class="shelf__lead">クリアするたびにトークンが貯まります。記録はこのブラウザにだけ残ります。</p>
       <dl class="tally" id="tally"></dl>
       <div class="trophies" id="trophies"></div>
     </section>
@@ -75,6 +75,7 @@
   <div class="window">
     <div class="window__bar">
       <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="wordmark">TYPING ENGINEER</span>
       <span class="window__file" id="fileName">index.html</span>
 
       <span class="stats" id="stats">
@@ -116,6 +117,15 @@
             <i class="progress__ghost" id="progressGhost" hidden></i>
           </span>
           <span class="progress__num" id="progressNum">0%</span>
+        </div>
+
+        <div class="ready" id="ready" hidden>
+          <div class="ready__card">
+            <p class="ready__file" id="readyFile">first.css</p>
+            <h2 class="ready__title" id="readyTitle">はじめての一行</h2>
+            <p class="ready__meta" id="readyMeta"></p>
+            <p class="ready__key"><kbd>Space</kbd> を押すと始まります</p>
+          </div>
         </div>
 
         <div class="count" id="count" hidden><b id="countNum">3</b></div>

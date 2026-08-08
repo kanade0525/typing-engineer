@@ -27,6 +27,10 @@ const el = {
   statDelta: $('statDelta'),
   progressGhost: $('progressGhost'),
   count: $('count'),
+  ready: $('ready'),
+  readyFile: $('readyFile'),
+  readyTitle: $('readyTitle'),
+  readyMeta: $('readyMeta'),
   countNum: $('countNum'),
   resultVs: $('resultVs'),
   startSub: $('startSub'),
@@ -95,6 +99,7 @@ let activeRow = null;
 let ticker = null;
 let toastTimer = null;
 let liveTimer = null;
+let phase = 'ready'; // 'ready' → 'count' → 'play'
 let counting = false;
 let countTimer = null;
 let bestSeconds = null;
@@ -149,9 +154,9 @@ function renderShelf() {
   el.tokenTotal.textContent = s.tokens.toLocaleString('en');
 
   const rows = [
-    ['打ち切った回数', `${s.runs}`],
-    ['通算の打鍵', s.keys.toLocaleString('en')],
-    ['最速', `${s.bestWpm} wpm`],
+    ['CLEAR', `${s.runs}`],
+    ['総打鍵', s.keys.toLocaleString('en')],
+    ['ベスト', `${s.bestWpm} wpm`],
     ['連続', `${s.streak} 日`],
   ];
   el.tally.replaceChildren(
@@ -174,7 +179,7 @@ function renderShelf() {
       chip.title = got ? `${t.hint}（${s.earned[t.id]}）` : t.hint;
 
       const name = document.createElement('b');
-      name.textContent = got ? t.name : '？？？';
+      name.textContent = got ? t.name : 'LOCKED';
       const hint = document.createElement('small');
       hint.textContent = t.hint;
 
@@ -336,6 +341,32 @@ function showToast(text) {
   }, 2600);
 }
 
+/** Space を押すまで待つ。押されてからカウントダウンに入る */
+function showReady() {
+  phase = 'ready';
+  const best = getBest(lesson.id);
+  el.readyFile.textContent = lesson.file;
+  el.readyTitle.textContent = lesson.title;
+  el.readyMeta.textContent =
+    `${countKeystrokes(lesson.code)} 打` +
+    (best && best.seconds != null ? `　ベスト ${best.seconds.toFixed(1)} 秒` : '');
+  el.ready.hidden = false;
+}
+
+function beginRun() {
+  if (phase !== 'ready') return;
+  el.ready.hidden = true;
+  phase = 'count';
+  runCountdown(() => {
+    phase = 'play';
+    engine.begin();
+    clearInterval(ticker);
+    ticker = setInterval(() => {
+      if (engine.startedAt != null && !engine.finished) updateStats();
+    }, 90);
+  });
+}
+
 /** 3 → 2 → 1 → スタート。ここが無いと、いつ計り始めたのか分からない */
 function runCountdown(done) {
   const steps = ['3', '2', '1', 'スタート'];
@@ -373,6 +404,7 @@ function stopCountdown() {
   countTimer = null;
   counting = false;
   el.count.hidden = true;
+  el.ready.hidden = true;
 }
 
 // ---------------------------------------------------------------- 開始・終了
@@ -423,18 +455,14 @@ function start(id) {
   updateStats();
 
   clearInterval(ticker);
-  runCountdown(() => {
-    engine.begin();
-    ticker = setInterval(() => {
-      if (engine.startedAt != null && !engine.finished) updateStats();
-    }, 90);
-  });
+  showReady();
 }
 
 function finish() {
   clearInterval(ticker);
   ticker = null;
   state = 'result';
+  phase = 'done';
 
   preview.render(engine.typed);
   preview.seal();
@@ -460,7 +488,7 @@ function finish() {
   });
 
   el.resultTitle.textContent = lesson.title;
-  el.resultEyebrow.textContent = `${lesson.file} — できあがり`;
+  el.resultEyebrow.textContent = `CLEAR — ${lesson.file}`;
   el.resultWpm.textContent = `${engine.wpm} wpm`;
   el.resultAcc.textContent = `${engine.accuracy}%`;
   el.resultTime.textContent = engine.elapsed.toFixed(1);
@@ -568,7 +596,12 @@ window.addEventListener('keydown', (e) => {
     return;
   }
   if (e.metaKey || e.ctrlKey || e.altKey) return; // ブラウザ側の操作は邪魔しない
-  if (counting && e.key !== 'Escape') {
+  if (phase === 'ready') {
+    e.preventDefault();
+    if (e.key === ' ' || e.key === 'Enter') beginRun();
+    return;
+  }
+  if (counting) {
     e.preventDefault(); // 「スタート」が出るまでは受け取らない
     return;
   }
@@ -621,6 +654,7 @@ el.btnBack.addEventListener('click', goHome);
 el.btnAgain.addEventListener('click', () => start(lesson.id));
 el.btnHome.addEventListener('click', goHome);
 el.btnStart.addEventListener('click', () => start(LESSONS[0].id));
+el.ready.addEventListener('click', beginRun);
 el.startSub.textContent = `${LESSONS[0].title} · ${countKeystrokes(LESSONS[0].code)} 打`;
 el.btnNext.addEventListener('click', () => {
   const n = nextLesson(lesson.id);
