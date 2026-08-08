@@ -1268,3 +1268,116 @@ kbd {
     opacity: 1;
   }
 }
+
+/* ---------------------------------------------------------------- スタート！ */
+
+.count {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 6, 0, 0.72);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.count b {
+  font-family: var(--mono);
+  font-size: 108px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  text-shadow: 0 0 40px rgba(53, 224, 46, 0.6);
+}
+
+.count.is-go b {
+  font-size: 54px;
+  letter-spacing: 0.06em;
+}
+
+.count b.is-pop {
+  animation: countpop 0.42s cubic-bezier(0.2, 1.4, 0.5, 1);
+}
+
+@keyframes countpop {
+  from {
+    transform: scale(0.55);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 上帯：タイムを主役に */
+.stat--time b {
+  font-size: 21px;
+  letter-spacing: -0.01em;
+}
+
+.stat--best {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(0, 0, 0, 0.22);
+}
+
+.stat--best b {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.delta {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta.is-ahead {
+  color: #04380a;
+  font-weight: 700;
+}
+
+.delta.is-behind {
+  color: #7a1414;
+  font-weight: 700;
+}
+
+/* 自分の最速が今どこを走っているか */
+.progress__track {
+  position: relative;
+}
+
+.progress__ghost {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: #ffffff;
+  opacity: 0.65;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.7);
+  transition: left 0.12s linear;
+}
+
+.result__vs {
+  margin: -8px 0 16px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+}
+
+.result__vs.is-ahead {
+  color: var(--good);
+}
+
+.result__vs.is-behind {
+  color: var(--fg-dim);
+}
+
+.result__hero b {
+  font-variant-numeric: tabular-nums;
+}

@@ -6,7 +6,7 @@
 
 import { LESSONS } from './lessons.js';
 
-const BASICS = LESSONS.filter((l) => l.group === '基礎').map((l) => l.id);
+const VISUAL = LESSONS.filter((l) => l.group === '見た目が変わる').map((l) => l.id);
 const PATTERNS = LESSONS.filter((l) => l.group === '王道パターン').map((l) => l.id);
 
 const clearedAll = (s, ids) => ids.every((id) => (s.cleared[id] || 0) > 0);
@@ -20,9 +20,9 @@ export const TROPHIES = [
   },
   {
     id: 'basics',
-    name: '基礎を抜ける',
-    hint: '基礎の五本をすべて打ち切る',
-    check: (s) => clearedAll(s, BASICS),
+    name: '見た目を操る',
+    hint: '「見た目が変わる」六本をすべて打ち切る',
+    check: (s) => clearedAll(s, VISUAL),
   },
   {
     id: 'patterns',
@@ -33,7 +33,7 @@ export const TROPHIES = [
   {
     id: 'complete',
     name: '全課題制覇',
-    hint: '十四本すべてを打ち切る',
+    hint: '全課題を打ち切る',
     check: (s) => clearedAll(s, LESSONS.map((l) => l.id)),
   },
   {

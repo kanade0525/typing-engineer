@@ -22,6 +22,14 @@ const el = {
   previewLive: $('previewLive'),
   previewTitle: $('previewTitle'),
   statWpm: $('statWpm'),
+  statBestWrap: $('statBestWrap'),
+  statBest: $('statBest'),
+  statDelta: $('statDelta'),
+  progressGhost: $('progressGhost'),
+  count: $('count'),
+  countNum: $('countNum'),
+  resultVs: $('resultVs'),
+  startSub: $('startSub'),
   statAcc: $('statAcc'),
   statTime: $('statTime'),
   progressFill: $('progressFill'),
@@ -87,6 +95,9 @@ let activeRow = null;
 let ticker = null;
 let toastTimer = null;
 let liveTimer = null;
+let counting = false;
+let countTimer = null;
+let bestSeconds = null;
 
 // ---------------------------------------------------------------- 一覧
 
@@ -297,6 +308,16 @@ function updateStats() {
   const pct = Math.round(engine.progress * 100);
   el.progressFill.style.width = `${pct}%`;
   el.progressNum.textContent = `${pct}%`;
+
+  if (bestSeconds == null || engine.startedAt == null) return;
+
+  // 自分の最速が今どこを走っているか
+  el.progressGhost.style.left = `${Math.min(100, (engine.elapsed / bestSeconds) * 100)}%`;
+
+  // 同じ進み具合に最速が着いていた時刻との差
+  const d = engine.elapsed - bestSeconds * engine.progress;
+  el.statDelta.textContent = `${d >= 0 ? '+' : ''}${d.toFixed(1)}`;
+  el.statDelta.className = `delta ${d < 0 ? 'is-ahead' : 'is-behind'}`;
 }
 
 function flashError() {
@@ -315,6 +336,45 @@ function showToast(text) {
   }, 2600);
 }
 
+/** 3 → 2 → 1 → スタート。ここが無いと、いつ計り始めたのか分からない */
+function runCountdown(done) {
+  const steps = ['3', '2', '1', 'スタート'];
+  let i = 0;
+  counting = true;
+  el.count.hidden = false;
+
+  const show = () => {
+    const last = i === steps.length - 1;
+    el.countNum.textContent = steps[i];
+    el.count.classList.toggle('is-go', last);
+    el.countNum.classList.remove('is-pop');
+    void el.countNum.offsetWidth; // アニメーションを打ち直す
+    el.countNum.classList.add('is-pop');
+    if (last) clicker.go();
+    else clicker.count();
+
+    i++;
+    countTimer = setTimeout(
+      i < steps.length
+        ? show
+        : () => {
+            el.count.hidden = true;
+            counting = false;
+            done();
+          },
+      last ? 420 : 600
+    );
+  };
+  show();
+}
+
+function stopCountdown() {
+  clearTimeout(countTimer);
+  countTimer = null;
+  counting = false;
+  el.count.hidden = true;
+}
+
 // ---------------------------------------------------------------- 開始・終了
 
 function start(id) {
@@ -329,6 +389,17 @@ function start(id) {
   lastLine = -1;
   cursorSpan = null;
   activeRow = null;
+
+  stopCountdown();
+  const best = getBest(lesson.id);
+  bestSeconds = best && best.seconds != null ? best.seconds : null;
+  el.statBestWrap.hidden = bestSeconds == null;
+  el.progressGhost.hidden = bestSeconds == null;
+  if (bestSeconds != null) {
+    el.statBest.textContent = `${bestSeconds.toFixed(1)}s`;
+    el.progressGhost.style.left = '0%';
+    el.statDelta.textContent = '';
+  }
 
   el.fileName.textContent = lesson.file;
   el.lessonLabel.textContent = lesson.title;
@@ -352,9 +423,12 @@ function start(id) {
   updateStats();
 
   clearInterval(ticker);
-  ticker = setInterval(() => {
-    if (engine.startedAt != null && !engine.finished) updateStats();
-  }, 90);
+  runCountdown(() => {
+    engine.begin();
+    ticker = setInterval(() => {
+      if (engine.startedAt != null && !engine.finished) updateStats();
+    }, 90);
+  });
 }
 
 function finish() {
@@ -369,7 +443,13 @@ function finish() {
   el.code.classList.add('is-done');
   if (cursorSpan) cursorSpan.classList.remove('is-cur');
 
-  const record = { wpm: engine.wpm, accuracy: engine.accuracy, at: new Date().toISOString() };
+  const seconds = Number(engine.elapsed.toFixed(2));
+  const record = {
+    wpm: engine.wpm,
+    accuracy: engine.accuracy,
+    seconds,
+    at: new Date().toISOString(),
+  };
   const updated = saveBest(lesson.id, record);
   const { gained, earned } = recordRun({
     lessonId: lesson.id,
@@ -381,9 +461,21 @@ function finish() {
 
   el.resultTitle.textContent = lesson.title;
   el.resultEyebrow.textContent = `${lesson.file} — できあがり`;
-  el.resultWpm.textContent = String(engine.wpm);
+  el.resultWpm.textContent = `${engine.wpm} wpm`;
   el.resultAcc.textContent = `${engine.accuracy}%`;
-  el.resultTime.textContent = `${engine.elapsed.toFixed(1)}s`;
+  el.resultTime.textContent = engine.elapsed.toFixed(1);
+
+  if (updated && bestSeconds != null) {
+    el.resultVs.hidden = false;
+    el.resultVs.className = 'result__vs is-ahead';
+    el.resultVs.textContent = `これまでの最速より ${(bestSeconds - seconds).toFixed(1)} 秒 速い`;
+  } else if (bestSeconds != null) {
+    el.resultVs.hidden = false;
+    el.resultVs.className = 'result__vs is-behind';
+    el.resultVs.textContent = `自己ベスト ${bestSeconds.toFixed(1)} 秒まで あと ${(seconds - bestSeconds).toFixed(1)} 秒`;
+  } else {
+    el.resultVs.hidden = true;
+  }
   el.resultKeys.textContent = String(engine.strokes);
   el.resultMiss.textContent = String(engine.misses);
   el.resultBest.hidden = !updated;
@@ -439,6 +531,7 @@ function finish() {
 function goHome() {
   clearInterval(ticker);
   ticker = null;
+  stopCountdown();
   state = 'home';
   engine = null;
   el.result.hidden = true;
@@ -475,6 +568,10 @@ window.addEventListener('keydown', (e) => {
     return;
   }
   if (e.metaKey || e.ctrlKey || e.altKey) return; // ブラウザ側の操作は邪魔しない
+  if (counting && e.key !== 'Escape') {
+    e.preventDefault(); // 「スタート」が出るまでは受け取らない
+    return;
+  }
 
   if (e.key === 'Escape') {
     e.preventDefault();
@@ -524,6 +621,7 @@ el.btnBack.addEventListener('click', goHome);
 el.btnAgain.addEventListener('click', () => start(lesson.id));
 el.btnHome.addEventListener('click', goHome);
 el.btnStart.addEventListener('click', () => start(LESSONS[0].id));
+el.startSub.textContent = `${LESSONS[0].title} · ${countKeystrokes(LESSONS[0].code)} 打`;
 el.btnNext.addEventListener('click', () => {
   const n = nextLesson(lesson.id);
   if (n) start(n.id);

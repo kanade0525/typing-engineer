@@ -21,7 +21,8 @@ export function getBest(id) {
 export function saveBest(id, record) {
   const all = readAll();
   const prev = all[id];
-  if (prev && prev.wpm >= record.wpm) return false;
+  if (prev && prev.seconds != null && prev.seconds <= record.seconds) return false;
+  if (prev && prev.seconds == null && prev.wpm >= record.wpm) return false;
   all[id] = record;
   try {
     localStorage.setItem(KEY, JSON.stringify(all));
