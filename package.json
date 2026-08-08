@@ -1,31 +1,20 @@
 {
   "name": "typing-engineer",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "2.0.0",
+  "private": true,
+  "description": "HTML と CSS を打つと、その場でプレビューが組み上がっていくタイピング練習",
+  "type": "module",
   "scripts": {
-    "start": "node public/js/server.js",
-    "start-watch": "nodemon public/js/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node scripts/dev-server.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kanade0525/coda.git"
+    "url": "git+https://github.com/kanade0525/typing-engineer.git"
   },
-  "author": "",
-  "license": "ISC",
+  "homepage": "https://kanade0525.github.io/typing-engineer/",
   "bugs": {
-    "url": "https://github.com/kanade0525/coda/issues"
+    "url": "https://github.com/kanade0525/typing-engineer/issues"
   },
-  "homepage": "https://github.com/kanade0525/coda#readme",
-  "dependencies": {
-    "ejs": "^3.1.5",
-    "fs": "0.0.1-security",
-    "mongodb": "^3.6.3",
-    "nodemon": "^2.0.6",
-    "path": "^0.12.7",
-    "qs": "^6.9.4",
-    "url": "^0.11.0"
-  },
-  "devDependencies": {},
-  "description": ""
+  "author": "kanade ishida",
+  "license": "MIT"
 }

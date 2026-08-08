@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typing Engineer — 打つほど、できあがる</title>
+<meta name="description" content="HTML と CSS を一字ずつ打つと、その場でプレビューが組み上がっていくタイピング練習。">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23161922'/%3E%3Cpath d='M11.5 11 L7 16 L11.5 21 M20.5 11 L25 16 L20.5 21' stroke='%237aa2f7' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='14.8' y='9.5' width='2.4' height='13' rx='1.2' fill='%239ece6a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+
+<section class="screen screen--home" id="screenHome">
+  <div class="home">
+    <header class="home__head">
+      <p class="eyebrow"><span class="eyebrow__mark">&lt;/&gt;</span> Typing Engineer</p>
+      <h1 class="home__title">打つほど、<br>できあがる。</h1>
+      <p class="home__lead">HTML と CSS を一字ずつ打ちます。打った分だけ、右側のプレビューがその場で組み上がっていきます。</p>
+    </header>
+
+    <div class="lessons" id="lessonList"></div>
+
+    <footer class="home__foot">
+      <p class="note">
+        <kbd>英数</kbd> に切り替えてから始めてください。日本語入力のままだと打鍵を受け取れません。
+      </p>
+      <p class="credit">
+        <a href="https://github.com/kanade0525/typing-engineer">GitHub</a>
+        <span class="sep">/</span>
+        <span>© 2020–2026 kanade ishida</span>
+      </p>
+    </footer>
+  </div>
+</section>
+
+<section class="screen screen--play" id="screenPlay" hidden>
+  <div class="window">
+    <div class="window__bar">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="window__file" id="fileName">index.html</span>
+
+      <span class="stats" id="stats">
+        <span class="stat"><b id="statWpm">0</b><small>wpm</small></span>
+        <span class="stat"><b id="statAcc">100</b><small>%</small></span>
+        <span class="stat"><b id="statTime">0.0</b><small>s</small></span>
+      </span>
+
+      <span class="bar__tools">
+        <button type="button" class="ghost" id="btnSound" aria-pressed="true">
+          <span class="ghost__ico" id="soundIco">♪</span><span class="ghost__txt">打鍵音</span>
+        </button>
+        <button type="button" class="ghost" id="btnRetry">
+          <span class="ghost__ico">↺</span><span class="ghost__txt">やり直す</span>
+        </button>
+        <button type="button" class="ghost" id="btnBack">
+          <span class="ghost__ico">←</span><span class="ghost__txt">一覧へ</span>
+        </button>
+      </span>
+    </div>
+
+    <div class="window__body">
+      <div class="pane pane--editor">
+        <div class="pane__label">
+          <span id="lessonLabel"></span>
+          <span class="pane__sub" id="lessonSub"></span>
+        </div>
+        <div class="code" id="code" tabindex="-1"></div>
+        <div class="progress">
+          <span class="progress__track"><i class="progress__fill" id="progressFill"></i></span>
+          <span class="progress__num" id="progressNum">0%</span>
+        </div>
+
+        <!-- 結果はコード側にだけ被せる。できあがったプレビューを隠さないため -->
+        <div class="result" id="result" hidden>
+          <div class="result__card">
+            <p class="result__eyebrow" id="resultEyebrow">できあがり</p>
+            <h2 class="result__title" id="resultTitle">はじめてのページ</h2>
+
+            <div class="result__hero">
+              <b id="resultWpm">0</b><small>wpm</small>
+              <span class="result__best" id="resultBest" hidden>自己ベスト更新</span>
+            </div>
+
+            <dl class="result__grid">
+              <div><dt>正確さ</dt><dd id="resultAcc">100%</dd></div>
+              <div><dt>時間</dt><dd id="resultTime">0.0s</dd></div>
+              <div><dt>打鍵</dt><dd id="resultKeys">0</dd></div>
+              <div><dt>ミス</dt><dd id="resultMiss">0</dd></div>
+            </dl>
+
+            <p class="result__weak" id="resultWeak" hidden></p>
+
+            <div class="result__buttons">
+              <button type="button" class="btn btn--primary" id="btnNext">次の課題へ</button>
+              <button type="button" class="btn" id="btnAgain">もう一度</button>
+              <button type="button" class="btn btn--quiet" id="btnHome">一覧へ</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane pane--preview">
+        <div class="pane__label pane__label--mono">
+          preview<span class="pane__live" id="previewLive"></span>
+          <span class="pane__title" id="previewTitle"></span>
+        </div>
+        <div class="preview">
+          <iframe id="preview" title="プレビュー" sandbox="allow-same-origin"></iframe>
+          <p class="preview__hint" id="previewHint">打ち始めると、ここに組み上がっていきます</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" hidden></div>
+  </div>
+</section>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

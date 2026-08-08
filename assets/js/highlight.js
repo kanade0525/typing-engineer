@@ -1,0 +1,198 @@
+// 依存なしの小さな字句解析。文字の位置ごとに種別を返すだけで、
+// 構文の正しさは見ない。色を付けるのが目的。
+
+/**
+ * @returns {{start:number,end:number,type:string}[]}
+ */
+export function tokenize(src, lang) {
+  return lang === 'css' ? tokenizeCss(src, 0) : tokenizeHtml(src);
+}
+
+/** 文字位置 → 種別 の配列にならす */
+export function typeMap(src, lang) {
+  const types = new Array(src.length).fill('plain');
+  for (const t of tokenize(src, lang)) {
+    for (let i = t.start; i < t.end && i < types.length; i++) types[i] = t.type;
+  }
+  return types;
+}
+
+function tokenizeHtml(src) {
+  const out = [];
+  const push = (start, end, type) => {
+    if (end > start) out.push({ start, end, type });
+  };
+  let i = 0;
+
+  while (i < src.length) {
+    if (src[i] !== '<') {
+      const s = i;
+      while (i < src.length && src[i] !== '<') i++;
+      push(s, i, 'text');
+      continue;
+    }
+
+    // コメント
+    if (src.startsWith('<!--', i)) {
+      const e = src.indexOf('-->', i + 4);
+      const stop = e === -1 ? src.length : e + 3;
+      push(i, stop, 'comment');
+      i = stop;
+      continue;
+    }
+
+    // <!DOCTYPE ...>
+    if (src[i + 1] === '!') {
+      const e = src.indexOf('>', i);
+      const stop = e === -1 ? src.length : e + 1;
+      push(i, stop, 'doctype');
+      i = stop;
+      continue;
+    }
+
+    // 開始タグ / 終了タグ
+    let j = i + 1;
+    const closing = src[j] === '/';
+    if (closing) j++;
+    const nameStart = j;
+    while (j < src.length && /[A-Za-z0-9-]/.test(src[j])) j++;
+    const name = src.slice(nameStart, j).toLowerCase();
+    push(i, nameStart, 'punct');
+    push(nameStart, j, 'tag');
+
+    while (j < src.length && src[j] !== '>') {
+      const c = src[j];
+      if (/\s/.test(c)) {
+        const s = j;
+        while (j < src.length && /\s/.test(src[j])) j++;
+        push(s, j, 'plain');
+      } else if (c === '=' || c === '/') {
+        push(j, j + 1, 'punct');
+        j++;
+      } else if (c === '"' || c === "'") {
+        let k = j + 1;
+        while (k < src.length && src[k] !== c) k++;
+        const stop = Math.min(k + 1, src.length);
+        push(j, stop, 'string');
+        j = stop;
+      } else {
+        const s = j;
+        while (j < src.length && !/[\s=>/'"]/.test(src[j])) j++;
+        if (j === s) j++; // 念のため。ここで止まると無限ループになる
+        push(s, j, 'attr');
+      }
+    }
+    if (j < src.length) {
+      push(j, j + 1, 'punct');
+      j++;
+    }
+    i = j;
+
+    // <style> の中身は CSS として色を付ける
+    if (!closing && name === 'style') {
+      const close = src.toLowerCase().indexOf('</style', i);
+      const stop = close === -1 ? src.length : close;
+      for (const t of tokenizeCss(src.slice(i, stop), i)) out.push(t);
+      i = stop;
+    }
+  }
+  return out;
+}
+
+function tokenizeCss(src, offset = 0) {
+  const out = [];
+  const push = (start, end, type) => {
+    if (end > start) out.push({ start: start + offset, end: end + offset, type });
+  };
+  let i = 0;
+  let depth = 0; // { } の深さ
+  let afterColon = false; // 宣言の値を読んでいる最中か
+
+  while (i < src.length) {
+    const c = src[i];
+
+    if (/\s/.test(c)) {
+      const s = i;
+      while (i < src.length && /\s/.test(src[i])) i++;
+      push(s, i, 'plain');
+      continue;
+    }
+
+    if (c === '/' && src[i + 1] === '*') {
+      const e = src.indexOf('*/', i + 2);
+      const stop = e === -1 ? src.length : e + 2;
+      push(i, stop, 'comment');
+      i = stop;
+      continue;
+    }
+
+    if (c === '"' || c === "'") {
+      let k = i + 1;
+      while (k < src.length && src[k] !== c) k++;
+      const stop = Math.min(k + 1, src.length);
+      push(i, stop, 'string');
+      i = stop;
+      continue;
+    }
+
+    if (c === '{') {
+      depth++;
+      afterColon = false;
+      push(i, i + 1, 'punct');
+      i++;
+      continue;
+    }
+    if (c === '}') {
+      depth = Math.max(0, depth - 1);
+      afterColon = false;
+      push(i, i + 1, 'punct');
+      i++;
+      continue;
+    }
+    if (c === ';') {
+      afterColon = false;
+      push(i, i + 1, 'punct');
+      i++;
+      continue;
+    }
+    if (c === ':') {
+      if (depth > 0) afterColon = true; // セレクタの擬似クラスは値ではない
+      push(i, i + 1, 'punct');
+      i++;
+      continue;
+    }
+    if (c === ',' || c === '(' || c === ')') {
+      push(i, i + 1, 'punct');
+      i++;
+      continue;
+    }
+
+    if (c === '@') {
+      const s = i++;
+      while (i < src.length && /[A-Za-z-]/.test(src[i])) i++;
+      push(s, i, 'atrule');
+      continue;
+    }
+
+    if (c === '#' && /[0-9A-Fa-f]/.test(src[i + 1] || '')) {
+      const s = i++;
+      while (i < src.length && /[0-9A-Za-z]/.test(src[i])) i++;
+      push(s, i, 'number');
+      continue;
+    }
+
+    if (/[0-9]/.test(c) || (c === '.' && /[0-9]/.test(src[i + 1] || ''))) {
+      const s = i;
+      while (i < src.length && /[0-9.]/.test(src[i])) i++;
+      while (i < src.length && /[a-z%]/.test(src[i])) i++;
+      push(s, i, 'number');
+      continue;
+    }
+
+    const s = i;
+    while (i < src.length && !/[\s{};:,()]/.test(src[i])) i++;
+    if (i === s) i++;
+    push(s, i, depth > 0 ? (afterColon ? 'value' : 'prop') : 'selector');
+  }
+  return out;
+}
