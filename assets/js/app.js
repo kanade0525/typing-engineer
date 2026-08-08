@@ -788,21 +788,22 @@ el.btnHome.addEventListener('click', goHome);
 
 /** 結果を外へ。端末が持っていれば共有画面、無ければ X の投稿画面を開く。
     どちらも最後に人が押さないと出ていかない */
-el.btnShare.addEventListener('click', async () => {
+el.btnShare.addEventListener('click', () => {
   if (!lastResult) return;
   const url = `${location.origin}${location.pathname}#/play/${lastResult.id}`;
   const text =
     `Typing Engineer で「${lastResult.title}」を ` +
     `${lastResult.seconds.toFixed(1)}秒・正確さ ${lastResult.accuracy}% でクリアしました。`;
 
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: SITE, text, url });
-      return;
-    } catch {
-      /* 閉じられただけ。下に落ちる */
-    }
+  // どちらに行くかはここで決め切る。await を挟んでから window.open を呼ぶと
+  // 「利用者の操作ではない」と見なされて塞がれる。
+  const payload = { title: SITE, text, url };
+  if (typeof navigator.share === 'function' && (navigator.canShare?.(payload) ?? true)) {
+    // 閉じられた（AbortError）ときは何もしない。X を勝手に開かない
+    navigator.share(payload).catch(() => {});
+    return;
   }
+
   window.open(
     `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
     '_blank',
