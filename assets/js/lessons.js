@@ -716,16 +716,16 @@ blockquote {
     lang: 'css',
     file: 'hero.css',
     level: 4,
-    title: 'ヒーロー',
-    subtitle: 'LP のファーストビュー',
-    note: '白地の文字列が、一画面ぶんの見せ場になる。',
+    title: 'トップの一画面',
+    subtitle: '全画面の見出し',
+    note: 'サイトを開いて最初に見える一画面。素の文字列が見せ場になる。',
     scaffold: `<section class="hero">
-  <p class="eyebrow">Now in public beta</p>
-  <h1>Ship your ideas<br>before the coffee cools.</h1>
-  <p class="lead">Deploy in one command. No servers to babysit.</p>
+  <p class="eyebrow">2026.03.14 SAT / SHIBUYA</p>
+  <h1>Tokyo Web<br>Meetup</h1>
+  <p class="lead">A night for people who build the web.</p>
   <div class="actions">
-    <a class="btn" href="#">Start free</a>
-    <a class="ghost" href="#">Read the docs</a>
+    <a class="btn" href="#">Get a ticket</a>
+    <a class="ghost" href="#">See the talks</a>
   </div>
 </section>`,
     code: `body {

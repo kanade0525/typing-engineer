@@ -23,10 +23,37 @@ function isAutoSkippable(code, i) {
   return true;
 }
 
-/** 実際に打つことになる字数（自動で送る空白を除く） */
+const HEX = /[0-9a-fA-F]/;
+const WORD = /[0-9a-zA-Z_-]/;
+
+/**
+ * 色コードの中身。#1f2937 の 1f2937 にあたる部分。
+ * 実務でも手では打たずコピーしてくる所なので、# を打った時点で埋める。
+ */
+function isAutoFilled(code, i) {
+  if (!HEX.test(code[i] || '')) return false;
+
+  let s = i;
+  while (s > 0 && HEX.test(code[s - 1])) s--;
+  if (code[s - 1] !== '#') return false;
+
+  let e = s;
+  while (e < code.length && HEX.test(code[e])) e++;
+  if (![3, 4, 6, 8].includes(e - s)) return false;
+
+  // 続きが語なら色ではない（#id セレクタなど）
+  return !(code[e] !== undefined && WORD.test(code[e]));
+}
+
+/** 手で打つ必要のない字 */
+function isAuto(code, i) {
+  return isAutoSkippable(code, i) || isAutoFilled(code, i);
+}
+
+/** 実際に打つことになる字数 */
 export function countKeystrokes(code) {
   let n = 0;
-  for (let i = 0; i < code.length; i++) if (!isAutoSkippable(code, i)) n++;
+  for (let i = 0; i < code.length; i++) if (!isAuto(code, i)) n++;
   return n;
 }
 
@@ -39,14 +66,17 @@ export class TypingEngine {
     this.missByKey = new Map();
     this.startedAt = null;
     this.finishedAt = null;
+    this.pending = ''; // 直前に自動で埋めた分。なぞって打たれても許す
     this.settle();
   }
 
-  /** 自動で送れる文字を飛ばす */
+  /** 手で打たなくていい字を飛ばす */
   settle() {
-    while (this.index < this.code.length && isAutoSkippable(this.code, this.index)) {
+    const from = this.index;
+    while (this.index < this.code.length && isAuto(this.code, this.index)) {
       this.index++;
     }
+    this.pending = this.code.slice(from, this.index);
   }
 
   /** カウントダウンが明けた瞬間から測る */
@@ -102,6 +132,13 @@ export class TypingEngine {
   input(char) {
     if (this.finished) return { ok: false, from: this.index, to: this.index, finished: true };
     if (this.startedAt == null) this.startedAt = performance.now();
+
+    // 自動で埋めた所を、見たままなぞって打つ人がいる。
+    // それを間違い扱いにすると、埋めたことが罰になってしまう。
+    if (this.pending && this.pending[0] === char) {
+      this.pending = this.pending.slice(1);
+      return { ok: true, ignored: true, from: this.index, to: this.index, finished: false };
+    }
 
     const from = this.index;
     this.strokes++;

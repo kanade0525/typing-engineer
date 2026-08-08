@@ -1264,11 +1264,23 @@ kbd {
 
 /* 結果に出る取り分 */
 .result__gain {
-  margin: 0 0 12px;
+  display: grid;
+  gap: 4px;
+  margin: 0 0 14px;
+}
+
+.result__gain b {
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: var(--good);
-  text-shadow: 0 0 10px rgba(157, 255, 92, 0.4);
+  text-shadow: 0 0 12px rgba(157, 255, 92, 0.45);
+}
+
+.result__gain small {
+  font-size: 10.5px;
+  color: var(--fg-dim);
 }
 
 .result__earned {

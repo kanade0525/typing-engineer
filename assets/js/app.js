@@ -479,7 +479,7 @@ function finish() {
     at: new Date().toISOString(),
   };
   const updated = saveBest(lesson.id, record);
-  const { gained, earned } = recordRun({
+  const { gained, earned, stats } = recordRun({
     lessonId: lesson.id,
     keys: engine.index,
     accuracy: engine.accuracy,
@@ -532,7 +532,12 @@ function finish() {
   }
 
   el.resultGain.hidden = false;
-  el.resultGain.textContent = `+${gained} tokens`;
+  el.resultGain.replaceChildren(
+    Object.assign(document.createElement('b'), { textContent: `SCORE +${gained}` }),
+    Object.assign(document.createElement('small'), {
+      textContent: `打鍵 × 正確さ × 速さ　／　累計 ${stats.tokens.toLocaleString('en')}`,
+    })
+  );
 
   if (earned.length) {
     el.resultEarned.hidden = false;
@@ -573,6 +578,10 @@ function goHome() {
 
 function handle(ch) {
   const r = engine.input(ch);
+  if (r.ignored) {
+    clicker.hit(); // 自動で埋めた分をなぞっただけ。数えない
+    return;
+  }
   if (r.ok) {
     clicker.hit();
     el.tip.hidden = true;
