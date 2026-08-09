@@ -29,6 +29,7 @@ const el = {
   previewHint: $('previewHint'),
   previewLive: $('previewLive'),
   previewTitle: $('previewTitle'),
+  previewGoal: $('previewGoal'),
   statWpm: $('statWpm'),
   statBestWrap: $('statBestWrap'),
   statBest: $('statBest'),
@@ -67,6 +68,7 @@ const el = {
   tip: $('tip'),
   btnStart: $('btnStart'),
   btnSound: $('btnSound'),
+  btnGoal: $('btnGoal'),
   soundIco: $('soundIco'),
   btnRetry: $('btnRetry'),
   btnBack: $('btnBack'),
@@ -76,6 +78,7 @@ const el = {
   btnShare: $('btnShare'),
   btnCopy: $('btnCopy'),
   btnSave: $('btnSave'),
+  btnPlay: $('btnPlay'),
 };
 
 const clicker = new Clicker();
@@ -102,6 +105,8 @@ let cursorSpan = null;
 let paintedTo = 0;
 let lastLine = -1;
 let previewQueued = false;
+let jsTimer = null;
+let showingGoal = false;
 let activeRow = null;
 let totalLines = 1;
 let ticker = null;
@@ -287,6 +292,17 @@ function paintProgress() {
   }
 }
 
+/** 出来上がりを右に出す。何を作るのか分からないまま打ち始めるのは辛い */
+function showGoal(on) {
+  showingGoal = on;
+  el.btnGoal.setAttribute('aria-pressed', String(on));
+  el.previewGoal.hidden = !on;
+  el.previewHint.hidden = true;
+  preview.mount(lesson);
+  preview.render(on ? lesson.code : engine ? engine.typed : '');
+  if (!on) syncPreviewChrome();
+}
+
 /** プレビュー側の見出し（<title>）と、まだ何も出ていないときの案内 */
 function syncPreviewChrome() {
   el.previewTitle.textContent = preview.title;
@@ -294,6 +310,24 @@ function syncPreviewChrome() {
 }
 
 function queuePreview() {
+  if (showingGoal) return;
+
+  // JS は文法が通るまで走らせない。途中の状態を流しても意味が無いし、
+  // 一字ごとに動かすと遊べたものではない。打つ手が止まったら流す。
+  if (lesson.lang === 'js') {
+    clearTimeout(jsTimer);
+    jsTimer = setTimeout(() => {
+      const text = engine.typed;
+      try {
+        new Function(text); // 走らせずに文法だけ見る
+      } catch {
+        return;
+      }
+      preview.render(text);
+    }, 420);
+    return;
+  }
+
   if (previewQueued) return;
   previewQueued = true;
   requestAnimationFrame(() => {
@@ -358,6 +392,7 @@ function showReady() {
 function beginRun() {
   if (phase !== 'ready') return;
   el.ready.hidden = true;
+  showGoal(false); // ここから自分で組み上げる
   phase = 'count';
   runCountdown(() => {
     phase = 'play';
@@ -425,6 +460,7 @@ function start(id) {
   activeRow = null;
 
   stopCountdown();
+  clearTimeout(jsTimer);
   const best = getBest(lesson.id);
   bestSeconds = best && best.seconds != null ? best.seconds : null;
   el.statBestWrap.hidden = bestSeconds == null;
@@ -444,9 +480,7 @@ function start(id) {
   el.code.classList.remove('is-done');
 
   buildCode();
-  preview.mount(lesson);
-  preview.render(engine.typed);
-  syncPreviewChrome();
+  showGoal(true); // 待っているあいだは出来上がりを見せる
 
   el.home.hidden = true;
   el.mypageScreen.hidden = true;
@@ -467,6 +501,7 @@ function finish() {
   state = 'result';
   phase = 'done';
 
+  clearTimeout(jsTimer);
   preview.render(engine.typed);
   preview.seal();
   updateStats();
@@ -570,6 +605,7 @@ function finish() {
     accuracy: engine.accuracy,
   };
 
+  el.btnPlay.hidden = lesson.lang !== 'js';
   el.result.hidden = false;
   el.btnNext.focus();
 }
@@ -790,6 +826,7 @@ el.btnSound.addEventListener('click', () => {
   clicker.toggle();
   syncSoundButton();
 });
+el.btnGoal.addEventListener('click', () => showGoal(!showingGoal));
 el.btnRetry.addEventListener('click', () => start(lesson.id));
 el.btnBack.addEventListener('click', goHome);
 el.btnAgain.addEventListener('click', () => start(lesson.id));
@@ -831,10 +868,17 @@ el.btnNext.addEventListener('click', () => {
 
 /** 打ち終えたコードを、そのままブラウザで開ける一枚にする */
 function buildPage(l) {
+  if (l.lang === 'js') {
+    return (
+      `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n` +
+      `<title>${l.title}</title>\n<style>\n${l.styles || ''}</style>\n</head>\n<body>\n` +
+      `${l.scaffold || ''}\n<script>\n${l.base || ''}\n${l.code}<\/script>\n</body>\n</html>\n`
+    );
+  }
   if (l.lang !== 'css') return l.code;
   return (
     `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n` +
-    `<title>${l.title}</title>\n<style>\n${l.code}</style>\n</head>\n<body>\n` +
+    `<title>${l.title}</title>\n<style>\n${l.base || ''}${l.code}</style>\n</head>\n<body>\n` +
     `${l.scaffold || ''}\n</body>\n</html>\n`
   );
 }
@@ -848,6 +892,12 @@ function flash(btn, text) {
     btn.disabled = false;
   }, 1600);
 }
+
+/** 打ち上げたものを実際に触る。焦点を中へ移すので、打鍵はこちらに届かなくなる */
+el.btnPlay.addEventListener('click', () => {
+  el.result.hidden = true;
+  el.preview.focus();
+});
 
 el.btnCopy.addEventListener('click', async () => {
   if (!lastLesson) return;

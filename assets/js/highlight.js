@@ -5,7 +5,9 @@
  * @returns {{start:number,end:number,type:string}[]}
  */
 export function tokenize(src, lang) {
-  return lang === 'css' ? tokenizeCss(src, 0) : tokenizeHtml(src);
+  if (lang === 'css') return tokenizeCss(src, 0);
+  if (lang === 'js') return tokenizeJs(src);
+  return tokenizeHtml(src);
 }
 
 /** 文字位置 → 種別 の配列にならす */
@@ -193,6 +195,92 @@ function tokenizeCss(src, offset = 0) {
     while (i < src.length && !/[\s{};:,()]/.test(src[i])) i++;
     if (i === s) i++;
     push(s, i, depth > 0 ? (afterColon ? 'value' : 'prop') : 'selector');
+  }
+  return out;
+}
+
+const JS_WORDS = new Set([
+  'const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'of', 'in',
+  'while', 'do', 'break', 'continue', 'new', 'class', 'extends', 'this', 'null',
+  'undefined', 'true', 'false', 'typeof', 'instanceof', 'delete', 'void', 'try',
+  'catch', 'finally', 'throw', 'switch', 'case', 'default', 'async', 'await',
+  'import', 'export', 'from', 'static',
+]);
+
+function tokenizeJs(src) {
+  const out = [];
+  const push = (start, end, type) => {
+    if (end > start) out.push({ start, end, type });
+  };
+  let i = 0;
+
+  while (i < src.length) {
+    const c = src[i];
+
+    if (/\s/.test(c)) {
+      const s = i;
+      while (i < src.length && /\s/.test(src[i])) i++;
+      push(s, i, 'plain');
+      continue;
+    }
+
+    if (c === '/' && src[i + 1] === '/') {
+      const s = i;
+      while (i < src.length && src[i] !== '\n') i++;
+      push(s, i, 'comment');
+      continue;
+    }
+
+    if (c === '/' && src[i + 1] === '*') {
+      const e = src.indexOf('*/', i + 2);
+      const stop = e === -1 ? src.length : e + 2;
+      push(i, stop, 'comment');
+      i = stop;
+      continue;
+    }
+
+    if (c === '"' || c === "'" || c === '`') {
+      let k = i + 1;
+      while (k < src.length && src[k] !== c) {
+        if (src[k] === '\\') k++;
+        k++;
+      }
+      const stop = Math.min(k + 1, src.length);
+      push(i, stop, 'string');
+      i = stop;
+      continue;
+    }
+
+    if (/[0-9]/.test(c) || (c === '.' && /[0-9]/.test(src[i + 1] || ''))) {
+      const s = i;
+      while (i < src.length && /[0-9.]/.test(src[i])) i++;
+      push(s, i, 'number');
+      continue;
+    }
+
+    if (/[A-Za-z_$]/.test(c)) {
+      const s = i;
+      while (i < src.length && /[A-Za-z0-9_$]/.test(src[i])) i++;
+      const word = src.slice(s, i);
+
+      let p = s - 1;
+      while (p >= 0 && /\s/.test(src[p])) p--;
+      const afterDot = src[p] === '.';
+
+      let q = i;
+      while (q < src.length && /\s/.test(src[q])) q++;
+      const beforeParen = src[q] === '(';
+
+      let type = 'plain';
+      if (JS_WORDS.has(word) && !afterDot) type = 'keyword';
+      else if (beforeParen) type = 'fn';
+      else if (afterDot) type = 'prop';
+      push(s, i, type);
+      continue;
+    }
+
+    push(i, i + 1, 'punct');
+    i++;
   }
   return out;
 }

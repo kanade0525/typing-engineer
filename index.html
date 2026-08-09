@@ -135,6 +135,9 @@
       </span>
 
       <span class="bar__tools">
+        <button type="button" class="ghost" id="btnGoal" aria-pressed="false">
+          <span class="ghost__ico">◎</span><span class="ghost__txt">完成形</span>
+        </button>
         <button type="button" class="ghost" id="btnSound" aria-pressed="true">
           <span class="ghost__ico" id="soundIco">♪</span><span class="ghost__txt">打鍵音</span>
         </button>
@@ -207,6 +210,7 @@
             <div class="result__earned" id="resultEarned" hidden></div>
 
             <div class="result__tools">
+              <button type="button" class="quiet" id="btnPlay" hidden>遊ぶ</button>
               <button type="button" class="quiet" id="btnShare">結果を共有</button>
               <button type="button" class="quiet" id="btnCopy">コードをコピー</button>
               <button type="button" class="quiet" id="btnSave">ページを保存</button>
@@ -224,6 +228,7 @@
       <div class="pane pane--preview">
         <div class="pane__label pane__label--mono">
           preview<span class="pane__live" id="previewLive"></span>
+          <span class="pane__goal" id="previewGoal" hidden>完成形</span>
           <span class="pane__title" id="previewTitle"></span>
         </div>
         <div class="preview">
