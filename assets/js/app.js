@@ -5,8 +5,9 @@ import { Preview } from './preview.js';
 import { Clicker } from './sound.js';
 import { getBest, saveBest, getStats, recordRun } from './storage.js';
 import { TROPHIES } from './trophies.js';
-import { Rain, Rabbit } from './matrix.js';
+import { Rabbit } from './matrix.js';
 import { renderMypage } from './mypage.js';
+import { initTone } from './tone.js';
 import { rankOf } from './trophies.js';
 
 const $ = (id) => document.getElementById(id);
@@ -45,6 +46,8 @@ const el = {
   statTime: $('statTime'),
   progressFill: $('progressFill'),
   progressNum: $('progressNum'),
+  progressLine: $('progressLine'),
+  progressKeys: $('progressKeys'),
   toast: $('toast'),
   result: $('result'),
   resultEyebrow: $('resultEyebrow'),
@@ -71,26 +74,22 @@ const el = {
   btnAgain: $('btnAgain'),
   btnHome: $('btnHome'),
   btnShare: $('btnShare'),
+  btnCopy: $('btnCopy'),
+  btnSave: $('btnSave'),
 };
 
 const clicker = new Clicker();
 const preview = new Preview(el.preview);
-const rain = new Rain($('rain'));
 const rabbit = new Rabbit($('rabbit'));
 let flavorOn = false;
 
-/** 降る字と白ウサギ。一覧にいるときだけ動かす */
+/** 一覧にいるときだけ、あの三行を出す */
 function syncFlavor() {
-  const want = state === 'home';
+  const want = state === 'home' && !el.home.hidden;
   if (want === flavorOn) return;
   flavorOn = want;
-  if (want) {
-    rain.start();
-    rabbit.start();
-  } else {
-    rain.stop();
-    rabbit.stop();
-  }
+  if (want) rabbit.start();
+  else rabbit.stop();
 }
 
 let state = 'home'; // 'home' | 'play' | 'result'
@@ -104,6 +103,7 @@ let paintedTo = 0;
 let lastLine = -1;
 let previewQueued = false;
 let activeRow = null;
+let totalLines = 1;
 let ticker = null;
 let toastTimer = null;
 let liveTimer = null;
@@ -112,6 +112,7 @@ let counting = false;
 let countTimer = null;
 let bestSeconds = null;
 let lastResult = null;
+let lastLesson = null;
 
 // ---------------------------------------------------------------- 一覧
 
@@ -260,6 +261,7 @@ function buildCode() {
 
   frag.append(row.el);
   rows.push(row);
+  totalLines = rows.length;
   el.code.replaceChildren(frag);
 }
 
@@ -307,6 +309,12 @@ function updateStats() {
   const pct = Math.round(engine.progress * 100);
   el.progressFill.style.width = `${pct}%`;
   el.progressNum.textContent = `${pct}%`;
+
+  const line = (lineOf[Math.min(engine.index, lineOf.length - 1)] ?? 0) + 1;
+  el.progressLine.textContent = `${line} / ${totalLines} 行`;
+  el.progressKeys.textContent = engine.finished
+    ? 'できあがり'
+    : `残り ${engine.remaining} 打`;
 
   if (bestSeconds == null || engine.startedAt == null) return;
 
@@ -553,6 +561,7 @@ function finish() {
     el.resultEarned.hidden = true;
   }
 
+  lastLesson = lesson;
   lastResult = {
     id: lesson.id,
     title: lesson.title,
@@ -820,5 +829,48 @@ el.btnNext.addEventListener('click', () => {
   if (n) location.hash = `#/play/${n.id}`;
 });
 
+/** 打ち終えたコードを、そのままブラウザで開ける一枚にする */
+function buildPage(l) {
+  if (l.lang !== 'css') return l.code;
+  return (
+    `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n` +
+    `<title>${l.title}</title>\n<style>\n${l.code}</style>\n</head>\n<body>\n` +
+    `${l.scaffold || ''}\n</body>\n</html>\n`
+  );
+}
+
+function flash(btn, text) {
+  const was = btn.textContent;
+  btn.textContent = text;
+  btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = was;
+    btn.disabled = false;
+  }, 1600);
+}
+
+el.btnCopy.addEventListener('click', async () => {
+  if (!lastLesson) return;
+  try {
+    await navigator.clipboard.writeText(lastLesson.code);
+    flash(el.btnCopy, 'コピーしました');
+  } catch {
+    flash(el.btnCopy, 'コピーできませんでした');
+  }
+});
+
+el.btnSave.addEventListener('click', () => {
+  if (!lastLesson) return;
+  const name = lastLesson.lang === 'css' ? `${lastLesson.id}.html` : lastLesson.file;
+  const url = URL.createObjectURL(new Blob([buildPage(lastLesson)], { type: 'text/html' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(url);
+  flash(el.btnSave, `${name} を保存`);
+});
+
+initTone();
 syncSoundButton();
 route();

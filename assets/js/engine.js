@@ -94,6 +94,13 @@ export class TypingEngine {
     this.startedAt = null;
     this.finishedAt = null;
     this.pending = ''; // 直前に自動で埋めた分。なぞって打たれても許す
+
+    // 各位置から終わりまでに何回打つか。残りを出すのに使う
+    this.rem = new Array(code.length + 1).fill(0);
+    for (let i = code.length - 1; i >= 0; i--) {
+      this.rem[i] = this.rem[i + 1] + (isAuto(code, i) ? 0 : 1);
+    }
+
     this.settle();
   }
 
@@ -121,6 +128,16 @@ export class TypingEngine {
 
   get finished() {
     return this.index >= this.code.length;
+  }
+
+  /** あと何回打つか */
+  get remaining() {
+    return this.rem[Math.min(this.index, this.code.length)];
+  }
+
+  /** 全部で何回打つか */
+  get totalKeys() {
+    return this.rem[0];
   }
 
   get progress() {
