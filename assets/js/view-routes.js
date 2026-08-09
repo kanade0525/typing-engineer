@@ -9,6 +9,7 @@ const esc = (s) =>
   String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 const single = (s) => (s.endsWith('ies') ? s.slice(0, -3) + 'y' : s.replace(/s$/, ''));
+const plural = (s) => (s.endsWith('y') ? s.slice(0, -1) + 'ies' : s + 's');
 
 /** resources が生む七本。Rails が出すものと同じ並びにしてある */
 function seven(name, parent) {
@@ -23,6 +24,19 @@ function seven(name, parent) {
     ['GET', `${base}/:id`, `${name}#show`, `${pre}${one}`],
     ['PATCH', `${base}/:id`, `${name}#update`, `${pre}${one}`],
     ['DELETE', `${base}/:id`, `${name}#destroy`, `${pre}${one}`],
+  ];
+}
+
+/** resource（単数）が生む六本。index が無く、:id も付かない */
+function sixSingular(name) {
+  const c = plural(name);
+  return [
+    ['GET', `/${name}/new`, `${c}#new`, `new_${name}`],
+    ['POST', `/${name}`, `${c}#create`, name],
+    ['GET', `/${name}`, `${c}#show`, name],
+    ['GET', `/${name}/edit`, `${c}#edit`, `edit_${name}`],
+    ['PATCH', `/${name}`, `${c}#update`, name],
+    ['DELETE', `/${name}`, `${c}#destroy`, name],
   ];
 }
 
@@ -49,8 +63,18 @@ export function parseRoutes(src) {
       continue;
     }
 
+    // get "/legacy", to: redirect("/about")
+    let m = line.match(
+      /^(get|post|patch|put|delete)\s+["']([^"']+)["']\s*,\s*to:\s*redirect\(\s*["']([^"']+)["']/
+    );
+    if (m) {
+      const path = m[2].startsWith('/') ? m[2] : `/${m[2]}`;
+      rows.push([m[1].toUpperCase(), path, `redirect(${m[3]})`, path.slice(1).replace(/\//g, '_')]);
+      continue;
+    }
+
     // root "home#index" / root to: "home#index"
-    let m = line.match(/^root\s+(?:to:\s*)?["']([^"']+)["']/);
+    m = line.match(/^root\s+(?:to:\s*)?["']([^"']+)["']/);
     if (m) {
       rows.push(['GET', '/', m[1], 'root']);
       continue;
@@ -65,11 +89,11 @@ export function parseRoutes(src) {
       continue;
     }
 
-    // resources :posts [, only: [:index, :show]] [do]
-    m = line.match(/^resources\s+:([a-z_]+)/);
+    // resources :posts（複数）/ resource :session（単数）
+    m = line.match(/^(resources?)\s+:([a-z_]+)/);
     if (m) {
-      const name = m[1];
-      let list = seven(name, parent);
+      const name = m[2];
+      let list = m[1] === 'resource' ? sixSingular(name) : seven(name, parent);
 
       const only = line.match(/only:\s*\[([^\]]*)\]/);
       const except = line.match(/except:\s*\[([^\]]*)\]/);
@@ -85,7 +109,7 @@ export function parseRoutes(src) {
       }
 
       rows.push(...list);
-      if (/\bdo\b\s*$/.test(line)) parent = name;
+      if (m[1] === 'resources' && /\bdo\b\s*$/.test(line)) parent = name;
       continue;
     }
   }

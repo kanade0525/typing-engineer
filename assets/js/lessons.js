@@ -2795,22 +2795,21 @@ volumes:
     lang: 'ruby',
     file: 'routes.rb',
     level: 2,
-    title: 'ルーティングを一本ずつ書く',
-    subtitle: 'root · get · post',
-    note: 'Rails も動かせない。打った行が何本の道になるかを rails routes の形で出す。',
+    title: '固定ページと転送の道を引く',
+    subtitle: 'root · get · redirect',
+    note: 'ここは resources に当てはまらないので手で書く。転送も一行で引ける。',
     code: `Rails.application.routes.draw do
   root "home#index"
 
   get "/about", to: "pages#about"
   get "/pricing", to: "pages#pricing"
-  get "/faq", to: "pages#faq"
+  get "/terms", to: "pages#terms"
+  get "/privacy", to: "pages#privacy"
 
-  get "/contact", to: "contacts#new"
-  post "/contact", to: "contacts#create"
+  get "/company", to: redirect("/about")
+  get "/help/faq", to: redirect("/faq")
 
-  get "/login", to: "sessions#new"
-  post "/login", to: "sessions#create"
-  delete "/logout", to: "sessions#destroy"
+  get "/healthz", to: "health#show"
 end
 `,
   },
@@ -2821,9 +2820,9 @@ end
     lang: 'ruby',
     file: 'routes.rb',
     level: 3,
-    title: 'resources で七本まとめて引く',
-    subtitle: 'resources · only · 入れ子',
-    note: 'resources :posts と打ち終えた瞬間に、七行が一度に現れる。',
+    title: 'resources でまとめて引く',
+    subtitle: 'resources · resource · only',
+    note: '一本ずつ書かない。resources :posts を打ち終えた瞬間に七行が現れる。',
     code: `Rails.application.routes.draw do
   root "home#index"
 
@@ -2835,7 +2834,9 @@ end
 
   resources :orders, except: [:destroy]
 
-  resources :sessions, only: [:new, :create, :destroy]
+  resource :session, only: [:new, :create, :destroy]
+
+  resource :contact, only: [:new, :create]
 end
 `,
   },
