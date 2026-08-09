@@ -5,7 +5,7 @@ import { Preview } from './preview.js';
 import { Clicker } from './sound.js';
 import { getBest, saveBest, getStats, recordRun } from './storage.js';
 import { TROPHIES } from './trophies.js';
-import { Rain, Rabbit } from './matrix.js';
+import { Rain } from './matrix.js';
 import { renderMypage } from './mypage.js';
 import { initTone } from './tone.js';
 import { rankOf } from './trophies.js';
@@ -84,7 +84,6 @@ const el = {
 const clicker = new Clicker();
 const preview = new Preview(el.preview);
 const rain = new Rain($('rain'));
-const rabbit = new Rabbit($('rabbit'));
 let flavorOn = false;
 
 /** Matrix の飾り。緑を選んで一覧にいるときだけ */
@@ -93,13 +92,8 @@ function syncFlavor() {
     state === 'home' && !el.home.hidden && document.documentElement.dataset.tone === 'green';
   if (want === flavorOn) return;
   flavorOn = want;
-  if (want) {
-    rain.start();
-    rabbit.start();
-  } else {
-    rain.stop();
-    rabbit.stop();
-  }
+  if (want) rain.start();
+  else rain.stop();
 }
 
 let state = 'home'; // 'home' | 'play' | 'result'
