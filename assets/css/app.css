@@ -1977,3 +1977,50 @@ kbd {
   letter-spacing: 0.01em;
   color: var(--fg);
 }
+
+.lesson--js .lesson__lang {
+  color: color-mix(in srgb, var(--tone) 88%, #fff);
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
+}
+
+#btnPlay {
+  color: var(--tone-ink);
+  background: var(--tone);
+  border-color: var(--tone);
+  font-weight: 600;
+}
+
+#btnPlay:hover:not(:disabled) {
+  color: var(--tone-ink);
+  background: color-mix(in srgb, var(--tone) 82%, #fff);
+}
+
+/* JS の色分け */
+.c.is-done.t-keyword {
+  color: color-mix(in srgb, var(--tone) 62%, #fff);
+}
+.c.is-done.t-fn {
+  color: var(--tone);
+}
+
+/* 完成形を出しているあいだの印 */
+.pane__goal {
+  padding: 2px 8px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--tone-ink);
+  background: var(--tone);
+  border-radius: 4px;
+}
+
+.ghost[aria-pressed="true"] {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
+  border-color: var(--line);
+}
+
+.window__bar .ghost[aria-pressed="true"] {
+  color: var(--tone);
+  background: color-mix(in srgb, #000 82%, transparent);
+  border-color: transparent;
+}

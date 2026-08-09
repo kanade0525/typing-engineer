@@ -134,7 +134,7 @@ export const LESSONS = [
 
   {
     id: 'html-hello',
-    group: 'HTML の基本',
+    group: 'HTML から CSS へ',
     lang: 'html',
     file: 'index.html',
     level: 1,
@@ -157,29 +157,18 @@ export const LESSONS = [
 
   {
     id: 'html-profile',
-    group: 'HTML の基本',
+    group: 'HTML から CSS へ',
     lang: 'html',
     file: 'profile.html',
     level: 2,
-    title: 'プロフィールページを組む',
-    subtitle: 'ul · a · style',
-    note: '頭が長い。<body> に入った途端に、書いた体裁ごと一気に立ち上がる。',
+    title: 'プロフィールを HTML で組む',
+    subtitle: 'ul · a · hr',
+    note: '<body> に入った所から、打つそばで中身が積み上がっていく。',
     code: `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Ada Lovelace</title>
-  <style>
-    body {
-      max-width: 30rem;
-      margin: 40px auto;
-      font-family: system-ui, sans-serif;
-      color: #1f2937;
-    }
-    h1 { margin-bottom: 2px; }
-    .role { color: #6b7280; margin-top: 0; }
-    li { line-height: 1.9; }
-  </style>
 </head>
 <body>
   <h1>Ada Lovelace</h1>
@@ -194,6 +183,59 @@ export const LESSONS = [
   <p><a href="https://example.com">Portfolio</a></p>
 </body>
 </html>
+`,
+  },
+
+  {
+    id: 'css-profile',
+    group: 'HTML から CSS へ',
+    lang: 'css',
+    file: 'profile.css',
+    level: 2,
+    title: 'プロフィールを CSS で整える',
+    subtitle: 'max-width · color',
+    note: '前の課題で組んだ素の文書に、一行ずつ体裁を与えていく。',
+    scaffold: `  <h1>Ada Lovelace</h1>
+  <p class="role">Web Developer</p>
+  <hr>
+  <h2>Skills</h2>
+  <ul>
+    <li>HTML and CSS</li>
+    <li>JavaScript</li>
+    <li>Ruby on Rails</li>
+  </ul>
+  <p><a href="https://example.com">Portfolio</a></p>`,
+    code: `body {
+  max-width: 30rem;
+  margin: 40px auto;
+  font-family: system-ui, sans-serif;
+  color: #1f2937;
+  line-height: 1.8;
+}
+
+h1 {
+  margin-bottom: 2px;
+  font-size: 30px;
+}
+
+.role {
+  margin-top: 0;
+  color: #6b7280;
+}
+
+hr {
+  margin: 26px 0;
+  border: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+li {
+  line-height: 1.9;
+}
+
+a {
+  color: #2563eb;
+}
 `,
   },
 
@@ -884,10 +926,426 @@ blockquote {
 .down { color: #dc2626; font-size: 12px; }
 `,
   },
+  {
+    id: 'game-breakout-1',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'breakout.js',
+    level: 1,
+    title: '台と玉を描く',
+    subtitle: 'canvas · fillRect · arc',
+    note: '打ち終えると、板と玉が置かれた台が一枚出る。まだ動かない。',
+    scaffold: `<canvas id="cv" width="320" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: ``,
+    code: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const paddle = { x: 124, y: 380, w: 72, h: 10 };
+const ball = { x: 160, y: 200, r: 7 };
+
+function draw() {
+  g.fillStyle = '#05070f';
+  g.fillRect(0, 0, 320, 400);
+
+  g.fillStyle = '#e2e8f0';
+  g.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  g.fillStyle = '#fde047';
+  g.beginPath();
+  g.arc(ball.x, ball.y, ball.r, 0, 7);
+  g.fill();
+}
+
+draw();
+`,
+  },
+
+  {
+    id: 'game-breakout-2',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'breakout.js',
+    level: 2,
+    title: '板を矢印キーで動かす',
+    subtitle: 'keydown · requestAnimationFrame',
+    note: 'キーの状態を持って毎フレーム描き直す。「遊ぶ」を押すと動かせる。',
+    scaffold: `<canvas id="cv" width="320" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const paddle = { x: 124, y: 380, w: 72, h: 10 };
+const ball = { x: 160, y: 200, r: 7 };
+
+function draw() {
+  g.fillStyle = '#05070f';
+  g.fillRect(0, 0, 320, 400);
+
+  g.fillStyle = '#e2e8f0';
+  g.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  g.fillStyle = '#fde047';
+  g.beginPath();
+  g.arc(ball.x, ball.y, ball.r, 0, 7);
+  g.fill();
+}
+
+draw();
+`,
+    code: `const keys = {};
+
+addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+});
+
+addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function move() {
+  if (keys.ArrowLeft) paddle.x -= 6;
+  if (keys.ArrowRight) paddle.x += 6;
+  if (paddle.x < 0) paddle.x = 0;
+  if (paddle.x > 248) paddle.x = 248;
+}
+
+function loop() {
+  move();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+`,
+  },
+
+  {
+    id: 'game-breakout-3',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'breakout.js',
+    level: 2,
+    title: '玉を飛ばす',
+    subtitle: '速度と壁の跳ね返り',
+    note: '座標に速度を足すだけ。壁に触れたら符号を反転する。',
+    scaffold: `<canvas id="cv" width="320" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const paddle = { x: 124, y: 380, w: 72, h: 10 };
+const ball = { x: 160, y: 200, r: 7 };
+
+function draw() {
+  g.fillStyle = '#05070f';
+  g.fillRect(0, 0, 320, 400);
+
+  g.fillStyle = '#e2e8f0';
+  g.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  g.fillStyle = '#fde047';
+  g.beginPath();
+  g.arc(ball.x, ball.y, ball.r, 0, 7);
+  g.fill();
+}
+
+draw();
+const keys = {};
+
+addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+});
+
+addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function move() {
+  if (keys.ArrowLeft) paddle.x -= 6;
+  if (keys.ArrowRight) paddle.x += 6;
+  if (paddle.x < 0) paddle.x = 0;
+  if (paddle.x > 248) paddle.x = 248;
+}
+
+function loop() {
+  move();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+`,
+    code: `ball.vx = 2.4;
+ball.vy = -3;
+
+function fly() {
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  if (ball.x < 7 || ball.x > 313) ball.vx = -ball.vx;
+  if (ball.y < 7) ball.vy = -ball.vy;
+
+  if (ball.y > 430) {
+    ball.x = 160;
+    ball.y = 200;
+    ball.vy = -3;
+  }
+}
+
+function loop() {
+  move();
+  fly();
+  draw();
+  requestAnimationFrame(loop);
+}
+`,
+  },
+
+  {
+    id: 'game-breakout-4',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'breakout.js',
+    level: 3,
+    title: '板で打ち返す',
+    subtitle: '当たり判定',
+    note: '板と玉が重なったかを見る。当たった位置で跳ね返る角度が変わる。',
+    scaffold: `<canvas id="cv" width="320" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const paddle = { x: 124, y: 380, w: 72, h: 10 };
+const ball = { x: 160, y: 200, r: 7 };
+
+function draw() {
+  g.fillStyle = '#05070f';
+  g.fillRect(0, 0, 320, 400);
+
+  g.fillStyle = '#e2e8f0';
+  g.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  g.fillStyle = '#fde047';
+  g.beginPath();
+  g.arc(ball.x, ball.y, ball.r, 0, 7);
+  g.fill();
+}
+
+draw();
+const keys = {};
+
+addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+});
+
+addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function move() {
+  if (keys.ArrowLeft) paddle.x -= 6;
+  if (keys.ArrowRight) paddle.x += 6;
+  if (paddle.x < 0) paddle.x = 0;
+  if (paddle.x > 248) paddle.x = 248;
+}
+
+function loop() {
+  move();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+ball.vx = 2.4;
+ball.vy = -3;
+
+function fly() {
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  if (ball.x < 7 || ball.x > 313) ball.vx = -ball.vx;
+  if (ball.y < 7) ball.vy = -ball.vy;
+
+  if (ball.y > 430) {
+    ball.x = 160;
+    ball.y = 200;
+    ball.vy = -3;
+  }
+}
+
+function loop() {
+  move();
+  fly();
+  draw();
+  requestAnimationFrame(loop);
+}
+`,
+    code: `function bounce() {
+  const onX = ball.x > paddle.x && ball.x < paddle.x + paddle.w;
+  const onY = ball.y + ball.r > paddle.y && ball.y < paddle.y + paddle.h;
+
+  if (onX && onY && ball.vy > 0) {
+    ball.vy = -ball.vy;
+    ball.vx += (ball.x - paddle.x - 36) / 22;
+  }
+}
+
+function loop() {
+  move();
+  fly();
+  bounce();
+  draw();
+  requestAnimationFrame(loop);
+}
+`,
+  },
+
+  {
+    id: 'game-breakout-5',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'breakout.js',
+    level: 3,
+    title: 'ブロックを壊して得点',
+    subtitle: '配列と総当たり',
+    note: '最後の一行を打つと、崩せるものになる。',
+    scaffold: `<canvas id="cv" width="320" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const paddle = { x: 124, y: 380, w: 72, h: 10 };
+const ball = { x: 160, y: 200, r: 7 };
+
+function draw() {
+  g.fillStyle = '#05070f';
+  g.fillRect(0, 0, 320, 400);
+
+  g.fillStyle = '#e2e8f0';
+  g.fillRect(paddle.x, paddle.y, paddle.w, paddle.h);
+
+  g.fillStyle = '#fde047';
+  g.beginPath();
+  g.arc(ball.x, ball.y, ball.r, 0, 7);
+  g.fill();
+}
+
+draw();
+const keys = {};
+
+addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+});
+
+addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+function move() {
+  if (keys.ArrowLeft) paddle.x -= 6;
+  if (keys.ArrowRight) paddle.x += 6;
+  if (paddle.x < 0) paddle.x = 0;
+  if (paddle.x > 248) paddle.x = 248;
+}
+
+function loop() {
+  move();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+ball.vx = 2.4;
+ball.vy = -3;
+
+function fly() {
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  if (ball.x < 7 || ball.x > 313) ball.vx = -ball.vx;
+  if (ball.y < 7) ball.vy = -ball.vy;
+
+  if (ball.y > 430) {
+    ball.x = 160;
+    ball.y = 200;
+    ball.vy = -3;
+  }
+}
+
+function loop() {
+  move();
+  fly();
+  draw();
+  requestAnimationFrame(loop);
+}
+function bounce() {
+  const onX = ball.x > paddle.x && ball.x < paddle.x + paddle.w;
+  const onY = ball.y + ball.r > paddle.y && ball.y < paddle.y + paddle.h;
+
+  if (onX && onY && ball.vy > 0) {
+    ball.vy = -ball.vy;
+    ball.vx += (ball.x - paddle.x - 36) / 22;
+  }
+}
+
+function loop() {
+  move();
+  fly();
+  bounce();
+  draw();
+  requestAnimationFrame(loop);
+}
+`,
+    code: `const bricks = [];
+
+for (let r = 0; r < 3; r++) {
+  for (let c = 0; c < 8; c++) {
+    bricks.push({ x: 10 + c * 38, y: 24 + r * 22, on: true });
+  }
+}
+
+let score = 0;
+
+function smash() {
+  for (const b of bricks) {
+    if (!b.on) continue;
+    if (ball.x > b.x && ball.x < b.x + 34 && ball.y > b.y && ball.y < b.y + 15) {
+      b.on = false;
+      ball.vy = -ball.vy;
+      score += 10;
+    }
+  }
+}
+
+function drawBricks() {
+  for (const b of bricks) {
+    if (!b.on) continue;
+    g.fillStyle = b.y < 40 ? '#38bdf8' : b.y < 62 ? '#a78bfa' : '#f472b6';
+    g.fillRect(b.x, b.y, 34, 15);
+  }
+
+  g.fillStyle = '#94a3b8';
+  g.font = '12px monospace';
+  g.fillText('SCORE ' + score, 10, 396);
+}
+
+function loop() {
+  move();
+  fly();
+  bounce();
+  smash();
+  draw();
+  drawBricks();
+  requestAnimationFrame(loop);
+}
+`,
+  },
+
 ];
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
-export const GROUPS = ['見た目が変わる', '王道パターン', 'HTML の基本'];
+export const GROUPS = ['見た目が変わる', '王道パターン', 'ゲームを写経する', 'HTML から CSS へ'];
 
 export function lessonsByGroup() {
   return GROUPS.map((name) => ({
