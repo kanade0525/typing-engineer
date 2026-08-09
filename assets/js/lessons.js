@@ -1847,6 +1847,860 @@ render();
 `,
   },
 
+  {
+    id: 'game-invader-1',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'invader.js',
+    level: 1,
+    title: '宇宙と自機を描く',
+    subtitle: 'moveTo · lineTo',
+    note: '三角形は線をつないで塗る。打ち終えると自機が一機置かれる。',
+    scaffold: `<canvas id="cv" width="320" height="360"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: ``,
+    code: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const ship = { x: 144, y: 330, w: 32, h: 12 };
+
+function sky() {
+  g.fillStyle = '#04040a';
+  g.fillRect(0, 0, 320, 360);
+}
+
+function drawShip() {
+  g.fillStyle = '#4ade80';
+  g.beginPath();
+  g.moveTo(ship.x + 16, ship.y);
+  g.lineTo(ship.x + 32, ship.y + 12);
+  g.lineTo(ship.x, ship.y + 12);
+  g.fill();
+}
+
+sky();
+drawShip();
+`,
+  },
+
+  {
+    id: 'game-invader-2',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'invader.js',
+    level: 2,
+    title: '敵を四角で組み立てる',
+    subtitle: '矩形の組み合わせ',
+    note: '四つの矩形で一体。二重の繰り返しで二十一体を並べる。',
+    scaffold: `<canvas id="cv" width="320" height="360"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const ship = { x: 144, y: 330, w: 32, h: 12 };
+
+function sky() {
+  g.fillStyle = '#04040a';
+  g.fillRect(0, 0, 320, 360);
+}
+
+function drawShip() {
+  g.fillStyle = '#4ade80';
+  g.beginPath();
+  g.moveTo(ship.x + 16, ship.y);
+  g.lineTo(ship.x + 32, ship.y + 12);
+  g.lineTo(ship.x, ship.y + 12);
+  g.fill();
+}
+
+sky();
+drawShip();
+`,
+    code: `const aliens = [];
+
+for (let row = 0; row < 3; row++) {
+  for (let col = 0; col < 7; col++) {
+    aliens.push({ x: 26 + col * 40, y: 40 + row * 34, alive: true });
+  }
+}
+
+function drawAliens() {
+  g.fillStyle = '#22d3ee';
+
+  for (const a of aliens) {
+    if (!a.alive) continue;
+    g.fillRect(a.x, a.y + 4, 20, 8);
+    g.fillRect(a.x + 4, a.y, 12, 4);
+    g.fillRect(a.x, a.y + 12, 4, 4);
+    g.fillRect(a.x + 16, a.y + 12, 4, 4);
+  }
+}
+
+sky();
+drawAliens();
+drawShip();
+`,
+  },
+
+  {
+    id: 'game-invader-3',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'invader.js',
+    level: 2,
+    title: '隊列を行進させる',
+    subtitle: '端で折り返して降りる',
+    note: '一体でも端に触れたら全部が向きを変え、一段降りる。',
+    scaffold: `<canvas id="cv" width="320" height="360"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const ship = { x: 144, y: 330, w: 32, h: 12 };
+
+function sky() {
+  g.fillStyle = '#04040a';
+  g.fillRect(0, 0, 320, 360);
+}
+
+function drawShip() {
+  g.fillStyle = '#4ade80';
+  g.beginPath();
+  g.moveTo(ship.x + 16, ship.y);
+  g.lineTo(ship.x + 32, ship.y + 12);
+  g.lineTo(ship.x, ship.y + 12);
+  g.fill();
+}
+
+sky();
+drawShip();
+const aliens = [];
+
+for (let row = 0; row < 3; row++) {
+  for (let col = 0; col < 7; col++) {
+    aliens.push({ x: 26 + col * 40, y: 40 + row * 34, alive: true });
+  }
+}
+
+function drawAliens() {
+  g.fillStyle = '#22d3ee';
+
+  for (const a of aliens) {
+    if (!a.alive) continue;
+    g.fillRect(a.x, a.y + 4, 20, 8);
+    g.fillRect(a.x + 4, a.y, 12, 4);
+    g.fillRect(a.x, a.y + 12, 4, 4);
+    g.fillRect(a.x + 16, a.y + 12, 4, 4);
+  }
+}
+
+sky();
+drawAliens();
+drawShip();
+`,
+    code: `let drift = 1;
+
+function marchAliens() {
+  let turn = false;
+
+  for (const a of aliens) {
+    if (!a.alive) continue;
+    a.x += drift;
+    if (a.x < 6 || a.x > 294) turn = true;
+  }
+
+  if (!turn) return;
+  drift = -drift;
+
+  for (const a of aliens) {
+    a.y += 12;
+  }
+}
+
+function loop() {
+  sky();
+  marchAliens();
+  drawAliens();
+  drawShip();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+`,
+  },
+
+  {
+    id: 'game-invader-4',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'invader.js',
+    level: 3,
+    title: '撃って当てる',
+    subtitle: 'スペースキーと当たり判定',
+    note: '最後の一行を打つと、矢印キーで動きスペースで撃てる。',
+    scaffold: `<canvas id="cv" width="320" height="360"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const ship = { x: 144, y: 330, w: 32, h: 12 };
+
+function sky() {
+  g.fillStyle = '#04040a';
+  g.fillRect(0, 0, 320, 360);
+}
+
+function drawShip() {
+  g.fillStyle = '#4ade80';
+  g.beginPath();
+  g.moveTo(ship.x + 16, ship.y);
+  g.lineTo(ship.x + 32, ship.y + 12);
+  g.lineTo(ship.x, ship.y + 12);
+  g.fill();
+}
+
+sky();
+drawShip();
+const aliens = [];
+
+for (let row = 0; row < 3; row++) {
+  for (let col = 0; col < 7; col++) {
+    aliens.push({ x: 26 + col * 40, y: 40 + row * 34, alive: true });
+  }
+}
+
+function drawAliens() {
+  g.fillStyle = '#22d3ee';
+
+  for (const a of aliens) {
+    if (!a.alive) continue;
+    g.fillRect(a.x, a.y + 4, 20, 8);
+    g.fillRect(a.x + 4, a.y, 12, 4);
+    g.fillRect(a.x, a.y + 12, 4, 4);
+    g.fillRect(a.x + 16, a.y + 12, 4, 4);
+  }
+}
+
+sky();
+drawAliens();
+drawShip();
+let drift = 1;
+
+function marchAliens() {
+  let turn = false;
+
+  for (const a of aliens) {
+    if (!a.alive) continue;
+    a.x += drift;
+    if (a.x < 6 || a.x > 294) turn = true;
+  }
+
+  if (!turn) return;
+  drift = -drift;
+
+  for (const a of aliens) {
+    a.y += 12;
+  }
+}
+
+function loop() {
+  sky();
+  marchAliens();
+  drawAliens();
+  drawShip();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+`,
+    code: `const keys = {};
+
+addEventListener('keydown', (e) => {
+  keys[e.key] = true;
+  if (e.key === ' ') shot.on = true;
+});
+
+addEventListener('keyup', (e) => {
+  keys[e.key] = false;
+});
+
+const shot = { x: 0, y: 0, on: false };
+let hits = 0;
+
+function fire() {
+  if (keys.ArrowLeft) ship.x -= 4;
+  if (keys.ArrowRight) ship.x += 4;
+  if (ship.x < 0) ship.x = 0;
+  if (ship.x > 288) ship.x = 288;
+
+  if (shot.on && shot.y <= 0) {
+    shot.x = ship.x + 16;
+    shot.y = ship.y;
+  }
+
+  if (shot.y > 0) shot.y -= 7;
+
+  for (const a of aliens) {
+    if (!a.alive) continue;
+    if (shot.x > a.x && shot.x < a.x + 20 && shot.y < a.y + 16 && shot.y > a.y) {
+      a.alive = false;
+      shot.y = 0;
+      hits += 1;
+    }
+  }
+
+  shot.on = false;
+  g.fillStyle = '#fde047';
+  if (shot.y > 0) g.fillRect(shot.x, shot.y, 2, 10);
+  g.fillText('HIT ' + hits, 8, 352);
+}
+
+function loop() {
+  sky();
+  marchAliens();
+  drawAliens();
+  drawShip();
+  fire();
+  requestAnimationFrame(loop);
+}
+`,
+  },
+
+  {
+    id: 'game-drop-1',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'drop.js',
+    level: 1,
+    title: 'フィールドを引く',
+    subtitle: '二次元配列と格子',
+    note: '十かける二十の升目を引く。中身はまだ空。',
+    scaffold: `<canvas id="cv" width="220" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: ``,
+    code: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const W = 10;
+const H = 20;
+const S = 20;
+
+const field = [];
+
+for (let y = 0; y < H; y++) {
+  field.push(new Array(W).fill(0));
+}
+
+function drawField() {
+  g.fillStyle = '#0b0f1a';
+  g.fillRect(0, 0, 220, 400);
+
+  g.strokeStyle = '#1e293b';
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      g.strokeRect(10 + x * S, y * S, S, S);
+    }
+  }
+}
+
+drawField();
+`,
+  },
+
+  {
+    id: 'game-drop-2',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'drop.js',
+    level: 2,
+    title: '積み上がった様子を描く',
+    subtitle: '色番号で塗り分ける',
+    note: '配列の数字を色に読み替えて塗る。下三段が埋まる。',
+    scaffold: `<canvas id="cv" width="220" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const W = 10;
+const H = 20;
+const S = 20;
+
+const field = [];
+
+for (let y = 0; y < H; y++) {
+  field.push(new Array(W).fill(0));
+}
+
+function drawField() {
+  g.fillStyle = '#0b0f1a';
+  g.fillRect(0, 0, 220, 400);
+
+  g.strokeStyle = '#1e293b';
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      g.strokeRect(10 + x * S, y * S, S, S);
+    }
+  }
+}
+
+drawField();
+`,
+    code: `const COLORS = ['#0b0f1a', '#38bdf8', '#a78bfa', '#f472b6', '#fbbf24'];
+
+field[19] = [1, 1, 2, 2, 0, 0, 3, 3, 1, 1];
+field[18] = [0, 1, 2, 0, 0, 0, 0, 3, 1, 0];
+field[17] = [0, 0, 4, 0, 0, 0, 0, 0, 4, 0];
+
+function drawStack() {
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (!field[y][x]) continue;
+      g.fillStyle = COLORS[field[y][x]];
+      g.fillRect(11 + x * S, y * S + 1, S - 2, S - 2);
+    }
+  }
+}
+
+drawField();
+drawStack();
+`,
+  },
+
+  {
+    id: 'game-drop-3',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'drop.js',
+    level: 2,
+    title: 'ピースを落とす',
+    subtitle: 'カウンタで落下',
+    note: '数十フレームに一度だけ一段下げる。落ちてくるようになる。',
+    scaffold: `<canvas id="cv" width="220" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const W = 10;
+const H = 20;
+const S = 20;
+
+const field = [];
+
+for (let y = 0; y < H; y++) {
+  field.push(new Array(W).fill(0));
+}
+
+function drawField() {
+  g.fillStyle = '#0b0f1a';
+  g.fillRect(0, 0, 220, 400);
+
+  g.strokeStyle = '#1e293b';
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      g.strokeRect(10 + x * S, y * S, S, S);
+    }
+  }
+}
+
+drawField();
+const COLORS = ['#0b0f1a', '#38bdf8', '#a78bfa', '#f472b6', '#fbbf24'];
+
+field[19] = [1, 1, 2, 2, 0, 0, 3, 3, 1, 1];
+field[18] = [0, 1, 2, 0, 0, 0, 0, 3, 1, 0];
+field[17] = [0, 0, 4, 0, 0, 0, 0, 0, 4, 0];
+
+function drawStack() {
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (!field[y][x]) continue;
+      g.fillStyle = COLORS[field[y][x]];
+      g.fillRect(11 + x * S, y * S + 1, S - 2, S - 2);
+    }
+  }
+}
+
+drawField();
+drawStack();
+`,
+    code: `const piece = { x: 4, y: 0, cells: [[1, 1], [1, 1]], color: 1 };
+
+function drawPiece() {
+  g.fillStyle = COLORS[piece.color];
+
+  for (let y = 0; y < piece.cells.length; y++) {
+    for (let x = 0; x < piece.cells[y].length; x++) {
+      if (!piece.cells[y][x]) continue;
+      g.fillRect(11 + (piece.x + x) * S, (piece.y + y) * S + 1, S - 2, S - 2);
+    }
+  }
+}
+
+let tick = 0;
+
+function loop() {
+  tick += 1;
+
+  if (tick % 30 === 0) {
+    piece.y += 1;
+    if (piece.y > 14) piece.y = 0;
+  }
+
+  drawField();
+  drawStack();
+  drawPiece();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+`,
+  },
+
+  {
+    id: 'game-drop-4',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'drop.js',
+    level: 3,
+    title: '積む・寄せる',
+    subtitle: '当たり判定と固定',
+    note: '最後の一行を打つと、矢印キーで寄せて積めるようになる。',
+    scaffold: `<canvas id="cv" width="220" height="400"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const W = 10;
+const H = 20;
+const S = 20;
+
+const field = [];
+
+for (let y = 0; y < H; y++) {
+  field.push(new Array(W).fill(0));
+}
+
+function drawField() {
+  g.fillStyle = '#0b0f1a';
+  g.fillRect(0, 0, 220, 400);
+
+  g.strokeStyle = '#1e293b';
+
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      g.strokeRect(10 + x * S, y * S, S, S);
+    }
+  }
+}
+
+drawField();
+const COLORS = ['#0b0f1a', '#38bdf8', '#a78bfa', '#f472b6', '#fbbf24'];
+
+field[19] = [1, 1, 2, 2, 0, 0, 3, 3, 1, 1];
+field[18] = [0, 1, 2, 0, 0, 0, 0, 3, 1, 0];
+field[17] = [0, 0, 4, 0, 0, 0, 0, 0, 4, 0];
+
+function drawStack() {
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      if (!field[y][x]) continue;
+      g.fillStyle = COLORS[field[y][x]];
+      g.fillRect(11 + x * S, y * S + 1, S - 2, S - 2);
+    }
+  }
+}
+
+drawField();
+drawStack();
+const piece = { x: 4, y: 0, cells: [[1, 1], [1, 1]], color: 1 };
+
+function drawPiece() {
+  g.fillStyle = COLORS[piece.color];
+
+  for (let y = 0; y < piece.cells.length; y++) {
+    for (let x = 0; x < piece.cells[y].length; x++) {
+      if (!piece.cells[y][x]) continue;
+      g.fillRect(11 + (piece.x + x) * S, (piece.y + y) * S + 1, S - 2, S - 2);
+    }
+  }
+}
+
+let tick = 0;
+
+function loop() {
+  tick += 1;
+
+  if (tick % 30 === 0) {
+    piece.y += 1;
+    if (piece.y > 14) piece.y = 0;
+  }
+
+  drawField();
+  drawStack();
+  drawPiece();
+  requestAnimationFrame(loop);
+}
+
+requestAnimationFrame(loop);
+`,
+    code: `function hits(nx, ny) {
+  for (let y = 0; y < 2; y++) {
+    for (let x = 0; x < 2; x++) {
+      const cy = ny + y;
+      const cx = nx + x;
+      if (cx < 0 || cx >= W || cy >= H) return true;
+      if (field[cy][cx]) return true;
+    }
+  }
+  return false;
+}
+
+addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft' && !hits(piece.x - 1, piece.y)) piece.x -= 1;
+  if (e.key === 'ArrowRight' && !hits(piece.x + 1, piece.y)) piece.x += 1;
+});
+
+function fall() {
+  if (!hits(piece.x, piece.y + 1)) {
+    piece.y += 1;
+    return;
+  }
+
+  for (let y = 0; y < 2; y++) {
+    for (let x = 0; x < 2; x++) {
+      field[piece.y + y][piece.x + x] = piece.color;
+    }
+  }
+
+  piece.x = 4;
+  piece.y = 0;
+  piece.color = 1 + (piece.color % 4);
+}
+
+function loop() {
+  tick += 1;
+  if (tick % 24 === 0) fall();
+
+  drawField();
+  drawStack();
+  drawPiece();
+  requestAnimationFrame(loop);
+}
+`,
+  },
+
+  {
+    id: 'game-othello-1',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'othello.js',
+    level: 1,
+    title: '盤に線を引く',
+    subtitle: 'moveTo · lineTo の繰り返し',
+    note: '縦横九本ずつ引くだけで八かける八の盤になる。',
+    scaffold: `<canvas id="cv" width="336" height="336"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: ``,
+    code: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const N = 8;
+const S = 40;
+
+function drawBoard() {
+  g.fillStyle = '#166534';
+  g.fillRect(0, 0, 336, 336);
+
+  g.strokeStyle = '#14532d';
+  g.lineWidth = 2;
+
+  for (let i = 0; i <= N; i++) {
+    g.beginPath();
+    g.moveTo(8 + i * S, 8);
+    g.lineTo(8 + i * S, 328);
+    g.moveTo(8, 8 + i * S);
+    g.lineTo(328, 8 + i * S);
+    g.stroke();
+  }
+}
+
+drawBoard();
+`,
+  },
+
+  {
+    id: 'game-othello-2',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'othello.js',
+    level: 2,
+    title: '石を並べる',
+    subtitle: '二次元配列と円',
+    note: '真ん中の四石を置く。数字を白黒に読み替えて丸を描く。',
+    scaffold: `<canvas id="cv" width="336" height="336"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const N = 8;
+const S = 40;
+
+function drawBoard() {
+  g.fillStyle = '#166534';
+  g.fillRect(0, 0, 336, 336);
+
+  g.strokeStyle = '#14532d';
+  g.lineWidth = 2;
+
+  for (let i = 0; i <= N; i++) {
+    g.beginPath();
+    g.moveTo(8 + i * S, 8);
+    g.lineTo(8 + i * S, 328);
+    g.moveTo(8, 8 + i * S);
+    g.lineTo(328, 8 + i * S);
+    g.stroke();
+  }
+}
+
+drawBoard();
+`,
+    code: `const board = [];
+
+for (let y = 0; y < N; y++) {
+  board.push(new Array(N).fill(0));
+}
+
+board[3][3] = 1;
+board[4][4] = 1;
+board[3][4] = 2;
+board[4][3] = 2;
+
+function drawStones() {
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      if (!board[y][x]) continue;
+      g.fillStyle = board[y][x] === 1 ? '#f8fafc' : '#0f172a';
+      g.beginPath();
+      g.arc(28 + x * S, 28 + y * S, 15, 0, 7);
+      g.fill();
+    }
+  }
+}
+
+drawBoard();
+drawStones();
+`,
+  },
+
+  {
+    id: 'game-othello-3',
+    group: 'ゲームを写経する',
+    lang: 'js',
+    file: 'othello.js',
+    level: 4,
+    title: '挟んで返す',
+    subtitle: '八方向の走査',
+    note: '最後の一行を打つと、挟んだ石が返るようになる。',
+    scaffold: `<canvas id="cv" width="336" height="336"></canvas>`,
+    styles: `canvas { border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.6); }`,
+    base: `const cv = document.getElementById('cv');
+const g = cv.getContext('2d');
+
+const N = 8;
+const S = 40;
+
+function drawBoard() {
+  g.fillStyle = '#166534';
+  g.fillRect(0, 0, 336, 336);
+
+  g.strokeStyle = '#14532d';
+  g.lineWidth = 2;
+
+  for (let i = 0; i <= N; i++) {
+    g.beginPath();
+    g.moveTo(8 + i * S, 8);
+    g.lineTo(8 + i * S, 328);
+    g.moveTo(8, 8 + i * S);
+    g.lineTo(328, 8 + i * S);
+    g.stroke();
+  }
+}
+
+drawBoard();
+const board = [];
+
+for (let y = 0; y < N; y++) {
+  board.push(new Array(N).fill(0));
+}
+
+board[3][3] = 1;
+board[4][4] = 1;
+board[3][4] = 2;
+board[4][3] = 2;
+
+function drawStones() {
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      if (!board[y][x]) continue;
+      g.fillStyle = board[y][x] === 1 ? '#f8fafc' : '#0f172a';
+      g.beginPath();
+      g.arc(28 + x * S, 28 + y * S, 15, 0, 7);
+      g.fill();
+    }
+  }
+}
+
+drawBoard();
+drawStones();
+`,
+    code: `let turn = 2;
+
+function flip(x, y, dx, dy, put) {
+  const line = [];
+  let cx = x + dx;
+  let cy = y + dy;
+
+  while (cx >= 0 && cx < N && cy >= 0 && cy < N && board[cy][cx] && board[cy][cx] !== turn) {
+    line.push([cx, cy]);
+    cx += dx;
+    cy += dy;
+  }
+
+  if (!line.length) return 0;
+  if (cx < 0 || cx >= N || cy < 0 || cy >= N) return 0;
+  if (board[cy][cx] !== turn) return 0;
+
+  if (put) {
+    for (const [fx, fy] of line) board[fy][fx] = turn;
+  }
+  return line.length;
+}
+
+cv.addEventListener('click', (e) => {
+  const r = cv.getBoundingClientRect();
+  const x = Math.floor((e.clientX - r.left - 8) / S);
+  const y = Math.floor((e.clientY - r.top - 8) / S);
+
+  if (x < 0 || x >= N || y < 0 || y >= N || board[y][x]) return;
+
+  let got = 0;
+  for (const dx of [-1, 0, 1]) {
+    for (const dy of [-1, 0, 1]) {
+      if (dx || dy) got += flip(x, y, dx, dy, true);
+    }
+  }
+
+  if (!got) return;
+  board[y][x] = turn;
+  turn = turn === 1 ? 2 : 1;
+  drawBoard();
+  drawStones();
+});
+`,
+  },
+
 ];
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
