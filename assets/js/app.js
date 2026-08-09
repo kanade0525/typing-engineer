@@ -1,4 +1,4 @@
-import { LESSONS, findLesson, nextLesson, lessonsByGroup } from './lessons.js';
+import { LESSONS, SERIES, findLesson, nextLesson, lessonsByGroup, blocksOf } from './lessons.js';
 import { typeMap } from './highlight.js';
 import { TypingEngine, countKeystrokes } from './engine.js';
 import { Preview } from './preview.js';
@@ -189,20 +189,69 @@ function renderShelf() {
   );
 }
 
+/** 作品の札。章はその中の段取りとして並べる */
+function seriesCard(b) {
+  const card = document.createElement('article');
+  card.className = `series series--${b.items[0].lang}`;
+
+  const keys = b.items.reduce((n, l) => n + countKeystrokes(l.code), 0);
+  const cleared = b.items.filter((l) => getBest(l.id)).length;
+
+  const head = document.createElement('header');
+  head.className = 'series__head';
+  head.innerHTML =
+    `<span class="lesson__lang">${b.items[0].lang.toUpperCase()}</span>` +
+    `<span class="series__n">全 ${b.items.length} 章 · ${keys.toLocaleString('en')} 打</span>`;
+
+  const title = document.createElement('h3');
+  title.className = 'series__title';
+  title.textContent = b.headline;
+
+  const goal = document.createElement('p');
+  goal.className = 'series__goal';
+  goal.textContent = b.goal;
+
+  const steps = document.createElement('ol');
+  steps.className = 'steps';
+  for (const l of b.items) {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `step${getBest(l.id) ? ' is-cleared' : ''}`;
+    btn.dataset.id = l.id;
+    btn.innerHTML =
+      `<span class="step__name">${l.title}</span>` +
+      `<span class="step__keys">${countKeystrokes(l.code)} 打</span>`;
+    li.append(btn);
+    steps.append(li);
+  }
+
+  const foot = document.createElement('p');
+  foot.className = 'series__foot';
+  foot.textContent = cleared === b.items.length ? '全章クリア' : `クリア ${cleared} / ${b.items.length}`;
+
+  card.append(head, title, goal, steps, foot);
+  return card;
+}
+
 function renderHome() {
   const frag = document.createDocumentFragment();
 
   for (const group of lessonsByGroup()) {
+    const blocks = blocksOf(group.items);
+    const isSeries = blocks.every((b) => b.series);
+
     const section = document.createElement('section');
     section.className = 'group';
 
     const head = document.createElement('h2');
     head.className = 'group__name';
-    head.innerHTML = `${group.name}<span class="group__count">${group.items.length}</span>`;
+    const count = isSeries ? `${blocks.length} 作品` : `${group.items.length}`;
+    head.innerHTML = `${group.name}<span class="group__count">${count}</span>`;
 
     const grid = document.createElement('div');
-    grid.className = 'lessons';
-    for (const l of group.items) grid.append(lessonCard(l));
+    grid.className = isSeries ? 'lessons lessons--series' : 'lessons';
+    for (const b of blocks) grid.append(b.series ? seriesCard(b) : lessonCard(b.items[0]));
 
     section.append(head, grid);
     frag.append(section);
@@ -213,7 +262,7 @@ function renderHome() {
 }
 
 el.lessonList.addEventListener('click', (e) => {
-  const card = e.target.closest('.lesson');
+  const card = e.target.closest('.lesson, .step');
   if (card) location.hash = `#/play/${card.dataset.id}`;
 });
 
@@ -381,7 +430,8 @@ function showToast(text) {
 function showReady() {
   phase = 'ready';
   const best = getBest(lesson.id);
-  el.readyFile.textContent = lesson.file;
+  const s = lesson.series ? SERIES[lesson.series] : null;
+  el.readyFile.textContent = s ? `${s.name} — ${lesson.file}` : lesson.file;
   el.readyTitle.textContent = lesson.title;
   el.readyMeta.textContent =
     `${countKeystrokes(lesson.code)} 打` +
@@ -472,7 +522,8 @@ function start(id) {
   }
 
   el.fileName.textContent = lesson.file;
-  el.lessonLabel.textContent = lesson.title;
+  const series = lesson.series ? SERIES[lesson.series] : null;
+  el.lessonLabel.textContent = series ? `${series.name} ／ ${lesson.title}` : lesson.title;
   el.lessonSub.textContent = lesson.subtitle;
   el.result.hidden = true;
   el.toast.hidden = true;
