@@ -82,12 +82,21 @@ function findChrome() {
       cands.push(join(cache, d, 'chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'));
     }
   }
-  cands.push('/usr/bin/google-chrome', '/usr/bin/chromium');
+  cands.push(
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/snap/bin/chromium'
+  );
   return cands.filter(Boolean).find((p) => existsSync(p));
 }
 
 const chromeBin = findChrome();
-if (!chromeBin) {
+if (!chromeBin && process.env.CI) {
+  // CI で黙って飛ばすと、緑なのに何も見ていない状態になる。それが一番まずい
+  ng('描画', 'Chrome が見つからない（CI では飛ばさず落とす）');
+} else if (!chromeBin) {
   console.log('Chrome が見つからないので描画の検査は飛ばす（CHROME= で場所を渡せる）');
 } else {
   const PORT = 8791;
@@ -105,6 +114,8 @@ if (!chromeBin) {
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-gpu',
+      // CI の入れ物では砂場が作れないことがある
+      ...(process.env.CI ? ['--no-sandbox', '--disable-dev-shm-usage'] : []),
       'about:blank',
     ],
     { stdio: ['ignore', 'ignore', 'pipe'] }
