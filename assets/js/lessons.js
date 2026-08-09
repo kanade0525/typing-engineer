@@ -1342,10 +1342,515 @@ function loop() {
 `,
   },
 
+  {
+    id: 'app-memo-1',
+    group: 'アプリを写経する',
+    lang: 'js',
+    file: 'memo.js',
+    level: 1,
+    title: '一覧を描く',
+    subtitle: 'Read · createElement',
+    note: '配列を回して li を作るだけ。打ち終えると三件が並ぶ。',
+    scaffold: `<div class="app">
+  <h1>Memo</h1>
+  <form id="form">
+    <input id="text" placeholder="Add a task" autocomplete="off">
+    <button>Add</button>
+  </form>
+  <ul id="list"></ul>
+  <p id="count"></p>
+</div>`,
+    styles: `.app{width:340px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.35);font-family:system-ui,sans-serif;color:#1f2937}
+h1{margin:0 0 16px;font-size:20px}
+form{display:flex;gap:8px;margin-bottom:16px}
+input{flex:1;padding:9px 11px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+button{padding:9px 14px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;cursor:pointer}
+ul{margin:0;padding:0;list-style:none}
+li{display:flex;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.txt{flex:1;cursor:pointer}
+li.done .txt{color:#9ca3af;text-decoration:line-through}
+.del{padding:2px 8px;background:#f3f4f6;color:#6b7280;font-size:12px}
+#count{margin:14px 0 0;color:#9ca3af;font-size:12px}`,
+    base: ``,
+    code: `const list = document.getElementById('list');
+const count = document.getElementById('count');
+
+const items = [
+  { id: 1, text: 'Buy milk', done: false },
+  { id: 2, text: 'Write the report', done: true },
+  { id: 3, text: 'Call the dentist', done: false },
+];
+
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.textContent = item.text;
+    if (item.done) li.className = 'done';
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+render();
+`,
+  },
+
+  {
+    id: 'app-memo-2',
+    group: 'アプリを写経する',
+    lang: 'js',
+    file: 'memo.js',
+    level: 2,
+    title: '追加する',
+    subtitle: 'Create · submit',
+    note: 'フォームの既定の送信を止めて、配列に足して描き直す。',
+    scaffold: `<div class="app">
+  <h1>Memo</h1>
+  <form id="form">
+    <input id="text" placeholder="Add a task" autocomplete="off">
+    <button>Add</button>
+  </form>
+  <ul id="list"></ul>
+  <p id="count"></p>
+</div>`,
+    styles: `.app{width:340px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.35);font-family:system-ui,sans-serif;color:#1f2937}
+h1{margin:0 0 16px;font-size:20px}
+form{display:flex;gap:8px;margin-bottom:16px}
+input{flex:1;padding:9px 11px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+button{padding:9px 14px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;cursor:pointer}
+ul{margin:0;padding:0;list-style:none}
+li{display:flex;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.txt{flex:1;cursor:pointer}
+li.done .txt{color:#9ca3af;text-decoration:line-through}
+.del{padding:2px 8px;background:#f3f4f6;color:#6b7280;font-size:12px}
+#count{margin:14px 0 0;color:#9ca3af;font-size:12px}`,
+    base: `const list = document.getElementById('list');
+const count = document.getElementById('count');
+
+const items = [
+  { id: 1, text: 'Buy milk', done: false },
+  { id: 2, text: 'Write the report', done: true },
+  { id: 3, text: 'Call the dentist', done: false },
+];
+
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.textContent = item.text;
+    if (item.done) li.className = 'done';
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+render();
+`,
+    code: `const form = document.getElementById('form');
+const text = document.getElementById('text');
+
+let nextId = 4;
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const value = text.value.trim();
+  if (!value) return;
+
+  items.push({ id: nextId, text: value, done: false });
+  nextId += 1;
+  text.value = '';
+  render();
+});
+`,
+  },
+
+  {
+    id: 'app-memo-3',
+    group: 'アプリを写経する',
+    lang: 'js',
+    file: 'memo.js',
+    level: 2,
+    title: '完了に切り替える',
+    subtitle: 'Update · イベント委譲',
+    note: '一件ずつに listener は付けない。ul で受けて、押された相手を見る。',
+    scaffold: `<div class="app">
+  <h1>Memo</h1>
+  <form id="form">
+    <input id="text" placeholder="Add a task" autocomplete="off">
+    <button>Add</button>
+  </form>
+  <ul id="list"></ul>
+  <p id="count"></p>
+</div>`,
+    styles: `.app{width:340px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.35);font-family:system-ui,sans-serif;color:#1f2937}
+h1{margin:0 0 16px;font-size:20px}
+form{display:flex;gap:8px;margin-bottom:16px}
+input{flex:1;padding:9px 11px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+button{padding:9px 14px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;cursor:pointer}
+ul{margin:0;padding:0;list-style:none}
+li{display:flex;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.txt{flex:1;cursor:pointer}
+li.done .txt{color:#9ca3af;text-decoration:line-through}
+.del{padding:2px 8px;background:#f3f4f6;color:#6b7280;font-size:12px}
+#count{margin:14px 0 0;color:#9ca3af;font-size:12px}`,
+    base: `const list = document.getElementById('list');
+const count = document.getElementById('count');
+
+const items = [
+  { id: 1, text: 'Buy milk', done: false },
+  { id: 2, text: 'Write the report', done: true },
+  { id: 3, text: 'Call the dentist', done: false },
+];
+
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.textContent = item.text;
+    if (item.done) li.className = 'done';
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+render();
+const form = document.getElementById('form');
+const text = document.getElementById('text');
+
+let nextId = 4;
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const value = text.value.trim();
+  if (!value) return;
+
+  items.push({ id: nextId, text: value, done: false });
+  nextId += 1;
+  text.value = '';
+  render();
+});
+`,
+    code: `function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.dataset.id = item.id;
+    if (item.done) li.className = 'done';
+
+    const txt = document.createElement('span');
+    txt.className = 'txt';
+    txt.textContent = item.text;
+
+    li.append(txt);
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+list.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('txt')) return;
+
+  const id = Number(e.target.closest('li').dataset.id);
+  const item = items.find((v) => v.id === id);
+  item.done = !item.done;
+  render();
+});
+`,
+  },
+
+  {
+    id: 'app-memo-4',
+    group: 'アプリを写経する',
+    lang: 'js',
+    file: 'memo.js',
+    level: 3,
+    title: '消す',
+    subtitle: 'Delete · splice',
+    note: '削除ボタンを足す。押された相手で処理を分けるので、切り替えとは衝突しない。',
+    scaffold: `<div class="app">
+  <h1>Memo</h1>
+  <form id="form">
+    <input id="text" placeholder="Add a task" autocomplete="off">
+    <button>Add</button>
+  </form>
+  <ul id="list"></ul>
+  <p id="count"></p>
+</div>`,
+    styles: `.app{width:340px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.35);font-family:system-ui,sans-serif;color:#1f2937}
+h1{margin:0 0 16px;font-size:20px}
+form{display:flex;gap:8px;margin-bottom:16px}
+input{flex:1;padding:9px 11px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+button{padding:9px 14px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;cursor:pointer}
+ul{margin:0;padding:0;list-style:none}
+li{display:flex;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.txt{flex:1;cursor:pointer}
+li.done .txt{color:#9ca3af;text-decoration:line-through}
+.del{padding:2px 8px;background:#f3f4f6;color:#6b7280;font-size:12px}
+#count{margin:14px 0 0;color:#9ca3af;font-size:12px}`,
+    base: `const list = document.getElementById('list');
+const count = document.getElementById('count');
+
+const items = [
+  { id: 1, text: 'Buy milk', done: false },
+  { id: 2, text: 'Write the report', done: true },
+  { id: 3, text: 'Call the dentist', done: false },
+];
+
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.textContent = item.text;
+    if (item.done) li.className = 'done';
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+render();
+const form = document.getElementById('form');
+const text = document.getElementById('text');
+
+let nextId = 4;
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const value = text.value.trim();
+  if (!value) return;
+
+  items.push({ id: nextId, text: value, done: false });
+  nextId += 1;
+  text.value = '';
+  render();
+});
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.dataset.id = item.id;
+    if (item.done) li.className = 'done';
+
+    const txt = document.createElement('span');
+    txt.className = 'txt';
+    txt.textContent = item.text;
+
+    li.append(txt);
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+list.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('txt')) return;
+
+  const id = Number(e.target.closest('li').dataset.id);
+  const item = items.find((v) => v.id === id);
+  item.done = !item.done;
+  render();
+});
+`,
+    code: `function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.dataset.id = item.id;
+    if (item.done) li.className = 'done';
+
+    const txt = document.createElement('span');
+    txt.className = 'txt';
+    txt.textContent = item.text;
+
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = 'x';
+
+    li.append(txt, del);
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+list.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('del')) return;
+
+  const id = Number(e.target.closest('li').dataset.id);
+  const at = items.findIndex((v) => v.id === id);
+  items.splice(at, 1);
+  render();
+});
+`,
+  },
+
+  {
+    id: 'app-memo-5',
+    group: 'アプリを写経する',
+    lang: 'js',
+    file: 'memo.js',
+    level: 3,
+    title: '保存する',
+    subtitle: 'localStorage',
+    note: '最後の一行を打つと、閉じても中身が残るようになる。',
+    scaffold: `<div class="app">
+  <h1>Memo</h1>
+  <form id="form">
+    <input id="text" placeholder="Add a task" autocomplete="off">
+    <button>Add</button>
+  </form>
+  <ul id="list"></ul>
+  <p id="count"></p>
+</div>`,
+    styles: `.app{width:340px;padding:24px;background:#fff;border-radius:16px;box-shadow:0 16px 40px rgba(0,0,0,.35);font-family:system-ui,sans-serif;color:#1f2937}
+h1{margin:0 0 16px;font-size:20px}
+form{display:flex;gap:8px;margin-bottom:16px}
+input{flex:1;padding:9px 11px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+button{padding:9px 14px;border:0;border-radius:8px;background:#2563eb;color:#fff;font-size:14px;cursor:pointer}
+ul{margin:0;padding:0;list-style:none}
+li{display:flex;align-items:center;gap:8px;padding:10px 4px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.txt{flex:1;cursor:pointer}
+li.done .txt{color:#9ca3af;text-decoration:line-through}
+.del{padding:2px 8px;background:#f3f4f6;color:#6b7280;font-size:12px}
+#count{margin:14px 0 0;color:#9ca3af;font-size:12px}`,
+    base: `const list = document.getElementById('list');
+const count = document.getElementById('count');
+
+const items = [
+  { id: 1, text: 'Buy milk', done: false },
+  { id: 2, text: 'Write the report', done: true },
+  { id: 3, text: 'Call the dentist', done: false },
+];
+
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.textContent = item.text;
+    if (item.done) li.className = 'done';
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+render();
+const form = document.getElementById('form');
+const text = document.getElementById('text');
+
+let nextId = 4;
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const value = text.value.trim();
+  if (!value) return;
+
+  items.push({ id: nextId, text: value, done: false });
+  nextId += 1;
+  text.value = '';
+  render();
+});
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.dataset.id = item.id;
+    if (item.done) li.className = 'done';
+
+    const txt = document.createElement('span');
+    txt.className = 'txt';
+    txt.textContent = item.text;
+
+    li.append(txt);
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+list.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('txt')) return;
+
+  const id = Number(e.target.closest('li').dataset.id);
+  const item = items.find((v) => v.id === id);
+  item.done = !item.done;
+  render();
+});
+function render() {
+  list.innerHTML = '';
+
+  for (const item of items) {
+    const li = document.createElement('li');
+    li.dataset.id = item.id;
+    if (item.done) li.className = 'done';
+
+    const txt = document.createElement('span');
+    txt.className = 'txt';
+    txt.textContent = item.text;
+
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = 'x';
+
+    li.append(txt, del);
+    list.append(li);
+  }
+
+  count.textContent = items.length + ' items';
+}
+
+list.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('del')) return;
+
+  const id = Number(e.target.closest('li').dataset.id);
+  const at = items.findIndex((v) => v.id === id);
+  items.splice(at, 1);
+  render();
+});
+`,
+    code: `function save() {
+  localStorage.setItem('memo', JSON.stringify(items));
+}
+
+function load() {
+  const raw = localStorage.getItem('memo');
+  if (!raw) return;
+
+  items.length = 0;
+  for (const v of JSON.parse(raw)) items.push(v);
+  nextId = items.length + 1;
+}
+
+list.addEventListener('click', save);
+form.addEventListener('submit', save);
+
+load();
+render();
+`,
+  },
+
 ];
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
-export const GROUPS = ['見た目が変わる', '王道パターン', 'ゲームを写経する', 'HTML から CSS へ'];
+export const GROUPS = ['見た目が変わる', '王道パターン', 'アプリを写経する', 'ゲームを写経する', 'HTML から CSS へ'];
 
 export function lessonsByGroup() {
   return GROUPS.map((name) => ({
