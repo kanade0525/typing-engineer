@@ -10,6 +10,7 @@ export const TONES = [
   { id: 'cyan', name: 'シアン' },
   { id: 'magenta', name: 'マゼンタ' },
   { id: 'mono', name: 'モノクロ' },
+  { id: 'vivid', name: 'カラフル' },
 ];
 
 const IDS = TONES.map((t) => t.id);

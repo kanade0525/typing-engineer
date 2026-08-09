@@ -3,7 +3,7 @@
 // サーバーは無い。だから「サーバーに残っているのだろう」と思わせないよう、
 // 置き場所（localStorage の鍵）まで書いて、持ち出しと消去の手段も並べる。
 
-import { LESSONS, findLesson, lessonsByGroup } from './lessons.js';
+import { LESSONS, SERIES, findLesson, lessonsByGroup, blocksOf } from './lessons.js';
 import { TROPHIES, rankOf } from './trophies.js';
 import { getBest, getStats, exportAll, clearAll, importAll, STORAGE_KEYS } from './storage.js';
 
@@ -73,19 +73,21 @@ function stageTable(s) {
   table.append(thead);
 
   const tbody = el('tbody');
-  for (const g of lessonsByGroup()) {
-    const gr = el('tr', 'is-group');
-    const gc = el('td');
-    gc.colSpan = 5;
-    gc.textContent = g.name;
-    gr.append(gc);
-    tbody.append(gr);
 
-    for (const l of g.items) {
+  const line = (label, cls) => {
+    const tr = el('tr', cls);
+    const td = el('td');
+    td.colSpan = 5;
+    td.textContent = label;
+    tr.append(td);
+    tbody.append(tr);
+  };
+
+  const row = (l, step) => {
     const best = getBest(l.id);
     const n = s.cleared[l.id] || 0;
     const tr = el('tr', n ? null : 'is-untouched');
-    const name = el('td');
+    const name = el('td', step ? 'is-step' : null);
     name.append(el('b', null, l.title), el('small', null, l.subtitle));
     tr.append(
       name,
@@ -95,6 +97,20 @@ function stageTable(s) {
       el('td', 'num', best ? `${best.accuracy}%` : '—')
     );
     tbody.append(tr);
+  };
+
+  for (const g of lessonsByGroup()) {
+    line(g.name, 'is-group');
+
+    for (const b of blocksOf(g.items)) {
+      if (!b.series) {
+        row(b.items[0], false);
+        continue;
+      }
+      // 作品はひとまとまりで見せる。章はその下に
+      const done = b.items.filter((l) => getBest(l.id)).length;
+      line(`${b.headline}　—　${done} / ${b.items.length} 章`, 'is-series');
+      for (const l of b.items) row(l, true);
     }
   }
   table.append(tbody);

@@ -215,7 +215,8 @@ function browserChecks() {
     if (s.borderRadius === '0px') out.push(`<button ${b.id || b.className}> に角丸が無い`);
   }
 
-  // (3) どの色でも字が読めるか。黒地との対比を実測する
+  // (3) どの色でも字が読めるか。
+  //     地の色との対比を実測する。黒と決め打ちにすると、地が黒でないテーマで甘くなる
   const lin = (v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
   const lum = (css) => {
     const ch = css.startsWith('color(')
@@ -233,13 +234,28 @@ function browserChecks() {
     return c;
   };
 
+  const BODY = ['--pending', '--fg', '--fg-mid', '--fg-dim'];
+  const CODE = [
+    '--tok-tag', '--tok-attr', '--tok-string', '--tok-text', '--tok-punct',
+    '--tok-doctype', '--tok-atrule', '--tok-selector', '--tok-prop',
+    '--tok-value', '--tok-number', '--tok-keyword', '--tok-fn',
+  ];
+
   const was = document.documentElement.dataset.tone;
-  for (const tone of ['green', 'amber', 'cyan', 'magenta', 'mono']) {
+  for (const tone of ['green', 'amber', 'cyan', 'magenta', 'mono', 'vivid']) {
     document.documentElement.dataset.tone = tone;
-    for (const name of ['--pending', '--fg', '--fg-mid', '--fg-dim']) {
-      const ratio = (lum(value(name)) + 0.05) / 0.05;
-      if (ratio < 4.5) out.push(`${tone} の ${name} が黒地に対して ${ratio.toFixed(2)}:1（4.5 未満）`);
+    const bg = lum(value('--bg'));
+    const ratio = (name) => {
+      const [hi, lo] = [lum(value(name)), bg].sort((a, b) => b - a);
+      return (hi + 0.05) / (lo + 0.05);
+    };
+    for (const name of [...BODY, ...CODE]) {
+      const r = ratio(name);
+      if (r < 4.5) out.push(`${tone} の ${name} が地に対して ${r.toFixed(2)}:1（4.5 未満）`);
     }
+    // 注釈は控えめでよい。ただし読めなくなる手前まで
+    const c = ratio('--tok-comment');
+    if (c < 3) out.push(`${tone} の --tok-comment が地に対して ${c.toFixed(2)}:1（3.0 未満）`);
   }
   document.documentElement.dataset.tone = was;
 
