@@ -928,6 +928,7 @@ blockquote {
   },
   {
     id: 'game-breakout-1',
+    series: 'breakout',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'breakout.js',
@@ -963,6 +964,7 @@ draw();
 
   {
     id: 'game-breakout-2',
+    series: 'breakout',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'breakout.js',
@@ -1022,6 +1024,7 @@ requestAnimationFrame(loop);
 
   {
     id: 'game-breakout-3',
+    series: 'breakout',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'breakout.js',
@@ -1104,6 +1107,7 @@ function loop() {
 
   {
     id: 'game-breakout-4',
+    series: 'breakout',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'breakout.js',
@@ -1203,6 +1207,7 @@ function loop() {
 
   {
     id: 'game-breakout-5',
+    series: 'breakout',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'breakout.js',
@@ -1344,6 +1349,7 @@ function loop() {
 
   {
     id: 'app-memo-1',
+    series: 'memo',
     group: 'アプリを写経する',
     lang: 'js',
     file: 'memo.js',
@@ -1400,6 +1406,7 @@ render();
 
   {
     id: 'app-memo-2',
+    series: 'memo',
     group: 'アプリを写経する',
     lang: 'js',
     file: 'memo.js',
@@ -1472,6 +1479,7 @@ form.addEventListener('submit', (e) => {
 
   {
     id: 'app-memo-3',
+    series: 'memo',
     group: 'アプリを写経する',
     lang: 'js',
     file: 'memo.js',
@@ -1571,6 +1579,7 @@ list.addEventListener('click', (e) => {
 
   {
     id: 'app-memo-4',
+    series: 'memo',
     group: 'アプリを写経する',
     lang: 'js',
     file: 'memo.js',
@@ -1701,6 +1710,7 @@ list.addEventListener('click', (e) => {
 
   {
     id: 'app-memo-5',
+    series: 'memo',
     group: 'アプリを写経する',
     lang: 'js',
     file: 'memo.js',
@@ -1849,6 +1859,7 @@ render();
 
   {
     id: 'game-invader-1',
+    series: 'invader',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'invader.js',
@@ -1885,6 +1896,7 @@ drawShip();
 
   {
     id: 'game-invader-2',
+    series: 'invader',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'invader.js',
@@ -1944,6 +1956,7 @@ drawShip();
 
   {
     id: 'game-invader-3',
+    series: 'invader',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'invader.js',
@@ -2031,6 +2044,7 @@ requestAnimationFrame(loop);
 
   {
     id: 'game-invader-4',
+    series: 'invader',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'invader.js',
@@ -2168,6 +2182,7 @@ function loop() {
 
   {
     id: 'game-drop-1',
+    series: 'drop',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'drop.js',
@@ -2210,6 +2225,7 @@ drawField();
 
   {
     id: 'game-drop-2',
+    series: 'drop',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'drop.js',
@@ -2270,6 +2286,7 @@ drawStack();
 
   {
     id: 'game-drop-3',
+    series: 'drop',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'drop.js',
@@ -2360,6 +2377,7 @@ requestAnimationFrame(loop);
 
   {
     id: 'game-drop-4',
+    series: 'drop',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'drop.js',
@@ -2493,6 +2511,7 @@ function loop() {
 
   {
     id: 'game-othello-1',
+    series: 'othello',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'othello.js',
@@ -2532,6 +2551,7 @@ drawBoard();
 
   {
     id: 'game-othello-2',
+    series: 'othello',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'othello.js',
@@ -2596,6 +2616,7 @@ drawStones();
 
   {
     id: 'game-othello-3',
+    series: 'othello',
     group: 'ゲームを写経する',
     lang: 'js',
     file: 'othello.js',
@@ -2820,6 +2841,54 @@ end
   },
 
 ];
+
+
+/**
+ * ひと続きの作品。章はその中の段取りでしかない。
+ * 一覧では作品名と「打ち終えると何ができるか」を先に出し、章はその下に並べる。
+ */
+export const SERIES = {
+  memo: {
+    name: 'メモ帳',
+    headline: 'メモ帳をつくる',
+    goal: '書いて、済みにして、消して、閉じても残る。CRUD がひと通り入った道具に。',
+  },
+  breakout: {
+    name: 'ブロック崩し',
+    headline: 'ブロック崩しをつくる',
+    goal: '矢印キーで板を動かし、跳ね返る玉でブロックを崩す。遊べる形まで。',
+  },
+  invader: {
+    name: 'インベーダー',
+    headline: 'インベーダーをつくる',
+    goal: '降りてくる敵の隊列を、スペースキーで撃ち落とす。',
+  },
+  drop: {
+    name: 'ブロック落とし',
+    headline: 'ブロック落としをつくる',
+    goal: '落ちてくるピースを左右に寄せて積み上げる。',
+  },
+  othello: {
+    name: 'オセロ',
+    headline: 'オセロをつくる',
+    goal: '盤を敷き、石を並べ、挟んだ石が返るところまで。',
+  },
+};
+
+/** 作品ごとにまとめる。作品に属さないものは一つずつの札のまま */
+export function blocksOf(items) {
+  const out = [];
+  for (const l of items) {
+    if (!l.series) {
+      out.push({ items: [l] });
+      continue;
+    }
+    const last = out[out.length - 1];
+    if (last && last.series === l.series) last.items.push(l);
+    else out.push({ series: l.series, ...SERIES[l.series], items: [l] });
+  }
+  return out;
+}
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
 export const GROUPS = ['見た目が変わる', '王道パターン', 'アプリを写経する', 'ゲームを写経する', '設定ファイルを書く', 'HTML から CSS へ'];
