@@ -3,39 +3,62 @@
    昔の版は外部（Heroku / FontAwesome / 期限付きの S3 URL）に寄りかかって死んだ。 */
 
 :root {
+  /* 意匠は一つ。燐光の色だけ替えられるようにしてある。
+     data-tone を <html> に付けると、下がぜんぶ追随する */
+  --tone: #35e02e;
+  --tone-ink: #04120a; /* 主色を地にしたときに乗せる文字 */
+
   --bg: #000000;
-  --panel: #04120a;
-  --panel-2: #010601;
-  --line: #165213;
-  --line-soft: #0c320a;
+  --panel: color-mix(in srgb, var(--tone) 8%, #000);
+  --panel-2: color-mix(in srgb, var(--tone) 3%, #000);
+  --line: color-mix(in srgb, var(--tone) 36%, #000);
+  --line-soft: color-mix(in srgb, var(--tone) 22%, #000);
 
-  --fg: #35e02e;
-  --fg-mid: #2ab024;
-  --fg-dim: #1f8c1b;
+  --fg: var(--tone);
+  --fg-mid: color-mix(in srgb, var(--tone) 78%, #000);
+  --fg-dim: color-mix(in srgb, var(--tone) 68%, #000);
 
-  --accent: #35e02e;
-  --accent-soft: rgba(53, 224, 46, 0.18);
-  --good: #9dff5c;
+  --accent: var(--tone);
+  --accent-soft: color-mix(in srgb, var(--tone) 18%, transparent);
+  --good: color-mix(in srgb, var(--tone) 70%, #fff);
   --bad: #ff4d4d;
 
   /* まだ打っていない字。読める明るさは保ちつつ、打った字より静かに */
-  --pending: #249c1f;
+  --pending: color-mix(in srgb, var(--tone) 75%, #000);
 
-  --tok-tag: #35e02e;
-  --tok-attr: #7dff6f;
-  --tok-string: #b8ff9f;
-  --tok-text: #d8ffcf;
-  --tok-punct: #1f9c1a;
-  --tok-doctype: #7dff6f;
-  --tok-comment: #136e10;
-  --tok-atrule: #7dff6f;
-  --tok-selector: #5cff4f;
-  --tok-prop: #35e02e;
-  --tok-value: #a8ff8f;
-  --tok-number: #c9ff4a;
+  --tok-tag: var(--tone);
+  --tok-attr: color-mix(in srgb, var(--tone) 62%, #fff);
+  --tok-string: color-mix(in srgb, var(--tone) 45%, #fff);
+  --tok-text: color-mix(in srgb, var(--tone) 25%, #fff);
+  --tok-punct: color-mix(in srgb, var(--tone) 72%, #000);
+  --tok-doctype: color-mix(in srgb, var(--tone) 62%, #fff);
+  --tok-comment: color-mix(in srgb, var(--tone) 58%, #000);
+  --tok-atrule: color-mix(in srgb, var(--tone) 62%, #fff);
+  --tok-selector: color-mix(in srgb, var(--tone) 75%, #fff);
+  --tok-prop: var(--tone);
+  --tok-value: color-mix(in srgb, var(--tone) 45%, #fff);
+  --tok-number: color-mix(in srgb, var(--tone) 88%, #fff);
 
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
   --ui: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+
+/* 燐光の色。意匠は変えない */
+:root[data-tone="amber"] {
+  --tone: #ffb000;
+  --tone-ink: #1a1000;
+}
+:root[data-tone="cyan"] {
+  --tone: #22d3ee;
+  --tone-ink: #04191d;
+}
+:root[data-tone="magenta"] {
+  --tone: #ff8ade;
+  --tone-ink: #1d0417;
+}
+:root[data-tone="mono"] {
+  --tone: #d6e2da;
+  --tone-ink: #0a0f0c;
 }
 
 *,
@@ -68,8 +91,8 @@ body::before {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(880px 520px at 20% -12%, rgba(53, 224, 46, 0.13), transparent 62%),
-    radial-gradient(700px 420px at 92% 6%, rgba(53, 224, 46, 0.07), transparent 64%);
+    radial-gradient(880px 520px at 20% -12%, color-mix(in srgb, var(--tone) 13%, transparent), transparent 62%),
+    radial-gradient(700px 420px at 92% 6%, color-mix(in srgb, var(--tone) 7%, transparent), transparent 64%);
 }
 
 .screen {
@@ -87,7 +110,7 @@ a {
 /* 単独で置いてある文字のリンクだけ、狙って線を引く */
 .credit a {
   text-decoration: underline;
-  text-decoration-color: rgba(53, 224, 46, 0.32);
+  text-decoration-color: color-mix(in srgb, var(--tone) 32%, transparent);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
@@ -121,7 +144,7 @@ a {
   line-height: 1.1;
   letter-spacing: 0.01em;
   color: var(--accent);
-  text-shadow: 0 0 34px rgba(53, 224, 46, 0.45);
+  text-shadow: 0 0 34px color-mix(in srgb, var(--tone) 45%, transparent);
 }
 
 .brand__mark {
@@ -231,8 +254,8 @@ a {
 
 .lesson:hover {
   transform: translateY(-2px);
-  border-color: #2a8f26;
-  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.18), 0 16px 38px rgba(0, 0, 0, 0.6);
+  border-color: color-mix(in srgb, var(--tone) 64%, #000);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone) 18%, transparent), 0 16px 38px rgba(0, 0, 0, 0.6);
 }
 
 .lesson:active {
@@ -255,19 +278,19 @@ a {
 }
 
 .lesson--html .lesson__lang {
-  color: #35e02e;
-  background: rgba(53, 224, 46, 0.14);
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
 }
 
 .lesson--css .lesson__lang {
-  color: #b8ff9f;
-  background: rgba(184, 255, 159, 0.12);
+  color: color-mix(in srgb, var(--tone) 45%, #fff);
+  background: color-mix(in srgb, var(--tone) 14%, transparent);
 }
 
 .lesson__level {
   font-size: 9.5px;
   letter-spacing: 0.22em;
-  color: #1a6b17;
+  color: color-mix(in srgb, var(--tone) 47%, #000);
 }
 
 .lesson__title {
@@ -279,7 +302,7 @@ a {
 .lesson__sub {
   font-family: var(--mono);
   font-size: 11.5px;
-  color: #5cff4f;
+  color: color-mix(in srgb, var(--tone) 75%, #fff);
   opacity: 0.9;
 }
 
@@ -369,7 +392,7 @@ kbd {
   font-size: 0.92em;
   padding: 2px 7px;
   border-radius: 5px;
-  background: #061a08;
+  background: color-mix(in srgb, var(--tone) 12%, #000);
   border: 1px solid var(--line);
   color: var(--fg);
 }
@@ -393,7 +416,7 @@ kbd {
   border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.12), 0 30px 90px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone) 12%, transparent), 0 30px 90px rgba(0, 0, 0, 0.8);
 }
 
 .window__bar {
@@ -404,15 +427,15 @@ kbd {
   height: 46px;
   padding: 0 12px 0 15px;
   /* 2020 年の .navbar そのまま。緑地に黒文字 */
-  background: #35e02e;
-  border-bottom: 1px solid #35e02e;
+  background: var(--tone);
+  border-bottom: 1px solid var(--tone);
 }
 
 .window__bar .window__file,
 .window__bar .stat b,
 .window__bar .stat small,
 .window__bar .ghost {
-  color: #04120a;
+  color: color-mix(in srgb, var(--tone) 8%, #000);
 }
 
 .window__bar .ghost:hover {
@@ -491,7 +514,7 @@ kbd {
 
 .ghost:hover {
   color: var(--fg);
-  background: #1c2333;
+  background: color-mix(in srgb, var(--tone) 12%, #000);
   border-color: var(--line);
 }
 
@@ -552,13 +575,13 @@ kbd {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #0d3a0c;
+  background: color-mix(in srgb, var(--tone) 26%, #000);
   transition: background 0.2s, box-shadow 0.2s;
 }
 
 .pane__live.is-on {
   background: var(--good);
-  box-shadow: 0 0 9px rgba(158, 206, 106, 0.8);
+  box-shadow: 0 0 9px color-mix(in srgb, var(--tone) 80%, transparent);
 }
 
 /* プレビュー側の <title>。head を打っている間はここだけが動く */
@@ -597,7 +620,7 @@ kbd {
 }
 
 .row.is-active {
-  background: rgba(53, 224, 46, 0.06);
+  background: color-mix(in srgb, var(--tone) 6%, transparent);
 }
 
 .row.is-active .row__num {
@@ -609,7 +632,7 @@ kbd {
   width: 4em;
   padding-right: 1.2em;
   text-align: right;
-  color: #14580f;
+  color: color-mix(in srgb, var(--tone) 39%, #000);
   user-select: none;
   font-variant-numeric: tabular-nums;
 }
@@ -674,15 +697,15 @@ kbd {
 @keyframes block {
   0%,
   54% {
-    background: #35e02e;
+    background: var(--tone);
     color: #000000;
     text-shadow: none;
   }
   55%,
   100% {
     background: transparent;
-    color: #35e02e;
-    text-shadow: 0 0 7px #35e02e;
+    color: var(--tone);
+    text-shadow: 0 0 7px var(--tone);
   }
 }
 
@@ -727,41 +750,57 @@ kbd {
 
 /* ------------------------------------------------- 進み具合 */
 
+/* 進捗は緑帯のすぐ下に全幅で。下端に置くと視界に入らない */
+.track {
+  position: relative;
+  flex: none;
+  height: 3px;
+  background: color-mix(in srgb, var(--tone) 14%, #000);
+}
+
+.track__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 62%, #000), var(--tone));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--tone) 75%, transparent);
+  transition: width 0.12s ease-out;
+}
+
+/* 自分の最速がいま走っている位置 */
+.track__ghost {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  background: #ffffff;
+  opacity: 0.75;
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.85);
+  transition: left 0.12s linear;
+}
+
 .progress {
   flex: none;
   display: flex;
   align-items: center;
-  gap: 13px;
-  padding: 12px 18px;
+  gap: 18px;
+  padding: 11px 18px;
   background: var(--panel);
   border-top: 1px solid var(--line-soft);
-}
-
-.progress__track {
-  flex: 1;
-  height: 4px;
-  border-radius: 99px;
-  background: #0d2f0b;
-  overflow: hidden;
-}
-
-.progress__fill {
-  display: block;
-  width: 0;
-  height: 100%;
-  border-radius: 99px;
-  background: linear-gradient(90deg, #1f8c1b, #35e02e);
-  box-shadow: 0 0 10px rgba(53, 224, 46, 0.6);
-  transition: width 0.12s ease-out;
-}
-
-.progress__num {
-  min-width: 3.2em;
-  text-align: right;
   font-family: var(--mono);
   font-size: 11.5px;
   color: var(--fg-dim);
   font-variant-numeric: tabular-nums;
+}
+
+.progress__keys {
+  color: var(--fg-mid);
+}
+
+.progress__num {
+  margin-left: auto;
+  color: var(--accent);
 }
 
 /* ------------------------------------------------- プレビュー */
@@ -822,7 +861,7 @@ kbd {
   justify-content: center;
   overflow: auto;
   padding: 16px;
-  background: rgba(0, 6, 0, 0.8);
+  background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
   animation: fade 0.24s ease-out;
@@ -845,7 +884,7 @@ kbd {
   background: linear-gradient(180deg, var(--panel), var(--panel-2));
   border: 1px solid var(--line);
   border-radius: 18px;
-  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.14), 0 30px 80px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone) 14%, transparent), 0 30px 80px rgba(0, 0, 0, 0.8);
 }
 
 .result__eyebrow {
@@ -877,7 +916,7 @@ kbd {
   line-height: 1;
   letter-spacing: -0.02em;
   color: var(--accent);
-  text-shadow: 0 0 18px rgba(53, 224, 46, 0.55);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--tone) 55%, transparent);
 }
 
 .result__hero small {
@@ -893,8 +932,8 @@ kbd {
   font-size: 11px;
   border-radius: 99px;
   color: var(--good);
-  background: rgba(157, 255, 92, 0.12);
-  border: 1px solid rgba(157, 255, 92, 0.36);
+  background: color-mix(in srgb, var(--good) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--good) 36%, transparent);
 }
 
 .result__grid {
@@ -956,7 +995,7 @@ kbd {
   font: inherit;
   font-size: 13px;
   color: var(--fg);
-  background: #061a08;
+  background: color-mix(in srgb, var(--tone) 12%, #000);
   border: 1px solid var(--line);
   border-radius: 9px;
   cursor: pointer;
@@ -964,20 +1003,20 @@ kbd {
 }
 
 .btn:hover {
-  background: #0b2a0d;
-  border-color: #2a8f26;
+  background: color-mix(in srgb, var(--tone) 19%, #000);
+  border-color: color-mix(in srgb, var(--tone) 64%, #000);
 }
 
 .btn--primary {
   font-weight: 600;
-  color: #001200;
+  color: var(--tone-ink);
   background: var(--accent);
   border-color: var(--accent);
 }
 
 .btn--primary:hover {
-  background: #58f050;
-  border-color: #58f050;
+  background: color-mix(in srgb, var(--tone) 82%, #fff);
+  border-color: color-mix(in srgb, var(--tone) 82%, #fff);
 }
 
 .btn--quiet {
@@ -987,7 +1026,7 @@ kbd {
 }
 
 .btn--quiet:hover {
-  background: #061a08;
+  background: color-mix(in srgb, var(--tone) 12%, #000);
   border-color: var(--line);
 }
 
@@ -1067,18 +1106,6 @@ kbd {
   );
 }
 
-/* 一覧の背後に降る字 */
-#rain {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.42;
-  /* 本文が乗るあたりだけ薄める。読めなくなっては元も子もない */
-  -webkit-mask-image: radial-gradient(115% 95% at 26% 26%, rgba(0, 0, 0, 0.18), #000 58%);
-  mask-image: radial-gradient(115% 95% at 26% 26%, rgba(0, 0, 0, 0.18), #000 58%);
-}
-
 /* Neo の画面に出たあの三行 */
 .rabbit {
   min-height: 1.3em;
@@ -1086,8 +1113,8 @@ kbd {
   font-family: var(--mono);
   font-size: 12.5px;
   letter-spacing: 0.03em;
-  color: #35e02e;
-  text-shadow: 0 0 8px rgba(53, 224, 46, 0.55);
+  color: var(--tone);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--tone) 55%, transparent);
 }
 
 .rabbit::before {
@@ -1132,8 +1159,8 @@ kbd {
   font-size: 12.5px;
   line-height: 1.7;
   color: var(--fg);
-  background: rgba(53, 224, 46, 0.06);
-  border: 1px solid rgba(53, 224, 46, 0.35);
+  background: color-mix(in srgb, var(--tone) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tone) 35%, transparent);
   border-left-width: 3px;
   border-radius: 8px;
 }
@@ -1143,7 +1170,7 @@ kbd {
   font-family: var(--mono);
   font-size: 11.5px;
   color: var(--accent);
-  text-shadow: 0 0 8px rgba(53, 224, 46, 0.6);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--tone) 60%, transparent);
 }
 
 .warn b {
@@ -1188,7 +1215,7 @@ kbd {
   font-size: 11.5px;
   line-height: 1.7;
   color: var(--fg-dim);
-  background: rgba(53, 224, 46, 0.05);
+  background: color-mix(in srgb, var(--tone) 5%, transparent);
   border-bottom: 1px solid var(--line-soft);
 }
 
@@ -1251,13 +1278,13 @@ kbd {
   padding: 10px 12px;
   border: 1px solid var(--line-soft);
   border-radius: 10px;
-  background: rgba(4, 18, 10, 0.6);
+  background: color-mix(in srgb, var(--tone) 6%, transparent);
 }
 
 .trophy b {
   font-size: 12.5px;
   font-weight: 600;
-  color: #2a4f28;
+  color: color-mix(in srgb, var(--tone) 33%, #000);
 }
 
 .trophy small {
@@ -1268,13 +1295,13 @@ kbd {
 }
 
 .trophy.is-got {
-  border-color: rgba(53, 224, 46, 0.4);
-  background: rgba(53, 224, 46, 0.07);
+  border-color: color-mix(in srgb, var(--tone) 40%, transparent);
+  background: color-mix(in srgb, var(--tone) 7%, transparent);
 }
 
 .trophy.is-got b {
   color: var(--accent);
-  text-shadow: 0 0 8px rgba(53, 224, 46, 0.45);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--tone) 45%, transparent);
 }
 
 .trophy.is-got small {
@@ -1294,7 +1321,7 @@ kbd {
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--good);
-  text-shadow: 0 0 12px rgba(157, 255, 92, 0.45);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--good) 45%, transparent);
 }
 
 .result__gain small {
@@ -1332,7 +1359,7 @@ kbd {
   z-index: 6;
   display: grid;
   place-items: center;
-  background: rgba(0, 6, 0, 0.72);
+  background: rgba(0, 0, 0, 0.72);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
@@ -1343,7 +1370,7 @@ kbd {
   font-weight: 700;
   line-height: 1;
   color: var(--accent);
-  text-shadow: 0 0 40px rgba(53, 224, 46, 0.6);
+  text-shadow: 0 0 40px color-mix(in srgb, var(--tone) 60%, transparent);
 }
 
 .count.is-go b {
@@ -1393,7 +1420,7 @@ kbd {
 }
 
 .delta.is-ahead {
-  color: #04380a;
+  color: color-mix(in srgb, var(--tone) 22%, #000);
   font-weight: 700;
 }
 
@@ -1447,7 +1474,7 @@ kbd {
   place-items: center;
   padding: 20px;
   text-align: center;
-  background: rgba(0, 6, 0, 0.82);
+  background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
   cursor: pointer;
@@ -1467,7 +1494,7 @@ kbd {
   font-size: 27px;
   font-weight: 700;
   color: var(--fg);
-  text-shadow: 0 0 22px rgba(53, 224, 46, 0.4);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 40%, transparent);
 }
 
 .ready__meta {
@@ -1488,8 +1515,8 @@ kbd {
   font-size: 13px;
   padding: 5px 16px;
   margin-right: 6px;
-  border-color: rgba(53, 224, 46, 0.5);
-  box-shadow: 0 0 14px rgba(53, 224, 46, 0.28);
+  border-color: color-mix(in srgb, var(--tone) 50%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--tone) 28%, transparent);
 }
 
 @keyframes breathe {
@@ -1513,7 +1540,7 @@ kbd {
   gap: 22px;
   padding: 0 28px;
   height: 54px;
-  background: rgba(0, 4, 0, 0.86);
+  background: rgba(0, 0, 0, 0.86);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--line-soft);
@@ -1525,7 +1552,7 @@ kbd {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--accent);
-  text-shadow: 0 0 12px rgba(53, 224, 46, 0.4);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--tone) 40%, transparent);
 }
 
 .nav__brand span {
@@ -1546,12 +1573,12 @@ kbd {
 
 .nav__links a:hover {
   color: var(--fg);
-  background: rgba(53, 224, 46, 0.07);
+  background: color-mix(in srgb, var(--tone) 7%, transparent);
 }
 
 .nav__links a.is-on {
   color: var(--accent);
-  background: rgba(53, 224, 46, 0.11);
+  background: color-mix(in srgb, var(--tone) 11%, transparent);
 }
 
 .nav__score {
@@ -1566,7 +1593,7 @@ kbd {
 }
 
 .nav__score:hover {
-  border-color: #2a8f26;
+  border-color: color-mix(in srgb, var(--tone) 64%, #000);
 }
 
 .nav__score b {
@@ -1633,7 +1660,7 @@ kbd {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--accent);
-  text-shadow: 0 0 22px rgba(53, 224, 46, 0.5);
+  text-shadow: 0 0 22px color-mix(in srgb, var(--tone) 50%, transparent);
 }
 
 .rank__score {
@@ -1646,7 +1673,7 @@ kbd {
   height: 4px;
   margin: 14px 0 8px;
   border-radius: 99px;
-  background: #0d2f0b;
+  background: color-mix(in srgb, var(--tone) 21%, #000);
   overflow: hidden;
 }
 
@@ -1654,8 +1681,8 @@ kbd {
   display: block;
   height: 100%;
   border-radius: 99px;
-  background: linear-gradient(90deg, #1f8c1b, #35e02e);
-  box-shadow: 0 0 10px rgba(53, 224, 46, 0.6);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 62%, #000), var(--tone));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--tone) 60%, transparent);
 }
 
 .rank__next {
@@ -1682,7 +1709,7 @@ kbd {
 
 .rec td {
   padding: 9px 10px;
-  border-bottom: 1px solid rgba(12, 50, 10, 0.55);
+  border-bottom: 1px solid color-mix(in srgb, var(--tone) 16%, transparent);
   color: var(--fg);
 }
 
@@ -1803,8 +1830,8 @@ kbd {
 }
 
 .mine:hover {
-  border-color: #2a8f26;
-  box-shadow: 0 0 0 1px rgba(53, 224, 46, 0.16);
+  border-color: color-mix(in srgb, var(--tone) 64%, #000);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tone) 16%, transparent);
 }
 
 .mine__rank {
@@ -1820,7 +1847,7 @@ kbd {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--accent);
-  text-shadow: 0 0 16px rgba(53, 224, 46, 0.45);
+  text-shadow: 0 0 16px color-mix(in srgb, var(--tone) 45%, transparent);
 }
 
 .mine__rank small {
@@ -1866,4 +1893,74 @@ kbd {
 .how__key kbd {
   font-size: 10.5px;
   padding: 1px 6px;
+}
+
+/* 燐光の色を選ぶ */
+.tones {
+  margin-left: auto;
+  display: flex;
+  gap: 5px;
+}
+
+.tones button {
+  width: 15px;
+  height: 15px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.16s;
+}
+
+.tones button[data-tone-set="green"] { background: #35e02e; }
+.tones button[data-tone-set="amber"] { background: #ffb000; }
+.tones button[data-tone-set="cyan"] { background: #22d3ee; }
+.tones button[data-tone-set="magenta"] { background: #ff8ade; }
+.tones button[data-tone-set="mono"] { background: #d6e2da; }
+
+.tones button:hover {
+  transform: scale(1.15);
+}
+
+.tones button[aria-pressed="true"] {
+  box-shadow: 0 0 0 2px #000, 0 0 0 3px currentColor, 0 0 10px currentColor;
+  color: inherit;
+}
+
+.nav__score {
+  margin-left: 14px;
+}
+
+/* 結果の下の小さな操作 */
+.result__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 0 0 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.quiet {
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: 0.16s;
+}
+
+.quiet:hover:not(:disabled) {
+  color: var(--fg);
+  border-color: var(--line);
+  background: color-mix(in srgb, var(--tone) 7%, transparent);
+}
+
+.quiet:disabled {
+  color: var(--accent);
+  border-color: var(--line);
 }

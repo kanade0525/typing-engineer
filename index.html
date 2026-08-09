@@ -8,10 +8,18 @@
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23161922'/%3E%3Cpath d='M11.5 11 L7 16 L11.5 21 M20.5 11 L25 16 L20.5 21' stroke='%237aa2f7' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='14.8' y='9.5' width='2.4' height='13' rx='1.2' fill='%239ece6a'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="assets/css/app.css">
+<script>
+  // module は遅れて走る。ここで当てないと一瞬ちらつく
+  try {
+    var t = localStorage.getItem('typing-engineer:tone');
+    document.documentElement.dataset.tone =
+      ['green', 'amber', 'cyan', 'magenta', 'mono'].indexOf(t) >= 0 ? t : 'green';
+  } catch (e) {
+    document.documentElement.dataset.tone = 'green';
+  }
+</script>
 </head>
 <body>
-
-<canvas id="rain" aria-hidden="true" hidden></canvas>
 
 <header class="nav" id="nav">
   <a class="nav__brand" href="#/"><span>&lt;/&gt;</span> Typing Engineer</a>
@@ -19,6 +27,14 @@
     <a href="#/" data-nav="/">ステージ</a>
     <a href="#/mypage" data-nav="/mypage">マイページ</a>
   </nav>
+  <div class="tones" role="group" aria-label="色">
+    <button type="button" data-tone-set="green" title="グリーン" aria-label="グリーン"></button>
+    <button type="button" data-tone-set="amber" title="アンバー" aria-label="アンバー"></button>
+    <button type="button" data-tone-set="cyan" title="シアン" aria-label="シアン"></button>
+    <button type="button" data-tone-set="magenta" title="マゼンタ" aria-label="マゼンタ"></button>
+    <button type="button" data-tone-set="mono" title="モノクロ" aria-label="モノクロ"></button>
+  </div>
+
   <a class="nav__score" href="#/mypage">
     <b id="navRank">ROOKIE</b><span id="navScore">SCORE 0</span>
   </a>
@@ -129,6 +145,11 @@
       </span>
     </div>
 
+    <div class="track">
+      <i class="track__fill" id="progressFill"></i>
+      <i class="track__ghost" id="progressGhost" hidden></i>
+    </div>
+
     <div class="window__body">
       <div class="pane pane--editor">
         <div class="pane__label">
@@ -142,10 +163,8 @@
         </p>
         <div class="code" id="code" tabindex="-1"></div>
         <div class="progress">
-          <span class="progress__track">
-            <i class="progress__fill" id="progressFill"></i>
-            <i class="progress__ghost" id="progressGhost" hidden></i>
-          </span>
+          <span class="progress__line" id="progressLine">1 / 1 行</span>
+          <span class="progress__keys" id="progressKeys">残り 0 打</span>
           <span class="progress__num" id="progressNum">0%</span>
         </div>
 
@@ -185,10 +204,15 @@
             <p class="result__gain" id="resultGain" hidden></p>
             <div class="result__earned" id="resultEarned" hidden></div>
 
+            <div class="result__tools">
+              <button type="button" class="quiet" id="btnShare">結果を共有</button>
+              <button type="button" class="quiet" id="btnCopy">コードをコピー</button>
+              <button type="button" class="quiet" id="btnSave">ページを保存</button>
+            </div>
+
             <div class="result__buttons">
               <button type="button" class="btn btn--primary" id="btnNext">次の課題へ</button>
               <button type="button" class="btn" id="btnAgain">もう一度</button>
-              <button type="button" class="btn" id="btnShare">結果を共有</button>
               <button type="button" class="btn btn--quiet" id="btnHome">一覧へ</button>
             </div>
           </div>
