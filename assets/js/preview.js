@@ -18,9 +18,17 @@ const CSS_SHELL = (scaffold, base) =>
  * document.write で継ぎ足す手は使えない。文法が途中の JS は動かないので、
  * 一字ごとに流しても意味が無いうえ、書き足すたびに二重に走ってしまう。
  *
- * sandbox は allow-scripts だけにする。allow-same-origin と併せると
- * 中から sandbox を外せてしまうので、その二つは同時に付けない。
- * こちらから中を読めなくなるが、JS の課題では読む必要がない。
+ * sandbox について。
+ *
+ * allow-scripts だけにすると出所が不定のページ扱いになり、localStorage も
+ * フォームの送信も使えない。保存を教える章も、追加ボタンも成立しない。
+ * そこで allow-same-origin と allow-forms を足している。
+ *
+ * この二つを併せると、中から sandbox を外せるようになる。ふつうは避ける形。
+ * ここで許しているのは、走らせるものが必ず lesson.base + lesson.code、
+ * つまりこの入れ物に同梱した文字列そのものだからである。
+ * 打ち手が入れた字は engine が元コードと突き合わせていて、
+ * 一致しない字は先へ進まない。外から来た文字列が走ることはない。
  */
 const JS_SHELL = (lesson, js) =>
   `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>` +
@@ -58,7 +66,7 @@ export class Preview {
     if (this.mode === 'js') {
       // 読み書きの向きが違うので、囲いごと入れ替える
       this.iframe.removeAttribute('srcdoc');
-      this.iframe.setAttribute('sandbox', 'allow-scripts');
+      this.iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms');
       this.iframe.srcdoc = JS_SHELL(lesson, '');
       return;
     }
