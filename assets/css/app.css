@@ -64,6 +64,78 @@
 /* 唯一、単色から離れるもの。
    コードの意味ごとに色を分けたい人のために、ふつうのエディタの配色を置く。
    ここだけは --tone から導かず、直に決めている */
+/* --- エディタ配色。ここは --tone から導かず直に決める --- */
+
+:root[data-tone="dracula"] {
+  --tone: #bd93f9; --tone-ink: #1a1b23;
+  --bg: #282a36; --panel: #343746; --panel-2: #22232e;
+  --line: #4a4d61; --line-soft: #3a3d4d;
+  --fg: #f8f8f2; --fg-mid: #cdd0dd; --fg-dim: #a8adc4;
+  --accent: #bd93f9; --accent-soft: rgba(189, 147, 249, 0.2);
+  --good: #50fa7b; --bad: #ff6e79; --pending: #a8adc4;
+  --tok-tag: #8be9fd; --tok-attr: #ffb86c; --tok-string: #f1fa8c;
+  --tok-text: #f8f8f2; --tok-punct: #cdd0dd; --tok-doctype: #ff79c6;
+  --tok-comment: #8f9ac4; --tok-atrule: #ff79c6; --tok-selector: #8be9fd;
+  --tok-prop: #ff92d0; --tok-value: #f1fa8c; --tok-number: #bd93f9;
+  --tok-keyword: #ff79c6; --tok-fn: #50fa7b;
+}
+
+:root[data-tone="monokai"] {
+  --tone: #a6e22e; --tone-ink: #1c1d18;
+  --bg: #272822; --panel: #34352c; --panel-2: #211f1c;
+  --line: #4d4c3f; --line-soft: #3c3b31;
+  --fg: #f8f8f2; --fg-mid: #d3d0c0; --fg-dim: #adaa96;
+  --accent: #a6e22e; --accent-soft: rgba(166, 226, 46, 0.2);
+  --good: #a6e22e; --bad: #ff6188; --pending: #adaa96;
+  --tok-tag: #66d9ef; --tok-attr: #fd971f; --tok-string: #e6db74;
+  --tok-text: #f8f8f2; --tok-punct: #d3d0c0; --tok-doctype: #ff6188;
+  --tok-comment: #9a957c; --tok-atrule: #ff6188; --tok-selector: #66d9ef;
+  --tok-prop: #ff6188; --tok-value: #e6db74; --tok-number: #c99dff;
+  --tok-keyword: #ff6188; --tok-fn: #a6e22e;
+}
+
+:root[data-tone="nord"] {
+  --tone: #88c0d0; --tone-ink: #1b1f27;
+  --bg: #2e3440; --panel: #3b4252; --panel-2: #2a303b;
+  --line: #515a6d; --line-soft: #434c5e;
+  --fg: #eceff4; --fg-mid: #d3dae6; --fg-dim: #b3bdd0;
+  --accent: #88c0d0; --accent-soft: rgba(136, 192, 208, 0.2);
+  --good: #a3be8c; --bad: #d08f99; --pending: #b3bdd0;
+  --tok-tag: #8fbcbb; --tok-attr: #ebcb8b; --tok-string: #a3be8c;
+  --tok-text: #eceff4; --tok-punct: #d3dae6; --tok-doctype: #c39cbc;
+  --tok-comment: #98a3ba; --tok-atrule: #c39cbc; --tok-selector: #8fbcbb;
+  --tok-prop: #d3a2c4; --tok-value: #a3be8c; --tok-number: #d0a3c4;
+  --tok-keyword: #81a1c1; --tok-fn: #88c0d0;
+}
+
+:root[data-tone="gruvbox"] {
+  --tone: #fabd2f; --tone-ink: #22201d;
+  --bg: #282828; --panel: #3c3836; --panel-2: #23211f;
+  --line: #574f4a; --line-soft: #453f3b;
+  --fg: #ebdbb2; --fg-mid: #d3c4a0; --fg-dim: #b5a68a;
+  --accent: #fabd2f; --accent-soft: rgba(250, 189, 47, 0.2);
+  --good: #b8bb26; --bad: #fb6d5c; --pending: #b5a68a;
+  --tok-tag: #fabd2f; --tok-attr: #fe8019; --tok-string: #b8bb26;
+  --tok-text: #ebdbb2; --tok-punct: #d3c4a0; --tok-doctype: #fb6d5c;
+  --tok-comment: #a89984; --tok-atrule: #fb6d5c; --tok-selector: #fabd2f;
+  --tok-prop: #e6a0b5; --tok-value: #b8bb26; --tok-number: #d3869b;
+  --tok-keyword: #fb6d5c; --tok-fn: #8ec07c;
+}
+
+:root[data-tone="tokyo"] {
+  --tone: #7aa2f7; --tone-ink: #131420;
+  --bg: #1a1b26; --panel: #24283b; --panel-2: #16161e;
+  --line: #3b4261; --line-soft: #2d3149;
+  --fg: #c0caf5; --fg-mid: #a9b1d6; --fg-dim: #8d97c4;
+  --accent: #7aa2f7; --accent-soft: rgba(122, 162, 247, 0.2);
+  --good: #9ece6a; --bad: #f7768e; --pending: #8d97c4;
+  --tok-tag: #2ac3de; --tok-attr: #e0af68; --tok-string: #9ece6a;
+  --tok-text: #c0caf5; --tok-punct: #a9b1d6; --tok-doctype: #bb9af7;
+  --tok-comment: #7c85b8; --tok-atrule: #bb9af7; --tok-selector: #2ac3de;
+  --tok-prop: #f7768e; --tok-value: #9ece6a; --tok-number: #ff9e64;
+  --tok-keyword: #bb9af7; --tok-fn: #7aa2f7;
+}
+
 :root[data-tone="vivid"] {
   --tone: #61afef;
   --tone-ink: #10141c;
@@ -697,47 +769,47 @@ kbd {
 }
 
 /* 多色のときは滲ませない。色の違いが読み取りにくくなる */
-:root[data-tone="vivid"] .c.is-done,
-:root[data-tone="vivid"] .home__title,
-:root[data-tone="vivid"] .brand,
-:root[data-tone="vivid"] .rank__name,
-:root[data-tone="vivid"] .result__hero b {
+:root[data-family="editor"] .c.is-done,
+:root[data-family="editor"] .home__title,
+:root[data-family="editor"] .brand,
+:root[data-family="editor"] .rank__name,
+:root[data-family="editor"] .result__hero b {
   text-shadow: none;
 }
 
-:root[data-tone="vivid"] .screen--home::after,
-:root[data-tone="vivid"] .pane--editor::after {
+:root[data-family="editor"] .screen--home::after,
+:root[data-family="editor"] .pane--editor::after {
   display: none; /* 走査線も切る */
 }
 
-:root[data-tone="vivid"] .window__bar {
+:root[data-family="editor"] .window__bar {
   background: var(--panel);
   border-bottom-color: var(--line);
 }
 
-:root[data-tone="vivid"] .window__bar .window__file,
-:root[data-tone="vivid"] .window__bar .stat b,
-:root[data-tone="vivid"] .window__bar .stat small,
-:root[data-tone="vivid"] .window__bar .ghost,
-:root[data-tone="vivid"] .wordmark {
+:root[data-family="editor"] .window__bar .window__file,
+:root[data-family="editor"] .window__bar .stat b,
+:root[data-family="editor"] .window__bar .stat small,
+:root[data-family="editor"] .window__bar .ghost,
+:root[data-family="editor"] .wordmark {
   color: var(--fg-mid);
 }
 
-:root[data-tone="vivid"] .window__bar .stat b {
+:root[data-family="editor"] .window__bar .stat b {
   color: var(--fg);
 }
 
-:root[data-tone="vivid"] .window__bar .ghost:hover {
+:root[data-family="editor"] .window__bar .ghost:hover {
   color: var(--fg);
   background: rgba(255, 255, 255, 0.07);
 }
 
-:root[data-tone="vivid"] .dots i:nth-child(1) { background: #e06c75; }
-:root[data-tone="vivid"] .dots i:nth-child(2) { background: #e5c07b; }
-:root[data-tone="vivid"] .dots i:nth-child(3) { background: #98c379; }
+:root[data-family="editor"] .dots i:nth-child(1) { background: #e06c75; }
+:root[data-family="editor"] .dots i:nth-child(2) { background: #e5c07b; }
+:root[data-family="editor"] .dots i:nth-child(3) { background: #98c379; }
 
-:root[data-tone="vivid"] .delta.is-ahead { color: #98c379; }
-:root[data-tone="vivid"] .delta.is-behind { color: #e88b93; }
+:root[data-family="editor"] .delta.is-ahead { color: #98c379; }
+:root[data-family="editor"] .delta.is-behind { color: #e88b93; }
 .c.is-done.t-tag {
   color: var(--tok-tag);
 }
@@ -1188,6 +1260,18 @@ kbd {
     rgba(0, 0, 0, 0) 0 2px,
     rgba(0, 0, 0, 0.17) 2px 3px
   );
+}
+
+/* 一覧の背後に降る字。緑（matrix）のときだけ JS が出す */
+#rain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.42;
+  /* 本文が乗るあたりだけ薄める。読めなくなっては元も子もない */
+  -webkit-mask-image: radial-gradient(115% 95% at 26% 26%, rgba(0, 0, 0, 0.18), #000 58%);
+  mask-image: radial-gradient(115% 95% at 26% 26%, rgba(0, 0, 0, 0.18), #000 58%);
 }
 
 /* Neo の画面に出たあの三行 */
@@ -1979,39 +2063,93 @@ kbd {
   padding: 1px 6px;
 }
 
-/* 燐光の色を選ぶ */
+/* 配色を選ぶ。十一色あるので、丸を並べずに選び直せる一覧にする */
 .tones {
+  position: relative;
   margin-left: auto;
-  display: flex;
-  gap: 5px;
 }
 
-.tones button {
-  width: 15px;
-  height: 15px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 50%;
+.tones__now {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--fg-mid);
+  background: var(--panel); /* 降る字の上に置くので地を持たせる */
+  border: 1px solid var(--line);
+  border-radius: 8px;
   cursor: pointer;
   transition: 0.16s;
 }
 
-.tones button[data-tone-set="green"] { background: #35e02e; }
-.tones button[data-tone-set="amber"] { background: #ffb000; }
-.tones button[data-tone-set="cyan"] { background: #22d3ee; }
-.tones button[data-tone-set="magenta"] { background: #ff8ade; }
-.tones button[data-tone-set="mono"] { background: #d6e2da; }
-.tones button[data-tone-set="vivid"] {
-  background: conic-gradient(#e06c75, #d19a66, #e5c07b, #98c379, #61afef, #c678dd, #e06c75);
+.tones__now:hover {
+  color: var(--fg);
+  border-color: var(--accent);
 }
 
-.tones button:hover {
-  transform: scale(1.15);
+.tones__now small {
+  font-size: 9px;
+  opacity: 0.6;
 }
 
-.tones button[aria-pressed="true"] {
-  box-shadow: 0 0 0 2px #000, 0 0 0 3px currentColor, 0 0 10px currentColor;
-  color: inherit;
+.tones__dot,
+.tones__opt i {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.tones__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 190px;
+  padding: 8px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+
+.tones__label {
+  margin: 6px 8px 4px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--fg-dim);
+}
+
+.tones__label:first-child {
+  margin-top: 2px;
+}
+
+.tones__opt {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  font: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  color: var(--fg-mid);
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.tones__opt:hover {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.tones__opt[aria-pressed="true"] {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .nav__score {

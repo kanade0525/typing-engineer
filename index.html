@@ -10,16 +10,26 @@
 <link rel="stylesheet" href="assets/css/app.css">
 <script>
   // module は遅れて走る。ここで当てないと一瞬ちらつく
+  var FAM = {
+    vivid: 'editor', dracula: 'editor', monokai: 'editor',
+    nord: 'editor', gruvbox: 'editor', tokyo: 'editor',
+    green: 'phosphor', amber: 'phosphor', cyan: 'phosphor',
+    magenta: 'phosphor', mono: 'phosphor',
+  };
   try {
     var t = localStorage.getItem('typing-engineer:tone');
-    document.documentElement.dataset.tone =
-      ['green', 'amber', 'cyan', 'magenta', 'mono', 'vivid'].indexOf(t) >= 0 ? t : 'green';
+    if (!FAM[t]) t = 'vivid';
+    document.documentElement.dataset.tone = t;
+    document.documentElement.dataset.family = FAM[t];
   } catch (e) {
-    document.documentElement.dataset.tone = 'green';
+    document.documentElement.dataset.tone = 'vivid';
+    document.documentElement.dataset.family = 'editor';
   }
 </script>
 </head>
 <body>
+
+<canvas id="rain" aria-hidden="true" hidden></canvas>
 
 <header class="nav" id="nav">
   <a class="nav__brand" href="#/"><span>&lt;/&gt;</span> Typing Engineer</a>
@@ -27,13 +37,11 @@
     <a href="#/" data-nav="/">ステージ</a>
     <a href="#/mypage" data-nav="/mypage">マイページ</a>
   </nav>
-  <div class="tones" role="group" aria-label="色">
-    <button type="button" data-tone-set="green" title="グリーン" aria-label="グリーン"></button>
-    <button type="button" data-tone-set="amber" title="アンバー" aria-label="アンバー"></button>
-    <button type="button" data-tone-set="cyan" title="シアン" aria-label="シアン"></button>
-    <button type="button" data-tone-set="magenta" title="マゼンタ" aria-label="マゼンタ"></button>
-    <button type="button" data-tone-set="mono" title="モノクロ" aria-label="モノクロ"></button>
-    <button type="button" data-tone-set="vivid" title="カラフル" aria-label="カラフル"></button>
+  <div class="tones">
+    <button type="button" class="tones__now" id="tonesBtn" aria-expanded="false" aria-haspopup="true">
+      <i class="tones__dot" id="toneDot"></i><span id="toneName">カラフル</span><small>▾</small>
+    </button>
+    <div class="tones__menu" id="tonesMenu" role="menu" hidden></div>
   </div>
 
   <a class="nav__score" href="#/mypage">

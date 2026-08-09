@@ -27,6 +27,10 @@ const ng = (where, msg) => fails.push(`${where}: ${msg}`);
 const { LESSONS, GROUPS, lessonsByGroup } = await import(join(ROOT, 'assets/js/lessons.js'));
 const { countKeystrokes } = await import(join(ROOT, 'assets/js/engine.js'));
 
+// 配色の一覧は tone.js から読む。ここに直書きすると必ずズレて、
+// 足した色が検査されないまま緑になる
+const { TONES } = await import(join(ROOT, 'assets/js/tone.js'));
+
 const LANGS = new Set(['html', 'css', 'js', 'yaml', 'ruby']);
 const seen = new Set();
 
@@ -176,7 +180,8 @@ if (!chromeBin && process.env.CI) {
       await new Promise((r) => setTimeout(r, 200));
     }
 
-    const found = await evaluate(String(browserChecks) + ';browserChecks()');
+    const tones = JSON.stringify(TONES.map((t) => [t.id, t.family]));
+    const found = await evaluate(`${String(browserChecks)};browserChecks(${tones})`);
     for (const f of found) ng('描画', f);
     console.log('描画の検査を実行');
   } catch (e) {
@@ -197,7 +202,7 @@ console.log('\nすべて通った');
 
 // ---------------------------------------------------------------- 画面側で走る検査
 
-function browserChecks() {
+function browserChecks(tones) {
   const out = [];
 
   // (1) リンクにブラウザ既定の下線が出ていないか。
@@ -241,9 +246,11 @@ function browserChecks() {
     '--tok-value', '--tok-number', '--tok-keyword', '--tok-fn',
   ];
 
-  const was = document.documentElement.dataset.tone;
-  for (const tone of ['green', 'amber', 'cyan', 'magenta', 'mono', 'vivid']) {
+  const wasTone = document.documentElement.dataset.tone;
+  const wasFam = document.documentElement.dataset.family;
+  for (const [tone, family] of tones) {
     document.documentElement.dataset.tone = tone;
+    document.documentElement.dataset.family = family;
     const bg = lum(value('--bg'));
     const ratio = (name) => {
       const [hi, lo] = [lum(value(name)), bg].sort((a, b) => b - a);
@@ -257,7 +264,8 @@ function browserChecks() {
     const c = ratio('--tok-comment');
     if (c < 3) out.push(`${tone} の --tok-comment が地に対して ${c.toFixed(2)}:1（3.0 未満）`);
   }
-  document.documentElement.dataset.tone = was;
+  document.documentElement.dataset.tone = wasTone;
+  document.documentElement.dataset.family = wasFam;
 
   // (4) 横に溢れていないか
   if (document.documentElement.scrollWidth > window.innerWidth + 1) {
