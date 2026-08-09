@@ -5,7 +5,8 @@
   "description": "HTML と CSS を打つと、その場でプレビューが組み上がっていくタイピング練習",
   "type": "module",
   "scripts": {
-    "dev": "node scripts/dev-server.mjs"
+    "dev": "node scripts/dev-server.mjs",
+    "check": "node tools/check.mjs"
   },
   "repository": {
     "type": "git",

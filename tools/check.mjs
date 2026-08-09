@@ -1,0 +1,241 @@
+#!/usr/bin/env node
+/*
+ * npm run check
+ *
+ * 二段構え。
+ *   1. 題材データの検査（ブラウザ要らず）
+ *   2. 描画してからの検査（既定の見た目が残っていないか、どの色でも字が読めるか）
+ *
+ * 2 を作った理由。リンクに text-decoration の指定が無く、ブラウザ既定の下線が
+ * 全部に出ていたのを長いあいだ取り逃していた。既定値はエラーを出さないし、
+ * 動きも壊さない。撮った画像も「機能が正しく見えるか」で読んでいて気づけなかった。
+ * この種類は computed style を実測して不変条件を置くしか捕まえようがない。
+ *
+ * 依存パッケージは足さない。Chrome を起動して DevTools Protocol を直に叩く。
+ */
+import { spawn } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync, mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+
+const ROOT = resolve(import.meta.dirname, '..');
+const fails = [];
+const ng = (where, msg) => fails.push(`${where}: ${msg}`);
+
+// ---------------------------------------------------------------- 1. 題材データ
+
+const { LESSONS, GROUPS, lessonsByGroup } = await import(join(ROOT, 'assets/js/lessons.js'));
+const { countKeystrokes } = await import(join(ROOT, 'assets/js/engine.js'));
+
+const LANGS = new Set(['html', 'css', 'js', 'yaml', 'ruby']);
+const seen = new Set();
+
+for (const l of LESSONS) {
+  const at = `題材 ${l.id || '(id なし)'}`;
+  for (const key of ['id', 'group', 'lang', 'file', 'level', 'title', 'subtitle', 'note', 'code']) {
+    if (!l[key]) ng(at, `${key} が無い`);
+  }
+  if (seen.has(l.id)) ng(at, 'id が重複している');
+  seen.add(l.id);
+
+  if (!GROUPS.includes(l.group)) ng(at, `分類 "${l.group}" が GROUPS に無い`);
+  if (!LANGS.has(l.lang)) ng(at, `lang "${l.lang}" は知らない`);
+
+  // 打つ字は ASCII だけ。日本語が混ざると IME が要り、打鍵を受け取れない
+  const bad = [...(l.code || '')].filter((c) => c.charCodeAt(0) > 126 || c.charCodeAt(0) < 9);
+  if (bad.length) ng(at, `code に ASCII でない字がある: ${JSON.stringify(bad.slice(0, 5).join(''))}`);
+
+  if (l.lang === 'js' && !l.scaffold) ng(at, 'js なのに scaffold が無い');
+  if (l.lang === 'css' && !l.scaffold) ng(at, 'css なのに scaffold が無い');
+
+  const keys = countKeystrokes(l.code || '');
+  if (keys < 120) ng(at, `短すぎる（${keys} 打）`);
+  if (keys > 1200) ng(at, `長すぎる（${keys} 打）`);
+
+  // 題は「何をする単元か」を言う。動詞ひとつでは言えていない
+  if (/^(動かす|並べる|整える|描く|書く|消す|保存する|追加する)$/.test(l.title)) {
+    ng(at, `題 "${l.title}" が何をする単元か言えていない`);
+  }
+}
+
+for (const g of lessonsByGroup()) {
+  if (!g.items.length) ng(`分類 ${g.name}`, '中身が無い');
+}
+
+// README に書いた本数が実際と合っているか
+const readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
+const declared = readme.match(/^(\d+)\s*本[。、]/m);
+if (!declared) ng('README', '題材の本数が書かれていない');
+else if (Number(declared[1]) !== LESSONS.length) {
+  ng('README', `本数が食い違う（README ${declared[1]} 本 / 実際 ${LESSONS.length} 本）`);
+}
+
+console.log(`題材 ${LESSONS.length} 本・分類 ${GROUPS.length} 個を検査`);
+
+// ---------------------------------------------------------------- 2. 描画
+
+function findChrome() {
+  const cands = [process.env.CHROME, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'];
+  const cache = join(process.env.HOME || '', 'Library/Caches/ms-playwright');
+  if (existsSync(cache)) {
+    for (const d of readdirSync(cache).filter((n) => n.startsWith('chromium-'))) {
+      cands.push(join(cache, d, 'chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing'));
+    }
+  }
+  cands.push('/usr/bin/google-chrome', '/usr/bin/chromium');
+  return cands.filter(Boolean).find((p) => existsSync(p));
+}
+
+const chromeBin = findChrome();
+if (!chromeBin) {
+  console.log('Chrome が見つからないので描画の検査は飛ばす（CHROME= で場所を渡せる）');
+} else {
+  const PORT = 8791;
+  const server = spawn(process.execPath, [join(ROOT, 'scripts/dev-server.mjs')], {
+    env: { ...process.env, PORT: String(PORT) },
+    stdio: 'ignore',
+  });
+
+  const chrome = spawn(
+    chromeBin,
+    [
+      '--headless=new',
+      '--remote-debugging-port=0',
+      `--user-data-dir=${mkdtempSync(join(tmpdir(), 'te-'))}`,
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-gpu',
+      'about:blank',
+    ],
+    { stdio: ['ignore', 'ignore', 'pipe'] }
+  );
+
+  const stop = () => {
+    chrome.kill();
+    server.kill();
+  };
+
+  try {
+    const wsBrowser = await new Promise((res, rej) => {
+      let buf = '';
+      const timer = setTimeout(() => rej(new Error('Chrome が起動しない')), 20000);
+      chrome.stderr.on('data', (d) => {
+        buf += d;
+        const m = buf.match(/ws:\/\/\S+/);
+        if (m) {
+          clearTimeout(timer);
+          res(m[0]);
+        }
+      });
+    });
+
+    const port = new URL(wsBrowser).port;
+    const targets = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
+    const page = targets.find((t) => t.type === 'page');
+    const ws = new WebSocket(page.webSocketDebuggerUrl);
+    await new Promise((r) => (ws.onopen = r));
+
+    let id = 0;
+    const waiting = new Map();
+    ws.onmessage = (e) => {
+      const m = JSON.parse(e.data);
+      if (m.id && waiting.has(m.id)) {
+        waiting.get(m.id)(m);
+        waiting.delete(m.id);
+      }
+    };
+    const send = (method, params = {}) =>
+      new Promise((r) => {
+        const i = ++id;
+        waiting.set(i, r);
+        ws.send(JSON.stringify({ id: i, method, params }));
+      });
+
+    const evaluate = async (expression) => {
+      const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+      if (r.result?.exceptionDetails) throw new Error(r.result.exceptionDetails.text);
+      return r.result?.result?.value;
+    };
+
+    await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/` });
+
+    for (let i = 0; i < 60; i++) {
+      const ready = await evaluate('document.querySelectorAll(".lesson").length > 0').catch(() => false);
+      if (ready) break;
+      await new Promise((r) => setTimeout(r, 200));
+    }
+
+    const found = await evaluate(String(browserChecks) + ';browserChecks()');
+    for (const f of found) ng('描画', f);
+    console.log('描画の検査を実行');
+  } catch (e) {
+    ng('描画', `検査できなかった: ${e.message}`);
+  } finally {
+    stop();
+  }
+}
+
+// ---------------------------------------------------------------- 判定
+
+if (fails.length) {
+  console.error(`\n落ちた検査 ${fails.length} 件\n`);
+  for (const f of fails) console.error('  ' + f);
+  process.exit(1);
+}
+console.log('\nすべて通った');
+
+// ---------------------------------------------------------------- 画面側で走る検査
+
+function browserChecks() {
+  const out = [];
+
+  // (1) リンクにブラウザ既定の下線が出ていないか。
+  //     見出しやカードごと <a> で囲っているので、打ち消し忘れると線だらけになる
+  for (const a of document.querySelectorAll('a')) {
+    if (a.closest('.credit')) continue; // ここだけは狙って線を引いている
+    const line = getComputedStyle(a).textDecorationLine;
+    if (line !== 'none') out.push(`<a class="${a.className || '(なし)'}"> に ${line} が出ている`);
+  }
+
+  // (2) ボタンに既定の見た目が残っていないか
+  for (const b of document.querySelectorAll('button')) {
+    const s = getComputedStyle(b);
+    if (s.cursor !== 'pointer') out.push(`<button ${b.id || b.className}> の cursor が ${s.cursor}`);
+    if (s.borderRadius === '0px') out.push(`<button ${b.id || b.className}> に角丸が無い`);
+  }
+
+  // (3) どの色でも字が読めるか。黒地との対比を実測する
+  const lin = (v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const lum = (css) => {
+    const ch = css.startsWith('color(')
+      ? css.match(/[-\d.]+/g).map(Number)
+      : css.match(/[\d.]+/g).slice(0, 3).map((v) => Number(v) / 255);
+    const [r, g, b] = ch.map(lin);
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+  const value = (name) => {
+    const p = document.createElement('span');
+    p.style.color = `var(${name})`;
+    document.body.append(p);
+    const c = getComputedStyle(p).color;
+    p.remove();
+    return c;
+  };
+
+  const was = document.documentElement.dataset.tone;
+  for (const tone of ['green', 'amber', 'cyan', 'magenta', 'mono']) {
+    document.documentElement.dataset.tone = tone;
+    for (const name of ['--pending', '--fg', '--fg-mid', '--fg-dim']) {
+      const ratio = (lum(value(name)) + 0.05) / 0.05;
+      if (ratio < 4.5) out.push(`${tone} の ${name} が黒地に対して ${ratio.toFixed(2)}:1（4.5 未満）`);
+    }
+  }
+  document.documentElement.dataset.tone = was;
+
+  // (4) 横に溢れていないか
+  if (document.documentElement.scrollWidth > window.innerWidth + 1) {
+    out.push(`横に溢れている（${document.documentElement.scrollWidth} > ${window.innerWidth}）`);
+  }
+
+  return out;
+}
