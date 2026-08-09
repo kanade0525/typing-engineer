@@ -8,6 +8,9 @@
 
 // base は前の章までに書いたぶん。最初から効いている状態にして、
 // 打つのは今の章の差分だけにする。写経が章ごとに完結する。
+import { renderCompose, COMPOSE_STYLES } from './view-compose.js';
+import { renderRoutes, ROUTES_STYLES } from './view-routes.js';
+
 const CSS_SHELL = (scaffold, base) =>
   `<!DOCTYPE html><html><head><meta charset="UTF-8">` +
   `<style id="sw-base">${base || ''}</style>` +
@@ -37,6 +40,18 @@ const JS_SHELL = (lesson, js) =>
   `${lesson.styles || ''}</style></head><body>${lesson.scaffold || ''}` +
   `<script>\n${lesson.base || ''}\n${js}\n<\/script></body></html>`;
 
+// 動かせないもの（Docker・Rails）は、打った内容を読んで意味を絵にする。
+// 「打っても何も見えない」のはこの入れ物の看板に反するので。
+const VIEWS = {
+  yaml: { render: renderCompose, styles: COMPOSE_STYLES },
+  ruby: { render: renderRoutes, styles: ROUTES_STYLES },
+};
+
+const VIEW_SHELL = (styles) =>
+  `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>` +
+  `body{margin:0;padding:22px;background:#f6f8fb;font-family:system-ui,sans-serif;color:#0f172a}` +
+  `${styles}</style></head><body><div id="sw-view"></div></body></html>`;
+
 export class Preview {
   constructor(iframe) {
     this.iframe = iframe;
@@ -57,7 +72,13 @@ export class Preview {
 
   /** 課題を差し替える */
   mount(lesson) {
-    this.mode = lesson.lang === 'css' ? 'css' : lesson.lang === 'js' ? 'js' : 'html';
+    this.mode = VIEWS[lesson.lang]
+      ? 'view'
+      : lesson.lang === 'css'
+        ? 'css'
+        : lesson.lang === 'js'
+          ? 'js'
+          : 'html';
     this.lesson = lesson;
     this.written = '';
     this.opened = false;
@@ -73,6 +94,15 @@ export class Preview {
 
     this.iframe.removeAttribute('srcdoc');
     this.iframe.setAttribute('sandbox', 'allow-same-origin');
+
+    if (this.mode === 'view') {
+      const doc0 = this.doc;
+      if (!doc0) return;
+      doc0.open();
+      doc0.write(VIEW_SHELL(VIEWS[lesson.lang].styles));
+      doc0.close();
+      return;
+    }
 
     const doc = this.doc;
     if (!doc) return;
@@ -101,6 +131,15 @@ export class Preview {
 
     const doc = this.doc;
     if (!doc) return;
+
+    if (this.mode === 'view') {
+      if (text === this.written) return;
+      this.written = text;
+      const root = doc.getElementById('sw-view');
+      if (root) root.innerHTML = VIEWS[this.lesson.lang].render(text);
+      this.onPaint?.();
+      return;
+    }
 
     if (this.mode === 'css') {
       if (text === this.written) return;
@@ -137,7 +176,7 @@ export class Preview {
 
   /** 画面に何か出ているか。<head> を打っている間はまだ何も無い */
   hasContent() {
-    if (this.mode === 'js') return true; // 中は読めない。土台は最初から出ている
+    if (this.mode === 'js' || this.mode === 'view') return true;
     const body = this.doc?.body;
     if (!body) return false;
     return body.children.length > 0 || body.textContent.trim() !== '';
