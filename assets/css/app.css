@@ -61,6 +61,46 @@
   --tone-ink: #0a0f0c;
 }
 
+/* 唯一、単色から離れるもの。
+   コードの意味ごとに色を分けたい人のために、ふつうのエディタの配色を置く。
+   ここだけは --tone から導かず、直に決めている */
+:root[data-tone="vivid"] {
+  --tone: #61afef;
+  --tone-ink: #10141c;
+
+  --bg: #21252b;
+  --panel: #2c313a;
+  --panel-2: #23272e;
+  --line: #3e4451;
+  --line-soft: #333842;
+
+  --fg: #d7dce5;
+  --fg-mid: #b3bcca;
+  --fg-dim: #98a2b3;
+
+  --accent: #61afef;
+  --accent-soft: rgba(97, 175, 239, 0.18);
+  --good: #98c379;
+  --bad: #e88b93;
+
+  --pending: #98a2b3;
+
+  --tok-tag: #e5c07b;
+  --tok-attr: #d19a66;
+  --tok-string: #98c379;
+  --tok-text: #d7dce5;
+  --tok-punct: #b3bcca;
+  --tok-doctype: #c9a0e8;
+  --tok-comment: #8d949f;
+  --tok-atrule: #c9a0e8;
+  --tok-selector: #e5c07b;
+  --tok-prop: #ea8f97;
+  --tok-value: #98c379;
+  --tok-number: #d19a66;
+  --tok-keyword: #c9a0e8;
+  --tok-fn: #61afef;
+}
+
 *,
 *::before,
 *::after {
@@ -655,6 +695,49 @@ kbd {
   color: var(--tok-text);
   text-shadow: 0 0 7px currentColor;
 }
+
+/* 多色のときは滲ませない。色の違いが読み取りにくくなる */
+:root[data-tone="vivid"] .c.is-done,
+:root[data-tone="vivid"] .home__title,
+:root[data-tone="vivid"] .brand,
+:root[data-tone="vivid"] .rank__name,
+:root[data-tone="vivid"] .result__hero b {
+  text-shadow: none;
+}
+
+:root[data-tone="vivid"] .screen--home::after,
+:root[data-tone="vivid"] .pane--editor::after {
+  display: none; /* 走査線も切る */
+}
+
+:root[data-tone="vivid"] .window__bar {
+  background: var(--panel);
+  border-bottom-color: var(--line);
+}
+
+:root[data-tone="vivid"] .window__bar .window__file,
+:root[data-tone="vivid"] .window__bar .stat b,
+:root[data-tone="vivid"] .window__bar .stat small,
+:root[data-tone="vivid"] .window__bar .ghost,
+:root[data-tone="vivid"] .wordmark {
+  color: var(--fg-mid);
+}
+
+:root[data-tone="vivid"] .window__bar .stat b {
+  color: var(--fg);
+}
+
+:root[data-tone="vivid"] .window__bar .ghost:hover {
+  color: var(--fg);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+:root[data-tone="vivid"] .dots i:nth-child(1) { background: #e06c75; }
+:root[data-tone="vivid"] .dots i:nth-child(2) { background: #e5c07b; }
+:root[data-tone="vivid"] .dots i:nth-child(3) { background: #98c379; }
+
+:root[data-tone="vivid"] .delta.is-ahead { color: #98c379; }
+:root[data-tone="vivid"] .delta.is-behind { color: #e88b93; }
 .c.is-done.t-tag {
   color: var(--tok-tag);
 }
@@ -1918,6 +2001,9 @@ kbd {
 .tones button[data-tone-set="cyan"] { background: #22d3ee; }
 .tones button[data-tone-set="magenta"] { background: #ff8ade; }
 .tones button[data-tone-set="mono"] { background: #d6e2da; }
+.tones button[data-tone-set="vivid"] {
+  background: conic-gradient(#e06c75, #d19a66, #e5c07b, #98c379, #61afef, #c678dd, #e06c75);
+}
 
 .tones button:hover {
   transform: scale(1.15);
@@ -2141,4 +2227,25 @@ kbd {
   font-family: var(--mono);
   font-size: 11px;
   color: var(--fg-dim);
+}
+
+.rec tr.is-series td {
+  padding: 14px 10px 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.rec td.is-step {
+  padding-left: 24px;
+  position: relative;
+}
+
+.rec td.is-step::before {
+  content: "└";
+  position: absolute;
+  left: 8px;
+  color: var(--fg-dim);
+  opacity: 0.5;
 }

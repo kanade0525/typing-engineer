@@ -13,7 +13,7 @@
   try {
     var t = localStorage.getItem('typing-engineer:tone');
     document.documentElement.dataset.tone =
-      ['green', 'amber', 'cyan', 'magenta', 'mono'].indexOf(t) >= 0 ? t : 'green';
+      ['green', 'amber', 'cyan', 'magenta', 'mono', 'vivid'].indexOf(t) >= 0 ? t : 'green';
   } catch (e) {
     document.documentElement.dataset.tone = 'green';
   }
@@ -33,6 +33,7 @@
     <button type="button" data-tone-set="cyan" title="シアン" aria-label="シアン"></button>
     <button type="button" data-tone-set="magenta" title="マゼンタ" aria-label="マゼンタ"></button>
     <button type="button" data-tone-set="mono" title="モノクロ" aria-label="モノクロ"></button>
+    <button type="button" data-tone-set="vivid" title="カラフル" aria-label="カラフル"></button>
   </div>
 
   <a class="nav__score" href="#/mypage">
