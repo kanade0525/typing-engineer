@@ -1348,7 +1348,7 @@ function loop() {
     lang: 'js',
     file: 'memo.js',
     level: 1,
-    title: '一覧を描く',
+    title: 'メモの一覧を描く',
     subtitle: 'Read · createElement',
     note: '配列を回して li を作るだけ。打ち終えると三件が並ぶ。',
     scaffold: `<div class="app">
@@ -1404,7 +1404,7 @@ render();
     lang: 'js',
     file: 'memo.js',
     level: 2,
-    title: '追加する',
+    title: 'メモを追加する',
     subtitle: 'Create · submit',
     note: 'フォームの既定の送信を止めて、配列に足して描き直す。',
     scaffold: `<div class="app">
@@ -1476,7 +1476,7 @@ form.addEventListener('submit', (e) => {
     lang: 'js',
     file: 'memo.js',
     level: 2,
-    title: '完了に切り替える',
+    title: 'メモを済みにする',
     subtitle: 'Update · イベント委譲',
     note: '一件ずつに listener は付けない。ul で受けて、押された相手を見る。',
     scaffold: `<div class="app">
@@ -1575,7 +1575,7 @@ list.addEventListener('click', (e) => {
     lang: 'js',
     file: 'memo.js',
     level: 3,
-    title: '消す',
+    title: 'メモを消す',
     subtitle: 'Delete · splice',
     note: '削除ボタンを足す。押された相手で処理を分けるので、切り替えとは衝突しない。',
     scaffold: `<div class="app">
@@ -1705,7 +1705,7 @@ list.addEventListener('click', (e) => {
     lang: 'js',
     file: 'memo.js',
     level: 3,
-    title: '保存する',
+    title: '閉じても残るようにする',
     subtitle: 'localStorage',
     note: '最後の一行を打つと、閉じても中身が残るようになる。',
     scaffold: `<div class="app">
@@ -2172,7 +2172,7 @@ function loop() {
     lang: 'js',
     file: 'drop.js',
     level: 1,
-    title: 'フィールドを引く',
+    title: '升目のフィールドを引く',
     subtitle: '二次元配列と格子',
     note: '十かける二十の升目を引く。中身はまだ空。',
     scaffold: `<canvas id="cv" width="220" height="400"></canvas>`,
@@ -2364,7 +2364,7 @@ requestAnimationFrame(loop);
     lang: 'js',
     file: 'drop.js',
     level: 3,
-    title: '積む・寄せる',
+    title: '寄せて積み上げる',
     subtitle: '当たり判定と固定',
     note: '最後の一行を打つと、矢印キーで寄せて積めるようになる。',
     scaffold: `<canvas id="cv" width="220" height="400"></canvas>`,
@@ -2701,10 +2701,128 @@ cv.addEventListener('click', (e) => {
 `,
   },
 
+  {
+    id: 'infra-compose-1',
+    group: '設定ファイルを書く',
+    lang: 'yaml',
+    file: 'compose.yaml',
+    level: 2,
+    title: 'サービスを一台立てる',
+    subtitle: 'services · image · ports',
+    note: 'Docker は動かせない。代わりに打った内容を読んで、何が立つのかを図にする。',
+    code: `services:
+  web:
+    image: nginx:1.27
+    container_name: shop-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    environment:
+      APP_ENV: production
+      TZ: Asia/Tokyo
+    volumes:
+      - ./public:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
+`,
+  },
+
+  {
+    id: 'infra-compose-2',
+    group: '設定ファイルを書く',
+    lang: 'yaml',
+    file: 'compose.yaml',
+    level: 3,
+    title: 'もう一台足して繋ぐ',
+    subtitle: 'depends_on · volumes',
+    note: 'depends_on を書いた瞬間に、箱のあいだに矢印が引かれる。',
+    code: `services:
+  web:
+    image: nginx:1.27
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgres://db:5432/shop
+      REDIS_URL: redis://cache:6379
+    depends_on:
+      - db
+      - cache
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  cache:
+    image: redis:7
+    volumes:
+      - cache-data:/data
+
+volumes:
+  db-data:
+  cache-data:
+`,
+  },
+
+  {
+    id: 'infra-routes-1',
+    group: '設定ファイルを書く',
+    lang: 'ruby',
+    file: 'routes.rb',
+    level: 2,
+    title: 'ルーティングを一本ずつ書く',
+    subtitle: 'root · get · post',
+    note: 'Rails も動かせない。打った行が何本の道になるかを rails routes の形で出す。',
+    code: `Rails.application.routes.draw do
+  root "home#index"
+
+  get "/about", to: "pages#about"
+  get "/pricing", to: "pages#pricing"
+  get "/faq", to: "pages#faq"
+
+  get "/contact", to: "contacts#new"
+  post "/contact", to: "contacts#create"
+
+  get "/login", to: "sessions#new"
+  post "/login", to: "sessions#create"
+  delete "/logout", to: "sessions#destroy"
+end
+`,
+  },
+
+  {
+    id: 'infra-routes-2',
+    group: '設定ファイルを書く',
+    lang: 'ruby',
+    file: 'routes.rb',
+    level: 3,
+    title: 'resources で七本まとめて引く',
+    subtitle: 'resources · only · 入れ子',
+    note: 'resources :posts と打ち終えた瞬間に、七行が一度に現れる。',
+    code: `Rails.application.routes.draw do
+  root "home#index"
+
+  resources :posts do
+    resources :comments, only: [:create, :destroy]
+  end
+
+  resources :users, only: [:index, :show, :edit, :update]
+
+  resources :orders, except: [:destroy]
+
+  resources :sessions, only: [:new, :create, :destroy]
+end
+`,
+  },
+
 ];
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
-export const GROUPS = ['見た目が変わる', '王道パターン', 'アプリを写経する', 'ゲームを写経する', 'HTML から CSS へ'];
+export const GROUPS = ['見た目が変わる', '王道パターン', 'アプリを写経する', 'ゲームを写経する', '設定ファイルを書く', 'HTML から CSS へ'];
 
 export function lessonsByGroup() {
   return GROUPS.map((name) => ({

@@ -7,6 +7,8 @@
 export function tokenize(src, lang) {
   if (lang === 'css') return tokenizeCss(src, 0);
   if (lang === 'js') return tokenizeJs(src);
+  if (lang === 'yaml') return tokenizeYaml(src);
+  if (lang === 'ruby') return tokenizeRuby(src);
   return tokenizeHtml(src);
 }
 
@@ -276,6 +278,107 @@ function tokenizeJs(src) {
       else if (beforeParen) type = 'fn';
       else if (afterDot) type = 'prop';
       push(s, i, type);
+      continue;
+    }
+
+    push(i, i + 1, 'punct');
+    i++;
+  }
+  return out;
+}
+
+/** YAML。この題材に出る書き方だけ */
+function tokenizeYaml(src) {
+  const out = [];
+  const push = (start, end, type) => {
+    if (end > start) out.push({ start, end, type });
+  };
+  let i = 0;
+
+  while (i < src.length) {
+    const nl = src.indexOf('\n', i);
+    const end = nl === -1 ? src.length : nl;
+    const line = src.slice(i, end);
+    const lead = line.length - line.trimStart().length;
+    let p = i + lead;
+
+    push(i, p, 'plain');
+
+    if (line.trim().startsWith('#')) {
+      push(p, end, 'comment');
+    } else {
+      if (src[p] === '-') {
+        push(p, p + 1, 'punct');
+        p += 1;
+        while (p < end && src[p] === ' ') p++;
+        push(i + lead + 1, p, 'plain');
+      }
+      const colon = src.indexOf(':', p);
+      if (colon !== -1 && colon < end) {
+        push(p, colon, 'prop');
+        push(colon, colon + 1, 'punct');
+        const rest = src.slice(colon + 1, end);
+        const vs = colon + 1 + (rest.length - rest.trimStart().length);
+        push(colon + 1, vs, 'plain');
+        push(vs, end, /^["']/.test(src.slice(vs, end)) ? 'string' : 'value');
+      } else {
+        push(p, end, 'string');
+      }
+    }
+
+    push(end, Math.min(end + 1, src.length), 'plain');
+    i = end + 1;
+  }
+  return out;
+}
+
+/** Ruby。routes.rb に出る書き方だけ */
+function tokenizeRuby(src) {
+  const RB = new Set(['do', 'end', 'to', 'only', 'except', 'as', 'module', 'namespace', 'scope']);
+  const out = [];
+  const push = (start, end, type) => {
+    if (end > start) out.push({ start, end, type });
+  };
+  let i = 0;
+
+  while (i < src.length) {
+    const c = src[i];
+
+    if (/\s/.test(c)) {
+      const s = i;
+      while (i < src.length && /\s/.test(src[i])) i++;
+      push(s, i, 'plain');
+      continue;
+    }
+
+    if (c === '#') {
+      const s = i;
+      while (i < src.length && src[i] !== '\n') i++;
+      push(s, i, 'comment');
+      continue;
+    }
+
+    if (c === '"' || c === "'") {
+      let k = i + 1;
+      while (k < src.length && src[k] !== c) k++;
+      const stop = Math.min(k + 1, src.length);
+      push(i, stop, 'string');
+      i = stop;
+      continue;
+    }
+
+    if (c === ':' && /[a-zA-Z_]/.test(src[i + 1] || '')) {
+      const s = i++;
+      while (i < src.length && /[a-zA-Z0-9_]/.test(src[i])) i++;
+      push(s, i, 'value'); // 記号（シンボル）
+      continue;
+    }
+
+    if (/[A-Za-z_]/.test(c)) {
+      const s = i;
+      while (i < src.length && /[A-Za-z0-9_.]/.test(src[i])) i++;
+      const word = src.slice(s, i);
+      push(s, i, RB.has(word) ? 'keyword' : /^[A-Z]/.test(word) ? 'tag' : 'fn');
       continue;
     }
 
