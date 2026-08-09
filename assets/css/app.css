@@ -190,6 +190,7 @@ a {
 
 /* 日本語を文節で折る。効かないブラウザでも普通に折れるだけ */
 .tagline,
+.creed,
 .home__lead,
 .lesson__note,
 .note {
@@ -1963,4 +1964,16 @@ kbd {
 .quiet:disabled {
   color: var(--accent);
   border-color: var(--line);
+}
+
+/* 見出しの下に置く一行。読み物ではなく、態度の表明として立てる */
+.creed {
+  max-width: 34rem;
+  margin: 18px 0 0;
+  padding-left: 15px;
+  border-left: 2px solid color-mix(in srgb, var(--tone) 55%, transparent);
+  font-size: 16px;
+  line-height: 2;
+  letter-spacing: 0.01em;
+  color: var(--fg);
 }
