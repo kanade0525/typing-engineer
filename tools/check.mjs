@@ -33,6 +33,7 @@ const { TONES } = await import(join(ROOT, 'assets/js/tone.js'));
 const { SERIES } = await import(join(ROOT, 'assets/js/lessons.js'));
 const { TROPHIES } = await import(join(ROOT, 'assets/js/trophies.js'));
 const { DICT } = await import(join(ROOT, 'assets/js/i18n.js'));
+const { readHeaders } = await import(join(ROOT, 'scripts/headers.mjs'));
 
 const LANGS = new Set(['html', 'css', 'js', 'yaml', 'ruby']);
 
@@ -170,6 +171,27 @@ else {
   }
 }
 
+// ---------------------------------------------------------------- CSP の中身
+//
+// README は「ネットワークへ出ていく通信はゼロ」と書いてきた。_headers の
+// connect-src 'none' はそれを宣言から不変条件に変えるものなので、
+// 消えたり緩んだりしたら落とす。
+//
+// script-src と style-src の 'unsafe-inline' は外せない。打った字を srcdoc に
+// 流して走らせるのが主題で、中身は一打ごとに変わるからハッシュも nonce も
+// 置けない。だからここで守るのは「外に出ないこと」だけ、と割り切っている。
+
+const HEADERS = readHeaders(ROOT);
+const CSP = HEADERS['Content-Security-Policy'];
+if (!CSP) ng('CSP', '_headers に Content-Security-Policy が無い');
+else {
+  for (const need of ["default-src 'self'", "connect-src 'none'", "object-src 'none'", "base-uri 'none'"]) {
+    if (!CSP.includes(need)) ng('CSP', `${need} が無い`);
+  }
+  // ここが緩むと、外に出られるのに気づけない
+  if (/connect-src[^;]*(https?:|\*)/.test(CSP)) ng('CSP', 'connect-src が外を向いている');
+}
+
 console.log(`題材 ${LESSONS.length} 本・分類 ${GROUPS.length} 個を検査`);
 
 // ---------------------------------------------------------------- 2. 描画
@@ -274,9 +296,18 @@ if (!chromeBin && process.env.CI) {
     // 検査は緑になるので、気づくのに時間がかかった
     await send('Page.enable');
 
-    // 読み込みで落ちたら、その中身を後で読めるように控えておく
+    // 読み込みで落ちたら、その中身を後で読めるように控えておく。
+    // CSP 違反も同じところで拾う（srcdoc の中で出たものは親へ送る）
     await send('Page.addScriptToEvaluateOnNewDocument', {
-      source: 'addEventListener("error", (e) => { window.__err = String(e.message); });',
+      source: `
+        addEventListener("error", (e) => { window.__err = String(e.message); });
+        window.__csp = [];
+        addEventListener("securitypolicyviolation", (e) => {
+          const line = e.violatedDirective + " ← " + (e.blockedURI || "(inline)");
+          window.__csp.push(line);
+          try { if (top !== window && top.__csp) top.__csp.push("[frame] " + line); } catch {}
+        });
+      `,
     });
     await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/` });
 
@@ -304,6 +335,74 @@ if (!chromeBin && process.env.CI) {
     const left = await evaluate(`(${String(japaneseLeft)})()`);
     for (const s of left) ng('訳', `英語なのに日本語が残っている: ${JSON.stringify(s)}`);
     await evaluate('document.querySelector(\'[data-lang-set="ja"]\').click()');
+
+    // ---- CSP。二方向から見る。何も壊していないかと、本当に効いているか。
+    //      効いていない CSP を置くのが一番まずい。宣言だけ増えて何も守らない
+
+    // (1) サーバーが実際に送っているか。画面から fetch しても connect-src 'none'
+    //     に阻まれて確かめられないので、Node から見る
+    const sent = (await fetch(`http://127.0.0.1:${PORT}/`)).headers.get('content-security-policy');
+    if (!sent) ng('CSP', 'サーバーがヘッダーを送っていない');
+    else if (sent !== CSP) ng('CSP', `送られたヘッダーが _headers と違う\n    送: ${sent}\n    書: ${CSP}`);
+
+    // (2) 何も壊していないか。完成形を lang ごとに一本ずつ描かせて違反を数える。
+    //     srcdoc に流したインラインスクリプトが止められると JS の課題が死ぬので、
+    //     canvas に色が乗ったかまで見て「本当に走った」ことを確かめる
+    const oneEach = [...new Set(LESSONS.map((l) => l.lang))]
+      .map((lang) => LESSONS.find((l) => l.lang === lang));
+    for (const l of oneEach) {
+      const drew = await evaluate(`(async () => {
+        const { Preview } = await import('/assets/js/preview.js');
+        const { findLesson } = await import('/assets/js/lessons.js');
+        const lesson = findLesson(${JSON.stringify(l.id)});
+        const p = new Preview(document.getElementById('preview'));
+        p.mount(lesson);
+        p.render(lesson.code);
+        await new Promise((r) => setTimeout(r, 500));
+        const d = document.getElementById('preview').contentDocument;
+        const cv = d && d.getElementById('cv');
+        if (cv) {
+          // 塗られていれば alpha が立つ。CSP で止まれば透明のまま
+          const px = cv.getContext('2d').getImageData(1, 1, 1, 1).data;
+          if (!px[3]) return 'canvas が塗られていない（インラインスクリプトが走っていない）';
+        }
+        return (d && d.body && d.body.innerHTML.length) ? '' : 'プレビューが空';
+      })()`).catch((e) => `描けなかった: ${e.message}`);
+      if (drew) ng('CSP', `${l.id}（${l.lang}）で ${drew}`);
+    }
+    // 仕込みが入っていなければ落とす。空振りは「違反ゼロ」と見分けが付かず、
+    // 何も見ていないのに緑になる。それが一番まずい
+    const seenCsp = await evaluate('window.__csp ? JSON.stringify(window.__csp) : ""');
+    if (!seenCsp) ng('CSP', '違反を拾う仕込みが入っていない（検査が空振りしている）');
+    else for (const v of new Set(JSON.parse(seenCsp))) ng('CSP', `違反が出ている: ${v}`);
+
+    // (3) 効いているか。外に出ようとしたとき CSP が実際に止めたことを、
+    //     violation が発火したかで見る。
+    //
+    //     fetch が失敗したことだけを見てはいけない。CORS でも、ネットワークが
+    //     繋がっていないときでも同じように失敗するので、CSP を丸ごと消しても
+    //     この検査は通ってしまう。止めた主体が CSP だと言えるのは violation だけ。
+    const teeth = await evaluate(`(async () => {
+      if (!window.__csp) return ['違反を拾う仕込みが入っていない'];
+      window.__csp.length = 0;
+      const out = [];
+      try { await fetch('https://example.com'); } catch {}
+      await new Promise((r) => {
+        const s = document.createElement('script');
+        s.onload = s.onerror = () => r();
+        s.src = 'https://example.com/x.js';
+        document.head.append(s);
+        setTimeout(r, 2000);
+      });
+      await new Promise((r) => setTimeout(r, 200));
+      const got = window.__csp.join(' | ');
+      if (!/connect-src/.test(got)) out.push('外への fetch が connect-src で止まっていない');
+      if (!/script-src/.test(got)) out.push('外部スクリプトが script-src で止まっていない');
+      // 締めすぎていないか。自前のものは通らなければならない
+      try { await import('/assets/js/tone.js'); } catch (e) { out.push('自前の JS が止められた: ' + e.message); }
+      return out;
+    })()`);
+    for (const f of teeth || []) ng('CSP', f);
 
     console.log('描画の検査を実行');
   } catch (e) {

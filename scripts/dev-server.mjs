@@ -6,9 +6,14 @@
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { extname, join, normalize, resolve } from 'node:path';
+import { readHeaders } from './headers.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..');
 const PORT = Number(process.env.PORT) || 8000;
+
+// Cloudflare Pages に置く _headers を、手元でも同じように付ける。
+// ここで付けないと CSP は本番でしか効かず、破ったことに気づくのが公開後になる。
+const HEADERS = readHeaders(ROOT);
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -41,6 +46,7 @@ const server = createServer(async (req, res) => {
     res.writeHead(200, {
       'Content-Type': TYPES[extname(file)] || 'application/octet-stream',
       'Cache-Control': 'no-store',
+      ...HEADERS,
     });
     res.end(body);
   } catch {

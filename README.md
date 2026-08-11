@@ -225,6 +225,50 @@ npm run dev     # http://localhost:8000/
 npm run check   # 下の検査。落ちたら終了コードが 1 になる
 ```
 
+`npm run dev` は `_headers` を読んで同じヘッダーを付けます。**手元と公開先で
+CSP が食い違うと、破ったことに気づくのが公開後になる**ためです。
+
+## 公開先
+
+いま **GitHub Pages と Cloudflare Pages の二本を並走させて**見比べています。
+
+| | |
+| --- | --- |
+| GitHub Pages | 現行。帯域幅 100 GB/月（ソフト）。**ヘッダーを一切指定できない** |
+| Cloudflare Pages | 静的配信は無料・無制限。`_headers` で CSP を置ける |
+
+Cloudflare に移す理由は帯域幅ではありません（264 KB のサイトで 100 GB には
+届きません）。**ヘッダーを置けることです。** 上の「外部に依存しない」を
+宣言から不変条件に変えられるのは、こちらだけです。
+
+`_headers` は GitHub Pages では単に無視されるので、並走中に困りません。
+ハッシュルーティング（`#/play/...`）なのでリライトの設定も要りません。
+
+### Cloudflare 側の設定
+
+| 項目 | 値 |
+| --- | --- |
+| Framework preset | None |
+| Build command | **空欄** |
+| Build output directory | `/` |
+| 環境変数 | なし |
+
+**Build command は空です。** ビルドが無いので、Git 連携なら Cloudflare が
+リポジトリの中身をそのまま配ります。
+
+ここに `npx wrangler deploy` と書くと落ちます。三つ理由があります。
+`wrangler deploy` は Workers 用で Pages は `wrangler pages deploy` である、
+`wrangler.toml` を要求されるがこのリポジトリには無い、そして Git 連携では
+wrangler そのものが要らない。
+
+**ビルドトークンも要りません。** あれは Direct Upload（CI から
+`wrangler pages deploy` を叩く形）のためのもので、Git 連携では認証が
+GitHub App 側で済んでいます。
+
+空にしておく理由はもう一つあります。`npx` は**ビルドのたびに npm から
+パッケージを取ってきます。** 空にすれば、配信の経路にも依存パッケージが
+ゼロになります。Heroku で丸ごと止まったときの教訓と同じ話です。
+
 ## 検査（`npm run check`）
 
 | 見ているもの | |
@@ -237,6 +281,7 @@ npm run check   # 下の検査。落ちたら終了コードが 1 になる
 | ボタン | 既定の見た目が残っていないか（`cursor` と角丸） |
 | 色 | **どの配色でも文字が読めるか。** `--pending` `--fg` `--fg-mid` `--fg-dim` と字句の色の、**その配色の地**に対する対比を実測し、4.5:1 を下回ったら落とす（注釈だけは 3:1） |
 | 幅 | 横に溢れていないか |
+| CSP | **二方向から見る。** 壊していないか（5 言語ぶんの完成形を描いて違反ゼロ、JS 課題は canvas に色が乗ったかまで見る）と、効いているか（外へ `fetch` して **CSP が止めたことを違反の発火で確かめる**）。`fetch` の失敗だけを見ると CORS や不通と区別が付かず、CSP を消しても通ってしまう |
 
 **依存パッケージは足していません。** Chrome を起動して DevTools Protocol を直に叩いています。
 
@@ -269,7 +314,9 @@ assets/js/
   sound.js          打鍵音（音声ファイルは持たず合成する）
   view-compose.js   打った docker-compose.yml を構成図にする
   view-routes.js    打った routes.rb を `rails routes` の表にする
+_headers            CSP などのヘッダー（Cloudflare Pages が読む）
 scripts/dev-server.mjs
+scripts/headers.mjs   _headers を読む。dev-server と check が共有する
 tools/check.mjs
 ```
 
@@ -312,6 +359,16 @@ tools/check.mjs
 2020 年の版は Heroku・Font Awesome・期限付きの署名付き S3 URL に寄りかかっていて、
 Heroku の無料プランが終わった時点で丸ごと動かなくなりました。同じ壊れ方をしないよう、
 外に置いたものは持ち込んでいません。
+
+**これは長いあいだ宣言でした。いまは `_headers` の CSP が強制します。**
+`connect-src 'none'` を置いてあるので、うっかり CDN の URL を書いた時点で
+ブラウザが止めます。効いていることは `npm run check` が実測しています
+（外へ `fetch` して、CSP が止めたことを違反の発火で確かめる）。
+
+`script-src` と `style-src` の `'unsafe-inline'` は外せません。打った字を
+`srcdoc` に流して走らせるのがこの入れ物の主題で、中身は一打ごとに変わるので
+ハッシュも nonce も置けません。**ここで守れるのは「インラインを止めること」ではなく
+「外に出る通信をゼロに保つこと」です。** `connect-src` が本体で、あとは付随です。
 
 ## 2020 年の版から変わったところ
 
