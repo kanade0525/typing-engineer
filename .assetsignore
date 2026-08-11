@@ -25,4 +25,13 @@ LICENSE
 .git/
 .gitignore
 node_modules/
+.wrangler/
 .DS_Store
+
+# node_modules を外すのは念のためではない。
+# wrangler.jsonc が無いまま `npx wrangler deploy` を走らせると、wrangler が
+# 対話セットアップを始めて自分を devDependency として入れる。すると
+# directory: "." の下に node_modules ができ、workerd の実行ファイル（122 MiB）が
+# 25 MiB の上限を超えてデプロイが落ちる。一度そうなった。
+#
+# wrangler.jsonc を置いた以上その道は通らないが、外し忘れると同じ壊れ方をする。
