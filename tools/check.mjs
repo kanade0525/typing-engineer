@@ -30,6 +30,9 @@ const { countKeystrokes } = await import(join(ROOT, 'assets/js/engine.js'));
 // 配色の一覧は tone.js から読む。ここに直書きすると必ずズレて、
 // 足した色が検査されないまま緑になる
 const { TONES } = await import(join(ROOT, 'assets/js/tone.js'));
+const { SERIES } = await import(join(ROOT, 'assets/js/lessons.js'));
+const { TROPHIES } = await import(join(ROOT, 'assets/js/trophies.js'));
+const { DICT } = await import(join(ROOT, 'assets/js/i18n.js'));
 
 const LANGS = new Set(['html', 'css', 'js', 'yaml', 'ruby']);
 const seen = new Set();
@@ -64,6 +67,42 @@ for (const l of LESSONS) {
 
 for (const g of lessonsByGroup()) {
   if (!g.items.length) ng(`分類 ${g.name}`, '中身が無い');
+}
+
+// ---------------------------------------------------------------- 訳の抜け
+//
+// 片方の言語にしか無い鍵は、その言語で日本語がそのまま出る。
+// 気づきにくいので、機械に数えさせる。
+
+for (const l of LESSONS) {
+  for (const k of ['title', 'subtitle', 'note']) {
+    if (!l.en?.[k]) ng(`訳 ${l.id}`, `en.${k} が無い`);
+  }
+}
+for (const [id, s] of Object.entries(SERIES)) {
+  for (const k of ['name', 'headline', 'goal']) {
+    if (!s.en?.[k]) ng(`訳 作品 ${id}`, `en.${k} が無い`);
+  }
+}
+for (const tr of TROPHIES) {
+  for (const k of ['name', 'hint']) {
+    if (!tr.en?.[k]) ng(`訳 ${tr.id}`, `en.${k} が無い`);
+  }
+}
+
+const ja = new Set(Object.keys(DICT.ja));
+const en = new Set(Object.keys(DICT.en));
+for (const k of ja) if (!en.has(k)) ng('訳', `"${k}" が英語に無い`);
+for (const k of en) if (!ja.has(k)) ng('訳', `"${k}" が日本語に無い`);
+for (const g of GROUPS) if (!ja.has(`group.${g}`)) ng('訳', `分類 "${g}" の名前が無い`);
+
+// 画面に付けた印が、辞書にあるか
+const html = readFileSync(join(ROOT, 'index.html'), 'utf8');
+for (const m of html.matchAll(/data-i18n(?:-html)?="([^"]+)"/g)) {
+  if (!ja.has(m[1])) ng('訳', `画面の印 "${m[1]}" が辞書に無い`);
+}
+for (const m of html.matchAll(/data-i18n-attr="[^:]+:([^"]+)"/g)) {
+  if (!ja.has(m[1])) ng('訳', `画面の印 "${m[1]}" が辞書に無い`);
 }
 
 // README に書いた本数が実際と合っているか
@@ -172,17 +211,37 @@ if (!chromeBin && process.env.CI) {
       return r.result?.result?.value;
     };
 
+    // 読み込みで落ちたら、その中身を後で読めるように控えておく
+    await send('Page.addScriptToEvaluateOnNewDocument', {
+      source: 'addEventListener("error", (e) => { window.__err = String(e.message); });',
+    });
     await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/` });
 
+    let drawn = 0;
     for (let i = 0; i < 60; i++) {
-      const ready = await evaluate('document.querySelectorAll(".lesson").length > 0').catch(() => false);
-      if (ready) break;
+      drawn = await evaluate('document.querySelectorAll(".lesson, .series").length').catch(() => 0);
+      if (drawn > 0) break;
       await new Promise((r) => setTimeout(r, 200));
+    }
+
+    // 画面が出ているかを先に見る。これが無いと、真っ白でも下の検査は通ってしまう
+    if (!drawn) {
+      const why = await evaluate('window.__err || "(見当たらない)"').catch(() => '(読めない)');
+      ng('描画', `一覧に札が一枚も出ていない。読み込みで落ちている疑い: ${why}`);
     }
 
     const tones = JSON.stringify(TONES.map((t) => [t.id, t.family]));
     const found = await evaluate(`${String(browserChecks)};browserChecks(${tones})`);
     for (const f of found) ng('描画', f);
+
+    // 英語にしたときに日本語が残っていないか。
+    // 訳を足し忘れると、その場所だけ日本語のまま出る
+    await evaluate('document.querySelector(\'[data-lang-set="en"]\').click()');
+    await new Promise((r) => setTimeout(r, 400));
+    const left = await evaluate(`(${String(japaneseLeft)})()`);
+    for (const s of left) ng('訳', `英語なのに日本語が残っている: ${JSON.stringify(s)}`);
+    await evaluate('document.querySelector(\'[data-lang-set="ja"]\').click()');
+
     console.log('描画の検査を実行');
   } catch (e) {
     ng('描画', `検査できなかった: ${e.message}`);
@@ -273,4 +332,17 @@ function browserChecks(tones) {
   }
 
   return out;
+}
+
+/** 英語のときに残っている日本語を拾う（画面側で走る） */
+function japaneseLeft() {
+  const out = new Set();
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  while (walk.nextNode()) {
+    const n = walk.currentNode;
+    if (n.parentElement.closest('.langs, #peek, script, style')) continue;
+    const s = n.textContent.trim();
+    if (s && /[\u3040-\u30ff\u4e00-\u9faf]/.test(s)) out.add(s.slice(0, 40));
+  }
+  return [...out];
 }

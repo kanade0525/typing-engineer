@@ -7,7 +7,8 @@
 export const LESSONS = [
   {
     id: 'css-first',
-    group: '見た目が変わる',
+    en: { title: "Centre a card on the screen", subtitle: "place-items · border-radius", note: "A bare string of text becomes a glowing card in seven lines." },
+    group: 'visual',
     lang: 'css',
     file: 'first.css',
     level: 1,
@@ -36,7 +37,8 @@ export const LESSONS = [
 
   {
     id: 'css-grid',
-    group: '見た目が変わる',
+    en: { title: "Split the screen into four areas", subtitle: "grid-template-areas", note: "Four stacked boxes snap into a page layout the moment areas lands." },
+    group: 'visual',
     lang: 'css',
     file: 'grid.css',
     level: 3,
@@ -85,7 +87,8 @@ export const LESSONS = [
 
   {
     id: 'css-hover',
-    group: '見た目が変わる',
+    en: { title: "Lift a tile on hover", subtitle: "transition · transform", note: "When you finish, put the mouse on the cards to the right." },
+    group: 'visual',
     lang: 'css',
     file: 'hover.css',
     level: 2,
@@ -134,7 +137,8 @@ export const LESSONS = [
 
   {
     id: 'html-hello',
-    group: 'HTML から CSS へ',
+    en: { title: "Write the HTML skeleton", subtitle: "DOCTYPE · head · body", note: "The bones of HTML. The shape settles the moment you close a tag." },
+    group: 'basics',
     lang: 'html',
     file: 'index.html',
     level: 1,
@@ -157,7 +161,8 @@ export const LESSONS = [
 
   {
     id: 'html-profile',
-    group: 'HTML から CSS へ',
+    en: { title: "Build a profile in HTML", subtitle: "ul · a · hr", note: "From <body> on, the content piles up as you type." },
+    group: 'basics',
     lang: 'html',
     file: 'profile.html',
     level: 2,
@@ -188,7 +193,8 @@ export const LESSONS = [
 
   {
     id: 'css-profile',
-    group: 'HTML から CSS へ',
+    en: { title: "Style the profile with CSS", subtitle: "max-width · color", note: "The bare document from the last stage gains its form, line by line." },
+    group: 'basics',
     lang: 'css',
     file: 'profile.css',
     level: 2,
@@ -241,7 +247,8 @@ a {
 
   {
     id: 'html-form',
-    group: '王道パターン',
+    en: { title: "Build a sign-up form", subtitle: "label · input · select", note: "Heavy on attributes. Quotes and hyphens start to tell." },
+    group: 'patterns',
     lang: 'html',
     file: 'signup.html',
     level: 3,
@@ -270,7 +277,8 @@ a {
 
   {
     id: 'html-table',
-    group: '王道パターン',
+    en: { title: "Build a pricing table", subtitle: "table · thead · tbody", note: "tr and td over and over, until your fingers know the shape." },
+    group: 'patterns',
     lang: 'html',
     file: 'pricing.html',
     level: 3,
@@ -309,7 +317,8 @@ a {
 
   {
     id: 'css-card',
-    group: '見た目が変わる',
+    en: { title: "Gather parts into one card", subtitle: "spacing inside", note: "Only the inner spacing here. Placing it was the previous stage." },
+    group: 'visual',
     lang: 'css',
     file: 'card.css',
     level: 2,
@@ -370,7 +379,8 @@ a {
 
   {
     id: 'css-flex',
-    group: '見た目が変わる',
+    en: { title: "Lay a menu out in a row", subtitle: "display: flex · justify-content", note: "Stacked elements turn sideways on one line of display: flex." },
+    group: 'visual',
     lang: 'css',
     file: 'layout.css',
     level: 3,
@@ -441,7 +451,8 @@ a {
 
   {
     id: 'css-anim',
-    group: '見た目が変わる',
+    en: { title: "Bounce three balls in turn", subtitle: "@keyframes · animation-delay", note: "The last } sets all three balls bouncing." },
+    group: 'visual',
     lang: 'css',
     file: 'motion.css',
     level: 4,
@@ -496,7 +507,8 @@ a {
   },
   {
     id: 'html-blog',
-    group: '王道パターン',
+    en: { title: "Build a blog post", subtitle: "article · time · blockquote", note: "The skeleton of an article. Quotes nested inside body text." },
+    group: 'patterns',
     lang: 'html',
     file: 'post.html',
     level: 3,
@@ -531,7 +543,8 @@ a {
 
   {
     id: 'html-login',
-    group: '王道パターン',
+    en: { title: "Build a sign-in screen", subtitle: "form · autocomplete", note: "Every service has one. Written out, attributes and all." },
+    group: 'patterns',
     lang: 'html',
     file: 'login.html',
     level: 3,
@@ -560,7 +573,8 @@ a {
 
   {
     id: 'html-nav',
-    group: '王道パターン',
+    en: { title: "Build a nav and a footer", subtitle: "nav · ul · li", note: "<li><a href> again and again. It gets fast once your hand learns it." },
+    group: 'patterns',
     lang: 'html',
     file: 'shell.html',
     level: 2,
@@ -595,7 +609,8 @@ a {
 
   {
     id: 'css-products',
-    group: '王道パターン',
+    en: { title: "Lay products out in a grid", subtitle: "e-commerce · grid · aspect-ratio", note: "A vertical list of products lines up on a shelf with one grid." },
+    group: 'patterns',
     lang: 'css',
     file: 'products.css',
     level: 4,
@@ -689,7 +704,8 @@ a {
 
   {
     id: 'css-article',
-    group: '王道パターン',
+    en: { title: "Set the measure and leading", subtitle: "max-width · line-height", note: "A wall of text turns into something readable with one max-width." },
+    group: 'patterns',
     lang: 'css',
     file: 'post.css',
     level: 3,
@@ -752,7 +768,8 @@ blockquote {
 
   {
     id: 'css-hero',
-    group: '王道パターン',
+    en: { title: "Build the first screen", subtitle: "hero · radial-gradient", note: "The first thing a visitor sees. Bare text becomes the set piece." },
+    group: 'patterns',
     lang: 'css',
     file: 'hero.css',
     level: 4,
@@ -829,7 +846,8 @@ blockquote {
 
   {
     id: 'css-dashboard',
-    group: '王道パターン',
+    en: { title: "Frame an admin screen", subtitle: "dashboard · sidebar", note: "Stacked numbers become an admin screen with a column beside them." },
+    group: 'patterns',
     lang: 'css',
     file: 'admin.css',
     level: 4,
@@ -928,8 +946,9 @@ blockquote {
   },
   {
     id: 'game-breakout-1',
+    en: { title: "Draw the field and the ball", subtitle: "canvas · fillRect · arc", note: "A field with a paddle and a ball. Nothing moves yet." },
     series: 'breakout',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'breakout.js',
     level: 1,
@@ -964,8 +983,9 @@ draw();
 
   {
     id: 'game-breakout-2',
+    en: { title: "Move the paddle with arrow keys", subtitle: "keydown · requestAnimationFrame", note: "Hold the key state and redraw every frame. Press Play it to try." },
     series: 'breakout',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'breakout.js',
     level: 2,
@@ -1024,8 +1044,9 @@ requestAnimationFrame(loop);
 
   {
     id: 'game-breakout-3',
+    en: { title: "Send the ball flying", subtitle: "velocity and wall bounces", note: "Just add velocity to the position. Flip the sign at a wall." },
     series: 'breakout',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'breakout.js',
     level: 2,
@@ -1107,8 +1128,9 @@ function loop() {
 
   {
     id: 'game-breakout-4',
+    en: { title: "Bounce it off the paddle", subtitle: "collision", note: "Check whether paddle and ball overlap. Where it hits changes the angle." },
     series: 'breakout',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'breakout.js',
     level: 3,
@@ -1207,8 +1229,9 @@ function loop() {
 
   {
     id: 'game-breakout-5',
+    en: { title: "Break bricks and score", subtitle: "arrays and brute force", note: "The last line makes it something you can actually play." },
     series: 'breakout',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'breakout.js',
     level: 3,
@@ -1349,8 +1372,9 @@ function loop() {
 
   {
     id: 'app-memo-1',
+    en: { title: "Draw the list of memos", subtitle: "Read · createElement", note: "Loop the array and build li elements. Three items appear." },
     series: 'memo',
-    group: 'アプリを写経する',
+    group: 'apps',
     lang: 'js',
     file: 'memo.js',
     level: 1,
@@ -1406,8 +1430,9 @@ render();
 
   {
     id: 'app-memo-2',
+    en: { title: "Add a memo", subtitle: "Create · submit", note: "Stop the default submit, push to the array, draw again." },
     series: 'memo',
-    group: 'アプリを写経する',
+    group: 'apps',
     lang: 'js',
     file: 'memo.js',
     level: 2,
@@ -1479,8 +1504,9 @@ form.addEventListener('submit', (e) => {
 
   {
     id: 'app-memo-3',
+    en: { title: "Mark a memo done", subtitle: "Update · event delegation", note: "No listener per item. Catch it on the ul and look at what was clicked." },
     series: 'memo',
-    group: 'アプリを写経する',
+    group: 'apps',
     lang: 'js',
     file: 'memo.js',
     level: 2,
@@ -1579,8 +1605,9 @@ list.addEventListener('click', (e) => {
 
   {
     id: 'app-memo-4',
+    en: { title: "Delete a memo", subtitle: "Delete · splice", note: "A delete button. Branching on what was clicked keeps it from clashing." },
     series: 'memo',
-    group: 'アプリを写経する',
+    group: 'apps',
     lang: 'js',
     file: 'memo.js',
     level: 3,
@@ -1710,8 +1737,9 @@ list.addEventListener('click', (e) => {
 
   {
     id: 'app-memo-5',
+    en: { title: "Make it survive a reload", subtitle: "localStorage", note: "One last line and the contents stay after you close the tab." },
     series: 'memo',
-    group: 'アプリを写経する',
+    group: 'apps',
     lang: 'js',
     file: 'memo.js',
     level: 3,
@@ -1859,8 +1887,9 @@ render();
 
   {
     id: 'game-invader-1',
+    en: { title: "Draw space and your ship", subtitle: "moveTo · lineTo", note: "A triangle is lines joined and filled. One ship lands on the field." },
     series: 'invader',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'invader.js',
     level: 1,
@@ -1896,8 +1925,9 @@ drawShip();
 
   {
     id: 'game-invader-2',
+    en: { title: "Build the enemies from rectangles", subtitle: "combining rects", note: "Four rectangles make one alien. Two loops make twenty-one." },
     series: 'invader',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'invader.js',
     level: 2,
@@ -1956,8 +1986,9 @@ drawShip();
 
   {
     id: 'game-invader-3',
+    en: { title: "March the fleet", subtitle: "turn at the edge and drop", note: "One alien touching the edge turns the whole fleet and drops it a row." },
     series: 'invader',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'invader.js',
     level: 2,
@@ -2044,8 +2075,9 @@ requestAnimationFrame(loop);
 
   {
     id: 'game-invader-4',
+    en: { title: "Shoot them down", subtitle: "space bar and collision", note: "The last line makes it move with the arrows and fire with space." },
     series: 'invader',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'invader.js',
     level: 3,
@@ -2182,8 +2214,9 @@ function loop() {
 
   {
     id: 'game-drop-1',
+    en: { title: "Rule the field", subtitle: "2D arrays and a grid", note: "Ten by twenty cells. Nothing in them yet." },
     series: 'drop',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'drop.js',
     level: 1,
@@ -2225,8 +2258,9 @@ drawField();
 
   {
     id: 'game-drop-2',
+    en: { title: "Draw the stack", subtitle: "colour by number", note: "Read each number as a colour. The bottom three rows fill in." },
     series: 'drop',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'drop.js',
     level: 2,
@@ -2286,8 +2320,9 @@ drawStack();
 
   {
     id: 'game-drop-3',
+    en: { title: "Drop the piece", subtitle: "a counter for falling", note: "One row down every few dozen frames. It starts to fall." },
     series: 'drop',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'drop.js',
     level: 2,
@@ -2377,8 +2412,9 @@ requestAnimationFrame(loop);
 
   {
     id: 'game-drop-4',
+    en: { title: "Slide it and stack it", subtitle: "collision and locking", note: "The last line lets you slide it with the arrows and stack it." },
     series: 'drop',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'drop.js',
     level: 3,
@@ -2511,8 +2547,9 @@ function loop() {
 
   {
     id: 'game-othello-1',
+    en: { title: "Rule the board", subtitle: "moveTo · lineTo, repeated", note: "Nine lines each way is all it takes for an eight by eight board." },
     series: 'othello',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'othello.js',
     level: 1,
@@ -2551,8 +2588,9 @@ drawBoard();
 
   {
     id: 'game-othello-2',
+    en: { title: "Place the stones", subtitle: "2D arrays and circles", note: "The four centre stones. Numbers read as black or white." },
     series: 'othello',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'othello.js',
     level: 2,
@@ -2616,8 +2654,9 @@ drawStones();
 
   {
     id: 'game-othello-3',
+    en: { title: "Flip what you surround", subtitle: "scanning eight directions", note: "The last line makes surrounded stones flip." },
     series: 'othello',
-    group: 'ゲームを写経する',
+    group: 'games',
     lang: 'js',
     file: 'othello.js',
     level: 4,
@@ -2724,7 +2763,8 @@ cv.addEventListener('click', (e) => {
 
   {
     id: 'infra-compose-1',
-    group: '設定ファイルを書く',
+    en: { title: "Bring up one service", subtitle: "services · image · ports", note: "Docker will not run here. So we read what you typed and draw it." },
+    group: 'config',
     lang: 'yaml',
     file: 'compose.yaml',
     level: 2,
@@ -2750,7 +2790,8 @@ cv.addEventListener('click', (e) => {
 
   {
     id: 'infra-compose-2',
-    group: '設定ファイルを書く',
+    en: { title: "Add another and wire them", subtitle: "depends_on · volumes", note: "The moment depends_on lands, an arrow is drawn between the boxes." },
+    group: 'config',
     lang: 'yaml',
     file: 'compose.yaml',
     level: 3,
@@ -2791,7 +2832,8 @@ volumes:
 
   {
     id: 'infra-routes-1',
-    group: '設定ファイルを書く',
+    en: { title: "Route static pages and redirects", subtitle: "root · get · redirect", note: "resources does not fit here, so it is written by hand. Redirects are one line." },
+    group: 'config',
     lang: 'ruby',
     file: 'routes.rb',
     level: 2,
@@ -2816,7 +2858,8 @@ end
 
   {
     id: 'infra-routes-2',
-    group: '設定ファイルを書く',
+    en: { title: "Draw them all with resources", subtitle: "resources · resource · only", note: "Not one by one. resources :posts lands and seven rows appear." },
+    group: 'config',
     lang: 'ruby',
     file: 'routes.rb',
     level: 3,
@@ -2850,26 +2893,31 @@ end
  */
 export const SERIES = {
   memo: {
+    en: { name: "Memo", headline: "Build a memo app", goal: "Write, tick off, delete, and it survives a reload. CRUD, end to end." },
     name: 'メモ帳',
     headline: 'メモ帳をつくる',
     goal: '書いて、済みにして、消して、閉じても残る。CRUD がひと通り入った道具に。',
   },
   breakout: {
+    en: { name: "Breakout", headline: "Build Breakout", goal: "Move the paddle with the arrows and break bricks with a bouncing ball." },
     name: 'ブロック崩し',
     headline: 'ブロック崩しをつくる',
     goal: '矢印キーで板を動かし、跳ね返る玉でブロックを崩す。遊べる形まで。',
   },
   invader: {
+    en: { name: "Invaders", headline: "Build Invaders", goal: "Shoot down the descending fleet with the space bar." },
     name: 'インベーダー',
     headline: 'インベーダーをつくる',
     goal: '降りてくる敵の隊列を、スペースキーで撃ち落とす。',
   },
   drop: {
+    en: { name: "Falling blocks", headline: "Build a falling-block game", goal: "Slide the falling pieces left and right and stack them up." },
     name: 'ブロック落とし',
     headline: 'ブロック落としをつくる',
     goal: '落ちてくるピースを左右に寄せて積み上げる。',
   },
   othello: {
+    en: { name: "Othello", headline: "Build Othello", goal: "Rule the board, place the stones, and make surrounded ones flip." },
     name: 'オセロ',
     headline: 'オセロをつくる',
     goal: '盤を敷き、石を並べ、挟んだ石が返るところまで。',
@@ -2892,7 +2940,7 @@ export function blocksOf(items) {
 }
 
 /** 一覧の並び。打った通りに見た目が変わるものを先に置く */
-export const GROUPS = ['見た目が変わる', '王道パターン', 'アプリを写経する', 'ゲームを写経する', '設定ファイルを書く', 'HTML から CSS へ'];
+export const GROUPS = ['visual', 'patterns', 'apps', 'games', 'config', 'basics'];
 
 export function lessonsByGroup() {
   return GROUPS.map((name) => ({

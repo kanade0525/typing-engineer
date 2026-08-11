@@ -2420,3 +2420,41 @@ kbd {
     display: none !important;
   }
 }
+
+/* 言語の切り替え */
+.langs {
+  margin-left: auto;
+  display: inline-flex;
+  padding: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.langs button {
+  padding: 4px 9px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--fg-dim);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.langs button:hover {
+  color: var(--fg);
+}
+
+.langs button[aria-pressed="true"] {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.tones {
+  margin-left: 8px;
+}
+
+.how li em {
+  font-style: normal;
+}

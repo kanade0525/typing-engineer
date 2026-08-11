@@ -8,27 +8,26 @@
 // 最初の描画前に当てないと一瞬ちらつくので、index.html の <head> にも
 // 同じ鍵を読むだけの小さな script を置いてある。
 
+import { t } from './i18n.js';
+
 const KEY = 'typing-engineer:tone';
 const DEFAULT = 'vivid';
 
 export const TONES = [
-  { id: 'vivid', name: 'カラフル', family: 'editor' },
-  { id: 'dracula', name: 'Dracula', family: 'editor' },
-  { id: 'monokai', name: 'Monokai', family: 'editor' },
-  { id: 'nord', name: 'Nord', family: 'editor' },
-  { id: 'gruvbox', name: 'Gruvbox', family: 'editor' },
-  { id: 'tokyo', name: 'Tokyo Night', family: 'editor' },
-  { id: 'green', name: 'グリーン', family: 'phosphor' },
-  { id: 'amber', name: 'アンバー', family: 'phosphor' },
-  { id: 'cyan', name: 'シアン', family: 'phosphor' },
-  { id: 'magenta', name: 'マゼンタ', family: 'phosphor' },
-  { id: 'mono', name: 'モノクロ', family: 'phosphor' },
+  { id: 'vivid', family: 'editor' },
+  { id: 'dracula', family: 'editor' },
+  { id: 'monokai', family: 'editor' },
+  { id: 'nord', family: 'editor' },
+  { id: 'gruvbox', family: 'editor' },
+  { id: 'tokyo', family: 'editor' },
+  { id: 'green', family: 'phosphor' },
+  { id: 'amber', family: 'phosphor' },
+  { id: 'cyan', family: 'phosphor' },
+  { id: 'magenta', family: 'phosphor' },
+  { id: 'mono', family: 'phosphor' },
 ];
 
-const FAMILIES = [
-  { id: 'editor', label: 'エディタ配色' },
-  { id: 'phosphor', label: '単色の燐光' },
-];
+const FAMILIES = ['editor', 'phosphor'];
 
 const byId = new Map(TONES.map((t) => [t.id, t]));
 
@@ -66,7 +65,7 @@ export function applyTone(id) {
     b.setAttribute('aria-pressed', String(b.dataset.toneSet === tone.id));
   }
   const name = document.getElementById('toneName');
-  if (name) name.textContent = tone.name;
+  if (name) name.textContent = t(`tone.${tone.id}`);
   const dot = document.getElementById('toneDot');
   if (dot) dot.style.background = swatchOf(tone.id);
   return tone.id;
@@ -77,22 +76,29 @@ function buildMenu(menu) {
   for (const f of FAMILIES) {
     const head = document.createElement('p');
     head.className = 'tones__label';
-    head.textContent = f.label;
+    head.textContent = t(`tone.${f}`);
     menu.append(head);
 
-    for (const t of TONES.filter((x) => x.family === f.id)) {
+    for (const x of TONES.filter((v) => v.family === f)) {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'tones__opt';
-      b.dataset.toneSet = t.id;
+      b.dataset.toneSet = x.id;
       const dot = document.createElement('i');
-      dot.style.background = swatchOf(t.id);
+      dot.style.background = swatchOf(x.id);
       const label = document.createElement('span');
-      label.textContent = t.name;
+      label.textContent = t(`tone.${x.id}`);
       b.append(dot, label);
       menu.append(b);
     }
   }
+}
+
+/** 言語が変わったら並べ直す */
+export function relabelTones() {
+  const menu = document.getElementById('tonesMenu');
+  if (menu) buildMenu(menu);
+  applyTone(currentTone());
 }
 
 export function initTone(onChange = () => {}) {

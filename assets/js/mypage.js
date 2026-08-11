@@ -6,6 +6,7 @@
 import { LESSONS, SERIES, findLesson, lessonsByGroup, blocksOf } from './lessons.js';
 import { TROPHIES, rankOf } from './trophies.js';
 import { getBest, getStats, exportAll, clearAll, importAll, STORAGE_KEYS } from './storage.js';
+import { t, pick } from './i18n.js';
 
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
@@ -36,22 +37,22 @@ function summary(s) {
     const fill = el('i');
     fill.style.width = `${Math.max(2, Math.min(100, ((s.tokens - rank.at) / span) * 100))}%`;
     bar.append(fill);
-    box.append(bar, el('p', 'rank__next', `次の ${rank.next.name} まで あと ${need.toLocaleString('en')}`));
+    box.append(bar, el('p', 'rank__next', t('my.toNext', { name: rank.next.name, n: need.toLocaleString('en') })));
   } else {
-    box.append(el('p', 'rank__next', '最上位です'));
+    box.append(el('p', 'rank__next', t('my.top')));
   }
 
   const grid = el('dl', 'tally');
   const cleared = Object.keys(s.cleared).length;
   for (const [k, v] of [
-    ['CLEAR', `${s.runs}`],
-    ['ステージ制覇', `${cleared} / ${LESSONS.length}`],
-    ['総打鍵', s.keys.toLocaleString('en')],
-    ['最速', `${s.bestWpm} wpm`],
-    ['最高正確さ', `${s.bestAcc}%`],
-    ['連続', `${s.streak} 日`],
-    ['ノーミス', `${s.perfect} 回`],
-    ['はじめた日', s.since || '—'],
+    [t('my.clear'), `${s.runs}`],
+    [t('my.stages'), `${cleared} / ${LESSONS.length}`],
+    [t('my.keys'), s.keys.toLocaleString('en')],
+    [t('my.fastest'), `${s.bestWpm} wpm`],
+    [t('my.bestAcc'), `${s.bestAcc}%`],
+    [t('my.streak'), t('my.days', { n: s.streak })],
+    [t('my.perfect'), t('my.times', { n: s.perfect })],
+    [t('my.since'), s.since || '—'],
   ]) {
     const d = el('div');
     d.append(el('dt', null, k), el('dd', null, v));
@@ -63,12 +64,12 @@ function summary(s) {
 
 function stageTable(s) {
   const box = el('section', 'card');
-  box.append(el('h3', 'card__head', 'ステージ別の記録'));
+  box.append(el('h3', 'card__head', t('my.stageTable')));
 
   const table = el('table', 'rec');
   const thead = el('thead');
   const hr = el('tr');
-  for (const h of ['ステージ', 'CLEAR', 'ベスト', 'wpm', '正確さ']) hr.append(el('th', null, h));
+  for (const h of [t('th.stage'), t('my.clear'), t('th.best'), 'wpm', t('result.acc')]) hr.append(el('th', null, h));
   thead.append(hr);
   table.append(thead);
 
@@ -88,7 +89,7 @@ function stageTable(s) {
     const n = s.cleared[l.id] || 0;
     const tr = el('tr', n ? null : 'is-untouched');
     const name = el('td', step ? 'is-step' : null);
-    name.append(el('b', null, l.title), el('small', null, l.subtitle));
+    name.append(el('b', null, pick(l, 'title')), el('small', null, pick(l, 'subtitle')));
     tr.append(
       name,
       el('td', 'num', n ? `${n}` : '—'),
@@ -100,7 +101,7 @@ function stageTable(s) {
   };
 
   for (const g of lessonsByGroup()) {
-    line(g.name, 'is-group');
+    line(t('group.' + g.name), 'is-group');
 
     for (const b of blocksOf(g.items)) {
       if (!b.series) {
@@ -109,7 +110,7 @@ function stageTable(s) {
       }
       // 作品はひとまとまりで見せる。章はその下に
       const done = b.items.filter((l) => getBest(l.id)).length;
-      line(`${b.headline}　—　${done} / ${b.items.length} 章`, 'is-series');
+      line(`${pick(b, 'headline')}　—　${t('my.chapters', { done, all: b.items.length })}`, 'is-series');
       for (const l of b.items) row(l, true);
     }
   }
@@ -121,16 +122,16 @@ function stageTable(s) {
 function achievements(s) {
   const got = TROPHIES.filter((t) => s.earned[t.id]);
   const box = el('section', 'card');
-  const head = el('h3', 'card__head', 'アチーブメント');
+  const head = el('h3', 'card__head', t('my.trophies'));
   head.append(el('span', 'card__count', `${got.length} / ${TROPHIES.length}`));
   box.append(head);
 
   const grid = el('div', 'trophies');
-  for (const t of TROPHIES) {
-    const on = Boolean(s.earned[t.id]);
+  for (const tr of TROPHIES) {
+    const on = Boolean(s.earned[tr.id]);
     const chip = el('span', `trophy${on ? ' is-got' : ''}`);
-    chip.append(el('b', null, on ? t.name : 'LOCKED'), el('small', null, t.hint));
-    if (on) chip.append(el('small', 'trophy__when', `取得 ${s.earned[t.id]}`));
+    chip.append(el('b', null, on ? pick(tr, 'name') : t('my.locked')), el('small', null, pick(tr, 'hint')));
+    if (on) chip.append(el('small', 'trophy__when', t('my.got', { date: s.earned[tr.id] })));
     grid.append(chip);
   }
   box.append(grid);
@@ -139,17 +140,17 @@ function achievements(s) {
 
 function history(s) {
   const box = el('section', 'card');
-  box.append(el('h3', 'card__head', '最近の記録'));
+  box.append(el('h3', 'card__head', t('my.history')));
 
   if (!s.history.length) {
-    box.append(el('p', 'empty', 'まだ記録がありません。一本クリアするとここに残ります。'));
+    box.append(el('p', 'empty', t('my.noHistory')));
     return box;
   }
 
   const table = el('table', 'rec');
   const thead = el('thead');
   const hr = el('tr');
-  for (const h of ['日時', 'ステージ', 'タイム', 'wpm', '正確さ', 'SCORE']) hr.append(el('th', null, h));
+  for (const h of [t('th.when'), t('th.stage'), t('th.best'), 'wpm', t('result.acc'), 'SCORE']) hr.append(el('th', null, h));
   thead.append(hr);
   table.append(thead);
 
@@ -159,7 +160,7 @@ function history(s) {
     const tr = el('tr');
     tr.append(
       el('td', 'when', fmtDate(r.at)),
-      el('td', null, l ? l.title : r.id),
+      el('td', null, l ? pick(l, 'title') : r.id),
       el('td', 'num', r.seconds != null ? `${r.seconds.toFixed(1)}s` : '—'),
       el('td', 'num', `${r.wpm}`),
       el('td', 'num', `${r.accuracy}%`),
@@ -174,14 +175,10 @@ function history(s) {
 
 function dataBox(onChange) {
   const box = el('section', 'card');
-  box.append(el('h3', 'card__head', '記録の置き場所'));
+  box.append(el('h3', 'card__head', t('my.storage')));
 
   const p = el('p', 'data__lead');
-  p.append(
-    document.createTextNode('記録は '),
-    el('b', null, 'このブラウザの localStorage'),
-    document.createTextNode(' にだけ保存しています。サーバーには何も送っていません。別の端末やブラウザからは見えません。履歴を消すと一緒に消えます。')
-  );
+  p.innerHTML = t('my.storageLead');
   box.append(p);
 
   const keys = el('ul', 'data__keys');
@@ -190,7 +187,7 @@ function dataBox(onChange) {
 
   const row = el('div', 'data__row');
 
-  const save = el('button', 'btn', '記録を書き出す（JSON）');
+  const save = el('button', 'btn', t('my.export'));
   save.type = 'button';
   save.addEventListener('click', () => {
     const url = URL.createObjectURL(new Blob([exportAll()], { type: 'application/json' }));
@@ -201,7 +198,7 @@ function dataBox(onChange) {
     URL.revokeObjectURL(url);
   });
 
-  const load = el('button', 'btn', '記録を読み込む（JSON）');
+  const load = el('button', 'btn', t('my.import'));
   load.type = 'button';
   const file = el('input');
   file.type = 'file';
@@ -211,23 +208,23 @@ function dataBox(onChange) {
   file.addEventListener('change', async () => {
     const f = file.files && file.files[0];
     if (!f) return;
-    if (!confirm('いまの記録を、読み込んだ内容で置き換えます。元に戻せません。よろしいですか。')) {
+    if (!confirm(t('my.importAsk'))) {
       file.value = '';
       return;
     }
     const res = importAll(await f.text());
     file.value = '';
     if (!res.ok) {
-      alert(`読み込めませんでした。\n${res.reason}`);
+      alert(`${t('my.importFail')}\n${res.reason}`);
       return;
     }
     onChange();
   });
 
-  const wipe = el('button', 'btn btn--danger', 'すべて消す');
+  const wipe = el('button', 'btn btn--danger', t('my.wipe'));
   wipe.type = 'button';
   wipe.addEventListener('click', () => {
-    if (!confirm('スコア・ベストタイム・アチーブメントをすべて消します。元に戻せません。よろしいですか。')) return;
+    if (!confirm(t('my.wipeAsk'))) return;
     clearAll();
     onChange();
   });

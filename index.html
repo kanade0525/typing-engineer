@@ -42,9 +42,14 @@
 <header class="nav" id="nav">
   <a class="nav__brand" href="#/"><span>&lt;/&gt;</span> Typing Engineer</a>
   <nav class="nav__links">
-    <a href="#/" data-nav="/">ステージ</a>
-    <a href="#/mypage" data-nav="/mypage">マイページ</a>
+    <a href="#/" data-nav="/" data-i18n="nav.stages">ステージ</a>
+    <a href="#/mypage" data-nav="/mypage" data-i18n="nav.mypage">マイページ</a>
   </nav>
+  <div class="langs" role="group" aria-label="Language">
+    <button type="button" data-lang-set="ja">日本語</button>
+    <button type="button" data-lang-set="en">EN</button>
+  </div>
+
   <div class="tones">
     <button type="button" class="tones__now" id="tonesBtn" aria-expanded="false" aria-haspopup="true">
       <i class="tones__dot" id="toneDot"></i><span id="toneName">カラフル</span><small>▾</small>
@@ -63,54 +68,42 @@
       <h1 class="brand">
         <span class="brand__mark">&lt;/&gt;</span>Typing&nbsp;Engineer<span class="caret"></span>
       </h1>
-      <p class="tagline">打つほど、ページができあがる。</p>
+      <p class="tagline" data-i18n="home.tagline">打つほど、ページができあがる。</p>
 
-      <p class="creed">自分でコードを書かなくてもプロダクトが出来上がる時代に、私はコーディングをしたいのです</p>
-      <p class="home__lead">
-        HTML と CSS を一字ずつ打つと、右側のページがその場で組み上がります。
-        <b>打ち終わるまでのタイムを競うゲーム</b>です。自分の最速と競えます。
-      </p>
+      <p class="creed" data-i18n="home.creed">自分でコードを書かなくてもプロダクトが出来上がる時代に、私はコーディングをしたいのです</p>
+      <p class="home__lead" data-i18n-html="home.lead"></p>
 
       <p class="start">
-        <button type="button" class="btn btn--primary btn--big" id="btnStart">▶ スタート</button>
+        <button type="button" class="btn btn--primary btn--big" id="btnStart" data-i18n="home.start">▶ スタート</button>
         <span class="start__sub" id="startSub">はじめてのページ &middot; 167 打</span>
       </p>
 
-      <p class="warn">
-        <kbd>英数</kbd> に切り替えてから始めてください。
-        <b>日本語入力のままだと打鍵が届きません。</b>
-      </p>
+      <p class="warn" data-i18n-html="home.warn"></p>
 
       <ol class="how">
-        <li><span>1</span>上から一字ずつ打つ</li>
-        <li><span>2</span>改行は <kbd>Enter</kbd>。行頭の字下げは自動</li>
-        <li><span>3</span>間違えるとカーソルは止まる</li>
+        <li><span>1</span><em data-i18n-html="home.how1"></em></li>
+        <li><span>2</span><em data-i18n-html="home.how2"></em></li>
+        <li><span>3</span><em data-i18n-html="home.how3"></em></li>
       </ol>
 
-      <p class="how__key">
-        一覧は <kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd> で選び、<kbd>Enter</kbd> で始められます。
-      </p>
+      <p class="how__key" data-i18n-html="home.keys"></p>
     </header>
 
     <div class="groups" id="lessonList"></div>
 
     <section class="shelf" id="shelf">
       <h2 class="group__name">
-        あなたの記録
+        <span data-i18n="shelf.head">あなたの記録</span>
         <span class="group__count">SCORE <b id="tokenTotal">0</b></span>
       </h2>
-      <p class="shelf__lead">
-        クリアするたびにスコアが入ります。<b>打鍵数 × 正確さ × 速さ</b>で決まるので、
-        速いだけでも正確なだけでも伸びません。
-        記録は<b>このブラウザ</b>にだけ残り、サーバーには送っていません。
-      </p>
+      <p class="shelf__lead" data-i18n-html="shelf.lead"></p>
       <a class="mine" href="#/mypage">
         <span class="mine__rank">
           <b id="homeRank">ROOKIE</b>
-          <small>ランク</small>
+          <small data-i18n="shelf.rank">ランク</small>
         </span>
         <dl class="tally" id="tally"></dl>
-        <span class="mine__go">マイページで詳しく見る →</span>
+        <span class="mine__go" data-i18n="shelf.go">マイページで詳しく見る →</span>
       </a>
     </section>
 
@@ -152,16 +145,16 @@
 
       <span class="bar__tools">
         <button type="button" class="ghost" id="btnGoal" aria-pressed="false">
-          <span class="ghost__ico">◎</span><span class="ghost__txt">完成形</span>
+          <span class="ghost__ico">◎</span><span class="ghost__txt" data-i18n="bar.goal">完成形</span>
         </button>
         <button type="button" class="ghost" id="btnSound" aria-pressed="true">
-          <span class="ghost__ico" id="soundIco">♪</span><span class="ghost__txt">打鍵音</span>
+          <span class="ghost__ico" id="soundIco">♪</span><span class="ghost__txt" data-i18n="bar.sound">打鍵音</span>
         </button>
         <button type="button" class="ghost" id="btnRetry">
-          <span class="ghost__ico">↺</span><span class="ghost__txt">やり直す</span>
+          <span class="ghost__ico">↺</span><span class="ghost__txt" data-i18n="bar.retry">やり直す</span>
         </button>
         <button type="button" class="ghost" id="btnBack">
-          <span class="ghost__ico">←</span><span class="ghost__txt">一覧へ</span>
+          <span class="ghost__ico">←</span><span class="ghost__txt" data-i18n="bar.back">一覧へ</span>
         </button>
       </span>
     </div>
@@ -177,24 +170,20 @@
           <span id="lessonLabel"></span>
           <span class="pane__sub" id="lessonSub"></span>
         </div>
-        <p class="tip" id="tip">
-          上から一字ずつ。改行は <kbd>Enter</kbd>。行頭の字下げと<b>色の値</b>は自動で
-          埋まります（<code>#</code> や <code>rgba(</code> を打った時点で）。
-          間違えるとカーソルは止まります。
-        </p>
+        <p class="tip" id="tip" data-i18n-html="tip.body"></p>
         <div class="code" id="code" tabindex="-1"></div>
         <div class="progress">
-          <span class="progress__line" id="progressLine">1 / 1 行</span>
-          <span class="progress__keys" id="progressKeys">残り 0 打</span>
+          <span class="progress__line" id="progressLine"></span>
+          <span class="progress__keys" id="progressKeys"></span>
           <span class="progress__num" id="progressNum">0%</span>
         </div>
 
         <div class="ready" id="ready" hidden>
           <div class="ready__card">
             <p class="ready__file" id="readyFile">first.css</p>
-            <h2 class="ready__title" id="readyTitle">はじめての一行</h2>
+            <h2 class="ready__title" id="readyTitle"></h2>
             <p class="ready__meta" id="readyMeta"></p>
-            <p class="ready__key"><kbd>Space</kbd> を押すと始まります</p>
+            <p class="ready__key" data-i18n-html="ready.key"></p>
           </div>
         </div>
 
@@ -203,21 +192,21 @@
         <!-- 結果はコード側にだけ被せる。できあがったプレビューを隠さないため -->
         <div class="result" id="result" hidden>
           <div class="result__card">
-            <p class="result__eyebrow" id="resultEyebrow">できあがり</p>
-            <h2 class="result__title" id="resultTitle">はじめてのページ</h2>
+            <p class="result__eyebrow" id="resultEyebrow"></p>
+            <h2 class="result__title" id="resultTitle"></h2>
 
             <div class="result__hero">
-              <b id="resultTime">0.0</b><small>秒</small>
-              <span class="result__best" id="resultBest" hidden>自己ベスト更新</span>
+              <b id="resultTime">0.0</b><small data-i18n="result.sec">秒</small>
+              <span class="result__best" id="resultBest" hidden data-i18n="result.best">自己ベスト更新</span>
             </div>
 
             <p class="result__vs" id="resultVs" hidden></p>
 
             <dl class="result__grid">
-              <div><dt>速さ</dt><dd id="resultWpm">0</dd></div>
-              <div><dt>正確さ</dt><dd id="resultAcc">100%</dd></div>
-              <div><dt>打鍵</dt><dd id="resultKeys">0</dd></div>
-              <div><dt>ミス</dt><dd id="resultMiss">0</dd></div>
+              <div><dt data-i18n="result.wpm">速さ</dt><dd id="resultWpm">0</dd></div>
+              <div><dt data-i18n="result.acc">正確さ</dt><dd id="resultAcc">100%</dd></div>
+              <div><dt data-i18n="result.keys">打鍵</dt><dd id="resultKeys">0</dd></div>
+              <div><dt data-i18n="result.miss">ミス</dt><dd id="resultMiss">0</dd></div>
             </dl>
 
             <p class="result__weak" id="resultWeak" hidden></p>
@@ -226,16 +215,16 @@
             <div class="result__earned" id="resultEarned" hidden></div>
 
             <div class="result__tools">
-              <button type="button" class="quiet" id="btnPlay" hidden>遊ぶ</button>
-              <button type="button" class="quiet" id="btnShare">結果を共有</button>
-              <button type="button" class="quiet" id="btnCopy">コードをコピー</button>
-              <button type="button" class="quiet" id="btnSave">ページを保存</button>
+              <button type="button" class="quiet" id="btnPlay" hidden data-i18n="result.play">遊ぶ</button>
+              <button type="button" class="quiet" id="btnShare" data-i18n="result.share">結果を共有</button>
+              <button type="button" class="quiet" id="btnCopy" data-i18n="result.copy">コードをコピー</button>
+              <button type="button" class="quiet" id="btnSave" data-i18n="result.save">ページを保存</button>
             </div>
 
             <div class="result__buttons">
-              <button type="button" class="btn btn--primary" id="btnNext">次の課題へ</button>
-              <button type="button" class="btn" id="btnAgain">もう一度</button>
-              <button type="button" class="btn btn--quiet" id="btnHome">一覧へ</button>
+              <button type="button" class="btn btn--primary" id="btnNext" data-i18n="result.next">次の課題へ</button>
+              <button type="button" class="btn" id="btnAgain" data-i18n="result.again">もう一度</button>
+              <button type="button" class="btn btn--quiet" id="btnHome" data-i18n="result.home">一覧へ</button>
             </div>
           </div>
         </div>
@@ -244,12 +233,12 @@
       <div class="pane pane--preview">
         <div class="pane__label pane__label--mono">
           preview<span class="pane__live" id="previewLive"></span>
-          <span class="pane__goal" id="previewGoal" hidden>完成形</span>
+          <span class="pane__goal" id="previewGoal" hidden data-i18n="bar.goal">完成形</span>
           <span class="pane__title" id="previewTitle"></span>
         </div>
         <div class="preview">
-          <iframe id="preview" title="プレビュー" sandbox="allow-same-origin"></iframe>
-          <p class="preview__hint" id="previewHint">打ち始めると、ここに組み上がっていきます</p>
+          <iframe id="preview" data-i18n-attr="title:preview.title" title="プレビュー" sandbox="allow-same-origin"></iframe>
+          <p class="preview__hint" id="previewHint" data-i18n="preview.hint">打ち始めると、ここに組み上がっていきます</p>
         </div>
       </div>
     </div>
