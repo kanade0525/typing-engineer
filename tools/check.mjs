@@ -192,6 +192,47 @@ else {
   if (/connect-src[^;]*(https?:|\*)/.test(CSP)) ng('CSP', 'connect-src が外を向いている');
 }
 
+// ---------------------------------------------------------------- 公開先の設定
+//
+// Workers は _headers を「アセットディレクトリの直下」でだけ読む。置き場所が
+// ずれると CSP は黙って効かなくなる。落ちも警告も出ず、ヘッダーだけが消える。
+// 手元では dev-server が ROOT から読むので、そちらは通ってしまう。
+//
+// .assetsignore で index.html や assets/ を外してしまうのも同じ質の事故で、
+// 配信されないものは検査もできない。
+
+const wranglerSrc = readFileSync(join(ROOT, 'wrangler.jsonc'), 'utf8');
+// jsonc のコメントを落としてから読む
+const wrangler = JSON.parse(wranglerSrc.replace(/^\s*\/\/.*$/gm, ''));
+
+const assetsDir = wrangler.assets?.directory;
+if (!assetsDir) ng('公開', 'wrangler.jsonc に assets.directory が無い');
+else {
+  // _headers がアセットディレクトリの直下にあること。ここが本題
+  const headersAt = resolve(ROOT, assetsDir, '_headers');
+  if (headersAt !== resolve(ROOT, '_headers')) {
+    ng('公開', `_headers が assets.directory ("${assetsDir}") の直下に無い。Workers は読まない`);
+  }
+  if (!existsSync(headersAt)) ng('公開', `${assetsDir} に _headers が無い`);
+}
+
+// name が無いとデプロイ先が定まらない
+if (!wrangler.name) ng('公開', 'wrangler.jsonc に name が無い');
+if (!wrangler.compatibility_date) ng('公開', 'wrangler.jsonc に compatibility_date が無い');
+
+// 画面に要るものを .assetsignore で外していないか。
+// 書いている範囲の書き方しか見ない（gitignore の全部は解釈しない）
+const ignoreSrc = existsSync(join(ROOT, '.assetsignore'))
+  ? readFileSync(join(ROOT, '.assetsignore'), 'utf8')
+  : '';
+const patterns = ignoreSrc.split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+for (const must of ['index.html', 'assets/css/app.css', 'assets/js/app.js']) {
+  for (const p of patterns) {
+    const hit = p.endsWith('/') ? must.startsWith(p) : must === p || must.startsWith(`${p}/`);
+    if (hit) ng('公開', `.assetsignore の "${p}" が ${must} を外している`);
+  }
+}
+
 console.log(`題材 ${LESSONS.length} 本・分類 ${GROUPS.length} 個を検査`);
 
 // ---------------------------------------------------------------- 2. 描画

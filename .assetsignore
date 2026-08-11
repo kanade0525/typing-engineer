@@ -1,0 +1,28 @@
+# Cloudflare Workers に上げないもの。.gitignore と同じ書き方。
+#
+# directory を "." にしているので、書かないと開発用のものまで配られる。
+# どれも公開リポジトリに既にあるものなので漏れる話ではないが、
+# 配信するものは実際に画面で使うものだけにしておく。
+#
+# _headers はここに書かない。あれは Worker が読んで解釈する設定で、
+# アセットとしては配信されない（除外は要らない）。
+
+# 開発と検査のためのもの
+tools/
+scripts/
+package.json
+wrangler.jsonc
+
+# 説明と手続き
+README.md
+LICENSE
+.github/
+
+# GitHub Pages 用。Workers では意味を持たない
+.nojekyll
+
+# 手元にしか無いもの
+.git/
+.gitignore
+node_modules/
+.DS_Store

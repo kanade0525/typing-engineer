@@ -230,44 +230,42 @@ CSP が食い違うと、破ったことに気づくのが公開後になる**�
 
 ## 公開先
 
-いま **GitHub Pages と Cloudflare Pages の二本を並走させて**見比べています。
+いま **GitHub Pages と Cloudflare Workers の二本を並走させて**見比べています。
 
 | | |
 | --- | --- |
 | GitHub Pages | 現行。帯域幅 100 GB/月（ソフト）。**ヘッダーを一切指定できない** |
-| Cloudflare Pages | 静的配信は無料・無制限。`_headers` で CSP を置ける |
+| Cloudflare Workers | 静的配信は無料・無制限。`_headers` で CSP を置ける |
 
-Cloudflare に移す理由は帯域幅ではありません（264 KB のサイトで 100 GB には
-届きません）。**ヘッダーを置けることです。** 上の「外部に依存しない」を
-宣言から不変条件に変えられるのは、こちらだけです。
+移す理由は帯域幅ではありません（264 KB のサイトで 100 GB には届きません）。
+**ヘッダーを置けることです。** 上の「外部に依存しない」を宣言から
+不変条件に変えられるのは、こちらだけです。
 
 `_headers` は GitHub Pages では単に無視されるので、並走中に困りません。
 ハッシュルーティング（`#/play/...`）なのでリライトの設定も要りません。
 
-### Cloudflare 側の設定
+### Pages ではなく Workers
 
-| 項目 | 値 |
-| --- | --- |
-| Framework preset | None |
-| Build command | **空欄** |
-| Build output directory | `/` |
-| 環境変数 | なし |
+Cloudflare には Pages と Workers の二つがあり、**Workers を選びました。**
+Cloudflare 自身が「新規プロジェクトは Workers で始めるべき。Pages は引き続き
+サポートするが、今後の投資・最適化・機能開発は Workers に専念する」と
+言っているためです。静的アセットの `_headers` はどちらでも同じ構文で使えます。
 
-**Build command は空です。** ビルドが無いので、Git 連携なら Cloudflare が
-リポジトリの中身をそのまま配ります。
+`wrangler.jsonc` に `main` は書いていません。振る舞いを足すつもりが無いので、
+アセットを配るだけで足ります。Worker のコードが無いぶん、動く部分が減ります。
 
-ここに `npx wrangler deploy` と書くと落ちます。三つ理由があります。
-`wrangler deploy` は Workers 用で Pages は `wrangler pages deploy` である、
-`wrangler.toml` を要求されるがこのリポジトリには無い、そして Git 連携では
-wrangler そのものが要らない。
+`assets.directory` は `.` です。`index.html` があるのがリポジトリの根で、
+**`_headers` もそこに要る**ためです。Workers は `_headers` を
+アセットディレクトリの直下でだけ読みます。
 
-**ビルドトークンも要りません。** あれは Direct Upload（CI から
-`wrangler pages deploy` を叩く形）のためのもので、Git 連携では認証が
-GitHub App 側で済んでいます。
+配りたくないものは `.assetsignore` で外します（`tools/` `scripts/` `README.md`
+など）。`_headers` は書きません。あれは Worker が読んで解釈する設定で、
+アセットとしては配信されないからです。
 
-空にしておく理由はもう一つあります。`npx` は**ビルドのたびに npm から
-パッケージを取ってきます。** 空にすれば、配信の経路にも依存パッケージが
-ゼロになります。Heroku で丸ごと止まったときの教訓と同じ話です。
+**この二つのファイルは `npm run check` が検査しています。**
+とくに `_headers` がアセットディレクトリの直下にあること。ここがずれると
+**CSP が黙って効かなくなります。** 落ちも警告も出ず、ヘッダーだけが消えます。
+しかも手元の `npm run dev` は根から読むので通ってしまいます。
 
 ## 検査（`npm run check`）
 
@@ -281,6 +279,7 @@ GitHub App 側で済んでいます。
 | ボタン | 既定の見た目が残っていないか（`cursor` と角丸） |
 | 色 | **どの配色でも文字が読めるか。** `--pending` `--fg` `--fg-mid` `--fg-dim` と字句の色の、**その配色の地**に対する対比を実測し、4.5:1 を下回ったら落とす（注釈だけは 3:1） |
 | 幅 | 横に溢れていないか |
+| 公開の設定 | **`_headers` が `assets.directory` の直下にあるか。** ずれると CSP が黙って効かなくなる（手元の `npm run dev` は根から読むので通ってしまう）。`.assetsignore` が `index.html` や `assets/` を外していないか |
 | CSP | **二方向から見る。** 壊していないか（5 言語ぶんの完成形を描いて違反ゼロ、JS 課題は canvas に色が乗ったかまで見る）と、効いているか（外へ `fetch` して **CSP が止めたことを違反の発火で確かめる**）。`fetch` の失敗だけを見ると CORS や不通と区別が付かず、CSP を消しても通ってしまう |
 
 **依存パッケージは足していません。** Chrome を起動して DevTools Protocol を直に叩いています。
@@ -314,7 +313,9 @@ assets/js/
   sound.js          打鍵音（音声ファイルは持たず合成する）
   view-compose.js   打った docker-compose.yml を構成図にする
   view-routes.js    打った routes.rb を `rails routes` の表にする
-_headers            CSP などのヘッダー（Cloudflare Pages が読む）
+_headers            CSP などのヘッダー（Cloudflare Workers が読む）
+.assetsignore       配信しないもの（tools/ scripts/ README.md など）
+wrangler.jsonc      Workers の設定。main は無く、アセットを配るだけ
 scripts/dev-server.mjs
 scripts/headers.mjs   _headers を読む。dev-server と check が共有する
 tools/check.mjs

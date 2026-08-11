@@ -1,0 +1,18 @@
+// Cloudflare Workers（静的アセット）の設定。
+//
+// Pages ではなく Workers を使う。Cloudflare が「新規プロジェクトは Workers で
+// 始めるべき。Pages は引き続きサポートするが、今後の投資と機能開発は Workers に
+// 専念する」と言っているため。
+//
+// main は書かない。振る舞いを足すつもりが無いので、アセットを配るだけでよい。
+// Worker のコードが無いぶん、動く部分が減る。
+//
+// directory を "." にしているのは、index.html が置いてあるのがリポジトリの根で、
+// _headers もそこに要るから。配りたくないものは .assetsignore で外す。
+{
+  "name": "typing-engineer",
+  "compatibility_date": "2026-08-12",
+  "assets": {
+    "directory": "."
+  }
+}
