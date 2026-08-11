@@ -1,0 +1,22 @@
+# Cloudflare Pages が読むヘッダー定義。GitHub Pages は読まないので、
+# 並走しているあいだ、効くのは Cloudflare 側だけ。
+#
+# 置いた理由。README は「ネットワークへ出ていく通信はゼロ」と書いてきたが、
+# それは宣言にとどまっていた。connect-src 'none' を置くと、うっかり CDN の
+# URL を書いた時点でブラウザが止める。宣言が不変条件になる。
+# GitHub Pages ではヘッダーを一切指定できないので、これは移行しないと手に入らない。
+#
+# script-src と style-src の 'unsafe-inline' は外せない。打った字を srcdoc に
+# 流して走らせるのがこの入れ物の主題で、中身は一打ごとに変わるからハッシュも
+# nonce も置けない。srcdoc は親の CSP を継ぐので、緩めるしかない。
+# つまりここで守れるのは「インラインを止めること」ではなく
+# 「外に出る通信をゼロに保つこと」。connect-src が本体で、あとは付随。
+#
+# 手元でも同じヘッダーが付く（scripts/dev-server.mjs がこのファイルを読む）。
+# 破れていないことは npm run check が実測する。
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), usb=(), payment=()

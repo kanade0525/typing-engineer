@@ -72,7 +72,7 @@ HTML と CSS を一字ずつ打つタイピング練習。
 単色の燐光を選ぶと 2020 年の版の面影が出ます。黒地に `#35E02E`、上帯は緑地に黒文字
 （当時の `.navbar` そのまま）、打った字だけが燐光します。四角い端末カーソル、走査線。
 
-**配色は十一種。** 既定は「カラフル」です。
+**配色は 11 種。** 既定は「カラフル」です。
 
 | 系統 | |
 | --- | --- |
@@ -225,6 +225,48 @@ npm run dev     # http://localhost:8000/
 npm run check   # 下の検査。落ちたら終了コードが 1 になる
 ```
 
+`npm run dev` は `_headers` を読んで同じヘッダーを付けます。**手元と公開先で
+CSP が食い違うと、破ったことに気づくのが公開後になる**ためです。
+
+## 公開先
+
+いま **GitHub Pages と Cloudflare Workers の二本を並走させて**見比べています。
+
+| | |
+| --- | --- |
+| GitHub Pages | 現行。帯域幅 100 GB/月（ソフト）。**ヘッダーを一切指定できない** |
+| Cloudflare Workers | 静的配信は無料・無制限。`_headers` で CSP を置ける |
+
+移す理由は帯域幅ではありません（264 KB のサイトで 100 GB には届きません）。
+**ヘッダーを置けることです。** 上の「外部に依存しない」を宣言から
+不変条件に変えられるのは、こちらだけです。
+
+`_headers` は GitHub Pages では単に無視されるので、並走中に困りません。
+ハッシュルーティング（`#/play/...`）なのでリライトの設定も要りません。
+
+### Pages ではなく Workers
+
+Cloudflare には Pages と Workers の二つがあり、**Workers を選びました。**
+Cloudflare 自身が「新規プロジェクトは Workers で始めるべき。Pages は引き続き
+サポートするが、今後の投資・最適化・機能開発は Workers に専念する」と
+言っているためです。静的アセットの `_headers` はどちらでも同じ構文で使えます。
+
+`wrangler.jsonc` に `main` は書いていません。振る舞いを足すつもりが無いので、
+アセットを配るだけで足ります。Worker のコードが無いぶん、動く部分が減ります。
+
+`assets.directory` は `.` です。`index.html` があるのがリポジトリの根で、
+**`_headers` もそこに要る**ためです。Workers は `_headers` を
+アセットディレクトリの直下でだけ読みます。
+
+配りたくないものは `.assetsignore` で外します（`tools/` `scripts/` `README.md`
+など）。`_headers` は書きません。あれは Worker が読んで解釈する設定で、
+アセットとしては配信されないからです。
+
+**この二つのファイルは `npm run check` が検査しています。**
+とくに `_headers` がアセットディレクトリの直下にあること。ここがずれると
+**CSP が黙って効かなくなります。** 落ちも警告も出ず、ヘッダーだけが消えます。
+しかも手元の `npm run dev` は根から読むので通ってしまいます。
+
 ## 検査（`npm run check`）
 
 | 見ているもの | |
@@ -232,11 +274,13 @@ npm run check   # 下の検査。落ちたら終了コードが 1 になる
 | 題材データ | id の重複、必須の項目、分類が GROUPS にあるか、**打つ字が ASCII だけか**、打鍵数が 120〜1200 に収まるか、題が動詞ひとつで終わっていないか |
 | 訳 | 課題・作品・アチーブメントが `en` を持つか、辞書の鍵が両言語で揃っているか、画面の印が辞書にあるか、**英語で日本語が残っていないか** |
 | 描画できたか | **一覧に札が一枚も出ていなければ落とす。** これが無いと、読み込みで落ちて真っ白でも下の検査は通ってしまう |
-| README | 書いてある題材の本数が実際と合っているか |
+| README | **書いてあるとおりに手を動かして壊れないか。** 題材・配色・アチーブメントの数、構成の一覧に `assets/js` の全ファイルが載っているか、そして**「題材を足す」の例が実際に検査を通る形か**（項目の抜け、`GROUPS` に無い分類、`en` の抜け） |
 | リンク | **ブラウザ既定の下線が出ていないか**（`.credit` は狙って引いているので除く） |
 | ボタン | 既定の見た目が残っていないか（`cursor` と角丸） |
-| 色 | **五色すべてで文字が読めるか。** `--pending` `--fg` `--fg-mid` `--fg-dim` の黒地に対する対比を実測し、4.5:1 を下回ったら落とす |
+| 色 | **どの配色でも文字が読めるか。** `--pending` `--fg` `--fg-mid` `--fg-dim` と字句の色の、**その配色の地**に対する対比を実測し、4.5:1 を下回ったら落とす（注釈だけは 3:1） |
 | 幅 | 横に溢れていないか |
+| 公開の設定 | **`_headers` が `assets.directory` の直下にあるか。** ずれると CSP が黙って効かなくなる（手元の `npm run dev` は根から読むので通ってしまう）。`.assetsignore` が `index.html` や `assets/` を外していないか |
+| CSP | **二方向から見る。** 壊していないか（5 言語ぶんの完成形を描いて違反ゼロ、JS 課題は canvas に色が乗ったかまで見る）と、効いているか（外へ `fetch` して **CSP が止めたことを違反の発火で確かめる**）。`fetch` の失敗だけを見ると CORS や不通と区別が付かず、CSP を消しても通ってしまう |
 
 **依存パッケージは足していません。** Chrome を起動して DevTools Protocol を直に叩いています。
 
@@ -255,35 +299,59 @@ ES モジュールを使っているので `file://` で直接開いても動か
 index.html
 assets/css/app.css
 assets/js/
-  app.js         画面の組み立てと打鍵の受け取り
-  engine.js      打鍵の判定と集計（DOM も音も知らない）
-  preview.js     打った所までを描く
-  highlight.js   HTML / CSS の色分け（依存なしの字句解析）
-  lessons.js     題材
-  sound.js       打鍵音（音声ファイルは持たず合成する）
-  storage.js     自己ベスト
+  app.js            画面の組み立てと打鍵の受け取り
+  engine.js         打鍵の判定と集計（DOM も音も知らない）
+  preview.js        打った所までを描く
+  highlight.js      HTML / CSS の色分け（依存なしの字句解析）
+  lessons.js        題材と作品
+  i18n.js           日本語と英語の文言
+  tone.js           配色（11 種。単色の燐光とエディタ配色の二系統）
+  matrix.js         緑のときだけ一覧の背後に降る字
+  mypage.js         マイページの組み立て
+  trophies.js       スコア・ランク・アチーブメント
+  storage.js        自己ベストと記録（localStorage）
+  sound.js          打鍵音（音声ファイルは持たず合成する）
+  view-compose.js   打った docker-compose.yml を構成図にする
+  view-routes.js    打った routes.rb を `rails routes` の表にする
+_headers            CSP などのヘッダー（Cloudflare Workers が読む）
+.assetsignore       配信しないもの（tools/ scripts/ README.md など）
+wrangler.jsonc      Workers の設定。main は無く、アセットを配るだけ
 scripts/dev-server.mjs
+scripts/headers.mjs   _headers を読む。dev-server と check が共有する
+tools/check.mjs
 ```
+
+`view-compose.js` と `view-routes.js` があるのは、Docker も Rails も
+ブラウザでは動かせないからです。動かせない代わりに、**打った内容を読んで
+図と表にします。** `resources :posts` と打った瞬間に七行が現れます。
 
 ### 題材を足す
 
 `assets/js/lessons.js` に一つ足すだけです。**`code` は必ず ASCII だけで書きます。**
 日本語が混ざると IME が要り、打鍵を受け取れなくなります。
 
+**`en` も要ります。** 無いと英語に切り替えたときそこだけ日本語で残るので、
+`npm run check` が落とします。
+
 ```js
 {
   id: 'css-gradient',
-  group: '王道パターン',   // '基礎' か '王道パターン'
-  lang: 'css',        // 'html' か 'css'
+  group: 'patterns',  // 'visual' 'patterns' 'apps' 'games' 'config' 'basics'
+  lang: 'css',        // 'html' 'css' 'js' 'yaml' 'ruby'
   file: 'hero.css',
   level: 3,           // 1〜4
   title: '背景をぼかす',
   subtitle: 'グラデーション',
   note: '一覧のカードに出る一行。',
-  scaffold: '<div class="hero">Hello</div>',  // lang: 'css' のときだけ
+  en: { title: 'Blur the background', subtitle: 'Gradients', note: 'One line on the card.' },
+  scaffold: '<div class="hero">Hello</div>',  // lang が 'css' 'js' のときは要る
   code: '.hero {\n  background: linear-gradient(...);\n}\n',
 }
 ```
+
+**この例そのものを `npm run check` が検査しています。** 項目が足りない、
+分類が `GROUPS` に無い、といったズレは落ちます。README を写して手が止まる、
+ということが起きないようにするためです。
 
 ## 外部に依存しない
 
@@ -292,6 +360,16 @@ scripts/dev-server.mjs
 2020 年の版は Heroku・Font Awesome・期限付きの署名付き S3 URL に寄りかかっていて、
 Heroku の無料プランが終わった時点で丸ごと動かなくなりました。同じ壊れ方をしないよう、
 外に置いたものは持ち込んでいません。
+
+**これは長いあいだ宣言でした。いまは `_headers` の CSP が強制します。**
+`connect-src 'none'` を置いてあるので、うっかり CDN の URL を書いた時点で
+ブラウザが止めます。効いていることは `npm run check` が実測しています
+（外へ `fetch` して、CSP が止めたことを違反の発火で確かめる）。
+
+`script-src` と `style-src` の `'unsafe-inline'` は外せません。打った字を
+`srcdoc` に流して走らせるのがこの入れ物の主題で、中身は一打ごとに変わるので
+ハッシュも nonce も置けません。**ここで守れるのは「インラインを止めること」ではなく
+「外に出る通信をゼロに保つこと」です。** `connect-src` が本体で、あとは付随です。
 
 ## 2020 年の版から変わったところ
 

@@ -33,13 +33,19 @@ const { TONES } = await import(join(ROOT, 'assets/js/tone.js'));
 const { SERIES } = await import(join(ROOT, 'assets/js/lessons.js'));
 const { TROPHIES } = await import(join(ROOT, 'assets/js/trophies.js'));
 const { DICT } = await import(join(ROOT, 'assets/js/i18n.js'));
+const { readHeaders } = await import(join(ROOT, 'scripts/headers.mjs'));
 
 const LANGS = new Set(['html', 'css', 'js', 'yaml', 'ruby']);
+
+// 題材に要る項目。README の「題材を足す」の例も同じ一覧で検査するので、
+// ここを増やせば例に書き足すまで検査が落ちる
+const REQUIRED_KEYS = ['id', 'group', 'lang', 'file', 'level', 'title', 'subtitle', 'note', 'code'];
+
 const seen = new Set();
 
 for (const l of LESSONS) {
   const at = `題材 ${l.id || '(id なし)'}`;
-  for (const key of ['id', 'group', 'lang', 'file', 'level', 'title', 'subtitle', 'note', 'code']) {
+  for (const key of REQUIRED_KEYS) {
     if (!l[key]) ng(at, `${key} が無い`);
   }
   if (seen.has(l.id)) ng(at, 'id が重複している');
@@ -105,12 +111,126 @@ for (const m of html.matchAll(/data-i18n-attr="[^:]+:([^"]+)"/g)) {
   if (!ja.has(m[1])) ng('訳', `画面の印 "${m[1]}" が辞書に無い`);
 }
 
-// README に書いた本数が実際と合っているか
+// ---------------------------------------------------------------- README と実装のズレ
+//
+// README は実装より先に古くなる。ただし古さの全部が害ではないので、
+// 「書いてあるとおりに手を動かすと壊れる」種類だけを見張る。
+// 文章の良し悪しは見ない。
+//
+// これを足したのは、分類を日本語から id に改めたときに README の例が
+// '王道パターン' のまま残り、README を写して題材を足すと GROUPS に
+// 無い分類になる状態を取り逃したから。
+
 const readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
-const declared = readme.match(/^(\d+)\s*本[。、]/m);
-if (!declared) ng('README', '題材の本数が書かれていない');
-else if (Number(declared[1]) !== LESSONS.length) {
-  ng('README', `本数が食い違う（README ${declared[1]} 本 / 実際 ${LESSONS.length} 本）`);
+
+// (1) 数。README には一度だけ書き、実際の数と突き合わせる
+for (const [what, re, actual] of [
+  ['題材', /^(\d+)\s*本[。、]/m, LESSONS.length],
+  ['配色', /配色は\s*(\d+)\s*種/, TONES.length],
+  ['アチーブメント', /アチーブメントは\s*(\d+)\s*個/, TROPHIES.length],
+]) {
+  const m = readme.match(re);
+  if (!m) ng('README', `${what}の数が書かれていない`);
+  else if (Number(m[1]) !== actual) {
+    ng('README', `${what}の数が食い違う（README ${m[1]} / 実際 ${actual}）`);
+  }
+}
+
+// (2) 構成の一覧。assets/js に足したファイルが載っていないと、
+//     どこに何があるかを README から辿れない
+const structure = readme.match(/##\s*構成\s*\n+```\n([\s\S]*?)```/);
+if (!structure) ng('README', '構成の一覧が見つからない');
+else {
+  const listed = structure[1];
+  const real = readdirSync(join(ROOT, 'assets/js')).filter((n) => n.endsWith('.js'));
+  for (const f of real) if (!listed.includes(f)) ng('README', `構成に ${f} が無い`);
+  for (const m of listed.matchAll(/^\s+(\S+\.js)\b/gm)) {
+    if (!real.includes(m[1])) ng('README', `構成の ${m[1]} は実在しない`);
+  }
+}
+
+// (3) 「題材を足す」の例。これを写して題材を足す人がいるので、
+//     例そのものが上の検査を通る形でなければ意味がない
+const sample = readme.match(/###\s*題材を足す[\s\S]*?```js\n([\s\S]*?)```/);
+if (!sample) ng('README', '題材を足す例が見つからない');
+else {
+  const src = sample[1];
+  for (const k of REQUIRED_KEYS) {
+    if (!new RegExp(`^\\s*${k}:`, 'm').test(src)) ng('README', `題材を足す例に ${k} が無い`);
+  }
+  // en が無い例を写すと、訳の検査で落ちる
+  if (!/^\s*en:\s*\{/m.test(src)) ng('README', '題材を足す例に en が無い');
+
+  // 値も、注釈に並べた選択肢も、実装が受け取れる字であること
+  for (const [field, allowed] of [['group', GROUPS], ['lang', [...LANGS]]]) {
+    const line = src.split('\n').find((l) => l.trim().startsWith(`${field}:`));
+    if (!line) continue; // 上で報告済み
+    for (const m of line.matchAll(/'([^']*)'/g)) {
+      if (!allowed.includes(m[1])) ng('README', `題材を足す例の ${field} "${m[1]}" は実装に無い`);
+    }
+  }
+}
+
+// ---------------------------------------------------------------- CSP の中身
+//
+// README は「ネットワークへ出ていく通信はゼロ」と書いてきた。_headers の
+// connect-src 'none' はそれを宣言から不変条件に変えるものなので、
+// 消えたり緩んだりしたら落とす。
+//
+// script-src と style-src の 'unsafe-inline' は外せない。打った字を srcdoc に
+// 流して走らせるのが主題で、中身は一打ごとに変わるからハッシュも nonce も
+// 置けない。だからここで守るのは「外に出ないこと」だけ、と割り切っている。
+
+const HEADERS = readHeaders(ROOT);
+const CSP = HEADERS['Content-Security-Policy'];
+if (!CSP) ng('CSP', '_headers に Content-Security-Policy が無い');
+else {
+  for (const need of ["default-src 'self'", "connect-src 'none'", "object-src 'none'", "base-uri 'none'"]) {
+    if (!CSP.includes(need)) ng('CSP', `${need} が無い`);
+  }
+  // ここが緩むと、外に出られるのに気づけない
+  if (/connect-src[^;]*(https?:|\*)/.test(CSP)) ng('CSP', 'connect-src が外を向いている');
+}
+
+// ---------------------------------------------------------------- 公開先の設定
+//
+// Workers は _headers を「アセットディレクトリの直下」でだけ読む。置き場所が
+// ずれると CSP は黙って効かなくなる。落ちも警告も出ず、ヘッダーだけが消える。
+// 手元では dev-server が ROOT から読むので、そちらは通ってしまう。
+//
+// .assetsignore で index.html や assets/ を外してしまうのも同じ質の事故で、
+// 配信されないものは検査もできない。
+
+const wranglerSrc = readFileSync(join(ROOT, 'wrangler.jsonc'), 'utf8');
+// jsonc のコメントを落としてから読む
+const wrangler = JSON.parse(wranglerSrc.replace(/^\s*\/\/.*$/gm, ''));
+
+const assetsDir = wrangler.assets?.directory;
+if (!assetsDir) ng('公開', 'wrangler.jsonc に assets.directory が無い');
+else {
+  // _headers がアセットディレクトリの直下にあること。ここが本題
+  const headersAt = resolve(ROOT, assetsDir, '_headers');
+  if (headersAt !== resolve(ROOT, '_headers')) {
+    ng('公開', `_headers が assets.directory ("${assetsDir}") の直下に無い。Workers は読まない`);
+  }
+  if (!existsSync(headersAt)) ng('公開', `${assetsDir} に _headers が無い`);
+}
+
+// name が無いとデプロイ先が定まらない
+if (!wrangler.name) ng('公開', 'wrangler.jsonc に name が無い');
+if (!wrangler.compatibility_date) ng('公開', 'wrangler.jsonc に compatibility_date が無い');
+
+// 画面に要るものを .assetsignore で外していないか。
+// 書いている範囲の書き方しか見ない（gitignore の全部は解釈しない）
+const ignoreSrc = existsSync(join(ROOT, '.assetsignore'))
+  ? readFileSync(join(ROOT, '.assetsignore'), 'utf8')
+  : '';
+const patterns = ignoreSrc.split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
+for (const must of ['index.html', 'assets/css/app.css', 'assets/js/app.js']) {
+  for (const p of patterns) {
+    const hit = p.endsWith('/') ? must.startsWith(p) : must === p || must.startsWith(`${p}/`);
+    if (hit) ng('公開', `.assetsignore の "${p}" が ${must} を外している`);
+  }
 }
 
 console.log(`題材 ${LESSONS.length} 本・分類 ${GROUPS.length} 個を検査`);
@@ -211,9 +331,24 @@ if (!chromeBin && process.env.CI) {
       return r.result?.result?.value;
     };
 
-    // 読み込みで落ちたら、その中身を後で読めるように控えておく
+    // Page を開けておかないと addScriptToEvaluateOnNewDocument が効かない。
+    // これが無いあいだ window.__err はずっと undefined で、読み込みで落ちた
+    // ときの理由が「(見当たらない)」になっていた。仕込みが空振りしていても
+    // 検査は緑になるので、気づくのに時間がかかった
+    await send('Page.enable');
+
+    // 読み込みで落ちたら、その中身を後で読めるように控えておく。
+    // CSP 違反も同じところで拾う（srcdoc の中で出たものは親へ送る）
     await send('Page.addScriptToEvaluateOnNewDocument', {
-      source: 'addEventListener("error", (e) => { window.__err = String(e.message); });',
+      source: `
+        addEventListener("error", (e) => { window.__err = String(e.message); });
+        window.__csp = [];
+        addEventListener("securitypolicyviolation", (e) => {
+          const line = e.violatedDirective + " ← " + (e.blockedURI || "(inline)");
+          window.__csp.push(line);
+          try { if (top !== window && top.__csp) top.__csp.push("[frame] " + line); } catch {}
+        });
+      `,
     });
     await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/` });
 
@@ -241,6 +376,74 @@ if (!chromeBin && process.env.CI) {
     const left = await evaluate(`(${String(japaneseLeft)})()`);
     for (const s of left) ng('訳', `英語なのに日本語が残っている: ${JSON.stringify(s)}`);
     await evaluate('document.querySelector(\'[data-lang-set="ja"]\').click()');
+
+    // ---- CSP。二方向から見る。何も壊していないかと、本当に効いているか。
+    //      効いていない CSP を置くのが一番まずい。宣言だけ増えて何も守らない
+
+    // (1) サーバーが実際に送っているか。画面から fetch しても connect-src 'none'
+    //     に阻まれて確かめられないので、Node から見る
+    const sent = (await fetch(`http://127.0.0.1:${PORT}/`)).headers.get('content-security-policy');
+    if (!sent) ng('CSP', 'サーバーがヘッダーを送っていない');
+    else if (sent !== CSP) ng('CSP', `送られたヘッダーが _headers と違う\n    送: ${sent}\n    書: ${CSP}`);
+
+    // (2) 何も壊していないか。完成形を lang ごとに一本ずつ描かせて違反を数える。
+    //     srcdoc に流したインラインスクリプトが止められると JS の課題が死ぬので、
+    //     canvas に色が乗ったかまで見て「本当に走った」ことを確かめる
+    const oneEach = [...new Set(LESSONS.map((l) => l.lang))]
+      .map((lang) => LESSONS.find((l) => l.lang === lang));
+    for (const l of oneEach) {
+      const drew = await evaluate(`(async () => {
+        const { Preview } = await import('/assets/js/preview.js');
+        const { findLesson } = await import('/assets/js/lessons.js');
+        const lesson = findLesson(${JSON.stringify(l.id)});
+        const p = new Preview(document.getElementById('preview'));
+        p.mount(lesson);
+        p.render(lesson.code);
+        await new Promise((r) => setTimeout(r, 500));
+        const d = document.getElementById('preview').contentDocument;
+        const cv = d && d.getElementById('cv');
+        if (cv) {
+          // 塗られていれば alpha が立つ。CSP で止まれば透明のまま
+          const px = cv.getContext('2d').getImageData(1, 1, 1, 1).data;
+          if (!px[3]) return 'canvas が塗られていない（インラインスクリプトが走っていない）';
+        }
+        return (d && d.body && d.body.innerHTML.length) ? '' : 'プレビューが空';
+      })()`).catch((e) => `描けなかった: ${e.message}`);
+      if (drew) ng('CSP', `${l.id}（${l.lang}）で ${drew}`);
+    }
+    // 仕込みが入っていなければ落とす。空振りは「違反ゼロ」と見分けが付かず、
+    // 何も見ていないのに緑になる。それが一番まずい
+    const seenCsp = await evaluate('window.__csp ? JSON.stringify(window.__csp) : ""');
+    if (!seenCsp) ng('CSP', '違反を拾う仕込みが入っていない（検査が空振りしている）');
+    else for (const v of new Set(JSON.parse(seenCsp))) ng('CSP', `違反が出ている: ${v}`);
+
+    // (3) 効いているか。外に出ようとしたとき CSP が実際に止めたことを、
+    //     violation が発火したかで見る。
+    //
+    //     fetch が失敗したことだけを見てはいけない。CORS でも、ネットワークが
+    //     繋がっていないときでも同じように失敗するので、CSP を丸ごと消しても
+    //     この検査は通ってしまう。止めた主体が CSP だと言えるのは violation だけ。
+    const teeth = await evaluate(`(async () => {
+      if (!window.__csp) return ['違反を拾う仕込みが入っていない'];
+      window.__csp.length = 0;
+      const out = [];
+      try { await fetch('https://example.com'); } catch {}
+      await new Promise((r) => {
+        const s = document.createElement('script');
+        s.onload = s.onerror = () => r();
+        s.src = 'https://example.com/x.js';
+        document.head.append(s);
+        setTimeout(r, 2000);
+      });
+      await new Promise((r) => setTimeout(r, 200));
+      const got = window.__csp.join(' | ');
+      if (!/connect-src/.test(got)) out.push('外への fetch が connect-src で止まっていない');
+      if (!/script-src/.test(got)) out.push('外部スクリプトが script-src で止まっていない');
+      // 締めすぎていないか。自前のものは通らなければならない
+      try { await import('/assets/js/tone.js'); } catch (e) { out.push('自前の JS が止められた: ' + e.message); }
+      return out;
+    })()`);
+    for (const f of teeth || []) ng('CSP', f);
 
     console.log('描画の検査を実行');
   } catch (e) {
