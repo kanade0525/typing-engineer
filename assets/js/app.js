@@ -7,7 +7,8 @@ import { getBest, saveBest, getStats, recordRun } from './storage.js';
 import { TROPHIES } from './trophies.js';
 import { Rain } from './matrix.js';
 import { renderMypage } from './mypage.js';
-import { initTone } from './tone.js';
+import { initTone, relabelTones } from './tone.js';
+import { initLang, t, pick } from './i18n.js';
 import { rankOf } from './trophies.js';
 
 const $ = (id) => document.getElementById(id);
@@ -161,7 +162,9 @@ function showPeek(id, anchor) {
   peekId = id;
   peekAnchor = anchor;
 
-  el.peekLabel.textContent = l.series ? `${SERIES[l.series].name} ／ ${l.title}` : l.title;
+  el.peekLabel.textContent = l.series
+    ? `${pick(SERIES[l.series], 'name')} ／ ${pick(l, 'title')}`
+    : pick(l, 'title');
   el.peek.hidden = false;
 
   peek.mount(l);
@@ -220,25 +223,26 @@ function lessonCard(l) {
   head.className = 'lesson__head';
   head.innerHTML =
     `<span class="lesson__lang">${l.lang.toUpperCase()}</span>` +
-    `<span class="lesson__level" title="難しさ ${l.level}/4">${levelDots(l.level)}</span>`;
+    `<span class="lesson__level" title="${t('card.level', { n: l.level })}">${levelDots(l.level)}</span>`;
 
   const title = document.createElement('span');
   title.className = 'lesson__title';
-  title.textContent = l.title;
+  title.textContent = pick(l, 'title');
 
   const sub = document.createElement('span');
   sub.className = 'lesson__sub';
-  sub.textContent = l.subtitle;
+  sub.textContent = pick(l, 'subtitle');
 
   const note = document.createElement('span');
   note.className = 'lesson__note';
-  note.textContent = l.note;
+  note.textContent = pick(l, 'note');
 
   const meta = document.createElement('span');
   meta.className = 'lesson__meta';
   meta.innerHTML =
-    `<span>${lines} 行</span><span class="dot">·</span><span>${keys} 打</span>` +
-    (best ? `<span class="lesson__best">自己ベスト ${best.wpm} wpm</span>` : '');
+    `<span>${t('card.lines', { n: lines })}</span><span class="dot">·</span>` +
+    `<span>${t('card.keys', { n: keys })}</span>` +
+    (best ? `<span class="lesson__best">${t('card.best', { n: best.wpm })}</span>` : '');
 
   card.append(head, title, sub, note, meta);
   return card;
@@ -252,10 +256,10 @@ function renderShelf() {
   el.homeRank.textContent = rankOf(s.tokens).name;
 
   const rows = [
-    ['CLEAR', `${s.runs}`],
-    ['アチーブメント', `${got} / ${TROPHIES.length}`],
-    ['ベスト', `${s.bestWpm} wpm`],
-    ['連続', `${s.streak} 日`],
+    [t('my.clear'), `${s.runs}`],
+    [t('my.trophies'), `${got} / ${TROPHIES.length}`],
+    [t('th.best'), `${s.bestWpm} wpm`],
+    [t('my.streak'), t('my.days', { n: s.streak })],
   ];
   el.tally.replaceChildren(
     ...rows.map(([k, v]) => {
@@ -282,15 +286,15 @@ function seriesCard(b) {
   head.className = 'series__head';
   head.innerHTML =
     `<span class="lesson__lang">${b.items[0].lang.toUpperCase()}</span>` +
-    `<span class="series__n">全 ${b.items.length} 章 · ${keys.toLocaleString('en')} 打</span>`;
+    `<span class="series__n">${t('series.total', { n: b.items.length, k: keys.toLocaleString('en') })}</span>`;
 
   const title = document.createElement('h3');
   title.className = 'series__title';
-  title.textContent = b.headline;
+  title.textContent = pick(b, 'headline');
 
   const goal = document.createElement('p');
   goal.className = 'series__goal';
-  goal.textContent = b.goal;
+  goal.textContent = pick(b, 'goal');
 
   const steps = document.createElement('ol');
   steps.className = 'steps';
@@ -301,15 +305,18 @@ function seriesCard(b) {
     btn.className = `step${getBest(l.id) ? ' is-cleared' : ''}`;
     btn.dataset.id = l.id;
     btn.innerHTML =
-      `<span class="step__name">${l.title}</span>` +
-      `<span class="step__keys">${countKeystrokes(l.code)} 打</span>`;
+      `<span class="step__name">${pick(l, 'title')}</span>` +
+      `<span class="step__keys">${t('card.keys', { n: countKeystrokes(l.code) })}</span>`;
     li.append(btn);
     steps.append(li);
   }
 
   const foot = document.createElement('p');
   foot.className = 'series__foot';
-  foot.textContent = cleared === b.items.length ? '全章クリア' : `クリア ${cleared} / ${b.items.length}`;
+  foot.textContent =
+    cleared === b.items.length
+      ? t('series.allDone')
+      : t('series.cleared', { done: cleared, all: b.items.length });
 
   card.append(head, title, goal, steps, foot);
   return card;
@@ -327,8 +334,8 @@ function renderHome() {
 
     const head = document.createElement('h2');
     head.className = 'group__name';
-    const count = isSeries ? `${blocks.length} 作品` : `${group.items.length}`;
-    head.innerHTML = `${group.name}<span class="group__count">${count}</span>`;
+    const count = isSeries ? t('group.works', { n: blocks.length }) : `${group.items.length}`;
+    head.innerHTML = `${t('group.' + group.name)}<span class="group__count">${count}</span>`;
 
     const grid = document.createElement('div');
     grid.className = isSeries ? 'lessons lessons--series' : 'lessons';
@@ -475,10 +482,8 @@ function updateStats() {
   el.progressNum.textContent = `${pct}%`;
 
   const line = (lineOf[Math.min(engine.index, lineOf.length - 1)] ?? 0) + 1;
-  el.progressLine.textContent = `${line} / ${totalLines} 行`;
-  el.progressKeys.textContent = engine.finished
-    ? 'できあがり'
-    : `残り ${engine.remaining} 打`;
+  el.progressLine.textContent = t('play.lines', { now: line, all: totalLines });
+  el.progressKeys.textContent = engine.finished ? t('play.done') : t('play.left', { n: engine.remaining });
 
   if (bestSeconds == null || engine.startedAt == null) return;
 
@@ -512,11 +517,11 @@ function showReady() {
   phase = 'ready';
   const best = getBest(lesson.id);
   const s = lesson.series ? SERIES[lesson.series] : null;
-  el.readyFile.textContent = s ? `${s.name} — ${lesson.file}` : lesson.file;
-  el.readyTitle.textContent = lesson.title;
+  el.readyFile.textContent = s ? `${pick(s, 'name')} — ${lesson.file}` : lesson.file;
+  el.readyTitle.textContent = pick(lesson, 'title');
   el.readyMeta.textContent =
-    `${countKeystrokes(lesson.code)} 打` +
-    (best && best.seconds != null ? `　ベスト ${best.seconds.toFixed(1)} 秒` : '');
+    t('card.keys', { n: countKeystrokes(lesson.code) }) +
+    (best && best.seconds != null ? `　${t('th.best')} ${best.seconds.toFixed(1)}s` : '');
   el.ready.hidden = false;
 }
 
@@ -537,7 +542,7 @@ function beginRun() {
 
 /** 3 → 2 → 1 → スタート。ここが無いと、いつ計り始めたのか分からない */
 function runCountdown(done) {
-  const steps = ['3', '2', '1', 'スタート'];
+  const steps = ['3', '2', '1', t('play.count.go')];
   let i = 0;
   counting = true;
   el.count.hidden = false;
@@ -604,8 +609,10 @@ function start(id) {
 
   el.fileName.textContent = lesson.file;
   const series = lesson.series ? SERIES[lesson.series] : null;
-  el.lessonLabel.textContent = series ? `${series.name} ／ ${lesson.title}` : lesson.title;
-  el.lessonSub.textContent = lesson.subtitle;
+  el.lessonLabel.textContent = series
+    ? `${pick(series, 'name')} ／ ${pick(lesson, 'title')}`
+    : pick(lesson, 'title');
+  el.lessonSub.textContent = pick(lesson, 'subtitle');
   el.result.hidden = true;
   el.toast.hidden = true;
   el.tip.hidden = false;
@@ -658,8 +665,8 @@ function finish() {
     seconds,
   });
 
-  el.resultTitle.textContent = lesson.title;
-  el.resultEyebrow.textContent = `CLEAR — ${lesson.file}`;
+  el.resultTitle.textContent = pick(lesson, 'title');
+  el.resultEyebrow.textContent = `${t('result.clear')} — ${lesson.file}`;
   el.resultWpm.textContent = `${engine.wpm} wpm`;
   el.resultAcc.textContent = `${engine.accuracy}%`;
   el.resultTime.textContent = engine.elapsed.toFixed(1);
@@ -667,11 +674,14 @@ function finish() {
   if (updated && bestSeconds != null) {
     el.resultVs.hidden = false;
     el.resultVs.className = 'result__vs is-ahead';
-    el.resultVs.textContent = `これまでの最速より ${(bestSeconds - seconds).toFixed(1)} 秒 速い`;
+    el.resultVs.textContent = t('result.vsFaster', { n: (bestSeconds - seconds).toFixed(1) });
   } else if (bestSeconds != null) {
     el.resultVs.hidden = false;
     el.resultVs.className = 'result__vs is-behind';
-    el.resultVs.textContent = `自己ベスト ${bestSeconds.toFixed(1)} 秒まで あと ${(seconds - bestSeconds).toFixed(1)} 秒`;
+    el.resultVs.textContent = t('result.vsSlower', {
+      best: bestSeconds.toFixed(1),
+      n: (seconds - bestSeconds).toFixed(1),
+    });
   } else {
     el.resultVs.hidden = true;
   }
@@ -683,7 +693,7 @@ function finish() {
   if (weak.length) {
     el.resultWeak.hidden = false;
     el.resultWeak.replaceChildren(
-      document.createTextNode('つまずいた字　'),
+      document.createTextNode(t('result.weak')),
       ...weak.map(({ key, count }) => {
         const wrap = document.createElement('span');
         wrap.className = 'result__weakone';
@@ -706,20 +716,20 @@ function finish() {
   el.resultGain.replaceChildren(
     Object.assign(document.createElement('b'), { textContent: `SCORE +${gained}` }),
     Object.assign(document.createElement('small'), {
-      textContent: `打鍵 × 正確さ × 速さ　／　累計 ${stats.tokens.toLocaleString('en')}`,
+      textContent: `${t('result.formula')}　／　${t('result.total')} ${stats.tokens.toLocaleString('en')}`,
     })
   );
 
   if (earned.length) {
     el.resultEarned.hidden = false;
     el.resultEarned.replaceChildren(
-      ...earned.map((t) => {
+      ...earned.map((tr) => {
         const chip = document.createElement('span');
         chip.className = 'trophy trophy--new is-got';
         const name = document.createElement('b');
-        name.textContent = t.name;
+        name.textContent = pick(tr, 'name');
         const small = document.createElement('small');
-        small.textContent = t.hint;
+        small.textContent = pick(tr, 'hint');
         chip.append(name, small);
         return chip;
       })
@@ -761,11 +771,11 @@ const SITE = 'Typing Engineer';
 function setTitle(path) {
   if (path.startsWith('/play/')) {
     const l = findLesson(decodeURIComponent(path.slice(6)));
-    document.title = l ? `${l.title} — ${SITE}` : SITE;
+    document.title = l ? `${pick(l, 'title')} — ${SITE}` : SITE;
   } else if (path === '/mypage') {
-    document.title = `マイページ — ${SITE}`;
+    document.title = t('meta.mypage');
   } else {
-    document.title = `${SITE} — 打つほど、ページができあがる`;
+    document.title = t('meta.title');
   }
 }
 
@@ -927,7 +937,7 @@ window.addEventListener('keydown', (e) => {
   // 日本語入力のままだと文字が届かない
   if (e.isComposing || e.keyCode === 229 || e.key === 'Process') {
     e.preventDefault();
-    showToast('日本語入力になっています。英数に切り替えてください');
+    showToast(t('play.ime'));
     return;
   }
 
@@ -972,9 +982,11 @@ el.btnHome.addEventListener('click', goHome);
 el.btnShare.addEventListener('click', () => {
   if (!lastResult) return;
   const url = `${location.origin}${location.pathname}#/play/${lastResult.id}`;
-  const text =
-    `Typing Engineer で「${lastResult.title}」を ` +
-    `${lastResult.seconds.toFixed(1)}秒・正確さ ${lastResult.accuracy}% でクリアしました。`;
+  const text = t('share.text', {
+    title: lastResult.title,
+    sec: lastResult.seconds.toFixed(1),
+    acc: lastResult.accuracy,
+  });
 
   // どちらに行くかはここで決め切る。await を挟んでから window.open を呼ぶと
   // 「利用者の操作ではない」と見なされて塞がれる。
@@ -995,7 +1007,6 @@ el.btnStart.addEventListener('click', () => {
   location.hash = `#/play/${LESSONS[0].id}`;
 });
 el.ready.addEventListener('click', beginRun);
-el.startSub.textContent = `${LESSONS[0].title} · ${countKeystrokes(LESSONS[0].code)} 打`;
 el.btnNext.addEventListener('click', () => {
   const n = nextLesson(lesson.id);
   if (n) location.hash = `#/play/${n.id}`;
@@ -1038,9 +1049,9 @@ el.btnCopy.addEventListener('click', async () => {
   if (!lastLesson) return;
   try {
     await navigator.clipboard.writeText(lastLesson.code);
-    flash(el.btnCopy, 'コピーしました');
+    flash(el.btnCopy, t('result.copied'));
   } catch {
-    flash(el.btnCopy, 'コピーできませんでした');
+    flash(el.btnCopy, t('result.copyfail'));
   }
 });
 
@@ -1056,6 +1067,13 @@ el.btnSave.addEventListener('click', () => {
   flash(el.btnSave, `${name} を保存`);
 });
 
+initLang(() => {
+  el.startSub.textContent =
+    `${pick(LESSONS[0], 'title')} · ${t('card.keys', { n: countKeystrokes(LESSONS[0].code) })}`;
+  relabelTones();
+  if (engine) updateStats(); // 打鍵中なら行数と残りも引き直す
+  route();
+});
 initTone(syncFlavor);
 syncSoundButton();
 route();
