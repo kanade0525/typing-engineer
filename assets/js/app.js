@@ -18,6 +18,9 @@ const el = {
   mypageScreen: $('screenMypage'),
   mypage: $('mypage'),
   nav: $('nav'),
+  peek: $('peek'),
+  peekLabel: $('peekLabel'),
+  peekView: $('peekView'),
   navRank: $('navRank'),
   navScore: $('navScore'),
   lessonList: $('lessonList'),
@@ -119,6 +122,83 @@ let countTimer = null;
 let bestSeconds = null;
 let lastResult = null;
 let lastLesson = null;
+
+// ---------------------------------------------------------------- 覗き窓
+
+/**
+ * 札に触れたら、その課題を打ち終えた姿を出す。
+ * 一覧に並んでいるのは題と打鍵数だけで、何ができるのかが分からなかった。
+ *
+ * 中身を描く仕掛けは打鍵画面と同じものを使い回す。
+ * 窓は一つだけ持ち、触れるたびに中身を入れ替える。
+ */
+const peek = new Preview(el.peekView);
+let peekTimer = null;
+let peekId = null;
+let peekAnchor = null;
+const canHover = window.matchMedia('(hover: hover)').matches;
+
+/** 札の右に出す。入らなければ左へ回す。画面が動いたら追いかける */
+function placePeek() {
+  if (el.peek.hidden || !peekAnchor) return;
+
+  const r = peekAnchor.getBoundingClientRect();
+  if (r.bottom < 0 || r.top > window.innerHeight) {
+    hidePeek(); // 札が画面から出たら閉じる
+    return;
+  }
+
+  const w = el.peek.offsetWidth;
+  const h = el.peek.offsetHeight;
+  const left = r.right + 14 + w < window.innerWidth ? r.right + 14 : Math.max(8, r.left - 14 - w);
+  el.peek.style.left = `${left}px`;
+  el.peek.style.top = `${Math.max(8, Math.min(window.innerHeight - h - 8, r.top))}px`;
+}
+
+function showPeek(id, anchor) {
+  const l = findLesson(id);
+  if (!l) return;
+  peekId = id;
+  peekAnchor = anchor;
+
+  el.peekLabel.textContent = l.series ? `${SERIES[l.series].name} ／ ${l.title}` : l.title;
+  el.peek.hidden = false;
+
+  peek.mount(l);
+  peek.render(l.code);
+  placePeek();
+}
+
+function hidePeek() {
+  clearTimeout(peekTimer);
+  peekTimer = null;
+  peekId = null;
+  peekAnchor = null;
+  el.peek.hidden = true;
+  // 走っている輪をここで止める
+  el.peekView.srcdoc = '';
+}
+
+if (canHover) {
+  el.lessonList.addEventListener('pointerover', (e) => {
+    const card = e.target.closest('.lesson, .step');
+    if (!card || card.dataset.id === peekId) return;
+    clearTimeout(peekTimer);
+    peekTimer = setTimeout(() => showPeek(card.dataset.id, card), 180);
+  });
+
+  el.lessonList.addEventListener('pointerout', (e) => {
+    const card = e.target.closest('.lesson, .step');
+    if (!card) return;
+    if (e.relatedTarget && card.contains(e.relatedTarget)) return;
+    hidePeek();
+  });
+
+  // 画面が動いても閉じない。札に付いて動く
+  const follow = () => requestAnimationFrame(placePeek);
+  window.addEventListener('scroll', follow, { passive: true });
+  window.addEventListener('resize', follow);
+}
 
 // ---------------------------------------------------------------- 一覧
 
@@ -701,6 +781,7 @@ function syncNav(path) {
 }
 
 function showHome() {
+  hidePeek();
   leavePlay();
   state = 'home';
   el.mypageScreen.hidden = true;
@@ -710,6 +791,7 @@ function showHome() {
 }
 
 function showMypage() {
+  hidePeek();
   leavePlay();
   state = 'home'; // 打鍵は受け取らない
   el.home.hidden = true;
@@ -728,6 +810,7 @@ function route() {
   if (path.startsWith('/play/')) {
     const id = decodeURIComponent(path.slice(6));
     if (findLesson(id)) {
+      hidePeek();
       el.mypageScreen.hidden = true;
       start(id);
       return;
