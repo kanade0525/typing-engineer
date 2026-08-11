@@ -31,6 +31,14 @@
 
 <canvas id="rain" aria-hidden="true" hidden></canvas>
 
+<!-- 一覧で札に触れたときに出す、できあがりの覗き窓 -->
+<div class="peek" id="peek" hidden aria-hidden="true">
+  <div class="peek__label" id="peekLabel"></div>
+  <div class="peek__frame">
+    <iframe id="peekView" title="" tabindex="-1" sandbox="allow-same-origin"></iframe>
+  </div>
+</div>
+
 <header class="nav" id="nav">
   <a class="nav__brand" href="#/"><span>&lt;/&gt;</span> Typing Engineer</a>
   <nav class="nav__links">
