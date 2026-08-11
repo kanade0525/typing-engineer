@@ -35,11 +35,16 @@ const { TROPHIES } = await import(join(ROOT, 'assets/js/trophies.js'));
 const { DICT } = await import(join(ROOT, 'assets/js/i18n.js'));
 
 const LANGS = new Set(['html', 'css', 'js', 'yaml', 'ruby']);
+
+// 題材に要る項目。README の「題材を足す」の例も同じ一覧で検査するので、
+// ここを増やせば例に書き足すまで検査が落ちる
+const REQUIRED_KEYS = ['id', 'group', 'lang', 'file', 'level', 'title', 'subtitle', 'note', 'code'];
+
 const seen = new Set();
 
 for (const l of LESSONS) {
   const at = `題材 ${l.id || '(id なし)'}`;
-  for (const key of ['id', 'group', 'lang', 'file', 'level', 'title', 'subtitle', 'note', 'code']) {
+  for (const key of REQUIRED_KEYS) {
     if (!l[key]) ng(at, `${key} が無い`);
   }
   if (seen.has(l.id)) ng(at, 'id が重複している');
@@ -105,12 +110,64 @@ for (const m of html.matchAll(/data-i18n-attr="[^:]+:([^"]+)"/g)) {
   if (!ja.has(m[1])) ng('訳', `画面の印 "${m[1]}" が辞書に無い`);
 }
 
-// README に書いた本数が実際と合っているか
+// ---------------------------------------------------------------- README と実装のズレ
+//
+// README は実装より先に古くなる。ただし古さの全部が害ではないので、
+// 「書いてあるとおりに手を動かすと壊れる」種類だけを見張る。
+// 文章の良し悪しは見ない。
+//
+// これを足したのは、分類を日本語から id に改めたときに README の例が
+// '王道パターン' のまま残り、README を写して題材を足すと GROUPS に
+// 無い分類になる状態を取り逃したから。
+
 const readme = readFileSync(join(ROOT, 'README.md'), 'utf8');
-const declared = readme.match(/^(\d+)\s*本[。、]/m);
-if (!declared) ng('README', '題材の本数が書かれていない');
-else if (Number(declared[1]) !== LESSONS.length) {
-  ng('README', `本数が食い違う（README ${declared[1]} 本 / 実際 ${LESSONS.length} 本）`);
+
+// (1) 数。README には一度だけ書き、実際の数と突き合わせる
+for (const [what, re, actual] of [
+  ['題材', /^(\d+)\s*本[。、]/m, LESSONS.length],
+  ['配色', /配色は\s*(\d+)\s*種/, TONES.length],
+  ['アチーブメント', /アチーブメントは\s*(\d+)\s*個/, TROPHIES.length],
+]) {
+  const m = readme.match(re);
+  if (!m) ng('README', `${what}の数が書かれていない`);
+  else if (Number(m[1]) !== actual) {
+    ng('README', `${what}の数が食い違う（README ${m[1]} / 実際 ${actual}）`);
+  }
+}
+
+// (2) 構成の一覧。assets/js に足したファイルが載っていないと、
+//     どこに何があるかを README から辿れない
+const structure = readme.match(/##\s*構成\s*\n+```\n([\s\S]*?)```/);
+if (!structure) ng('README', '構成の一覧が見つからない');
+else {
+  const listed = structure[1];
+  const real = readdirSync(join(ROOT, 'assets/js')).filter((n) => n.endsWith('.js'));
+  for (const f of real) if (!listed.includes(f)) ng('README', `構成に ${f} が無い`);
+  for (const m of listed.matchAll(/^\s+(\S+\.js)\b/gm)) {
+    if (!real.includes(m[1])) ng('README', `構成の ${m[1]} は実在しない`);
+  }
+}
+
+// (3) 「題材を足す」の例。これを写して題材を足す人がいるので、
+//     例そのものが上の検査を通る形でなければ意味がない
+const sample = readme.match(/###\s*題材を足す[\s\S]*?```js\n([\s\S]*?)```/);
+if (!sample) ng('README', '題材を足す例が見つからない');
+else {
+  const src = sample[1];
+  for (const k of REQUIRED_KEYS) {
+    if (!new RegExp(`^\\s*${k}:`, 'm').test(src)) ng('README', `題材を足す例に ${k} が無い`);
+  }
+  // en が無い例を写すと、訳の検査で落ちる
+  if (!/^\s*en:\s*\{/m.test(src)) ng('README', '題材を足す例に en が無い');
+
+  // 値も、注釈に並べた選択肢も、実装が受け取れる字であること
+  for (const [field, allowed] of [['group', GROUPS], ['lang', [...LANGS]]]) {
+    const line = src.split('\n').find((l) => l.trim().startsWith(`${field}:`));
+    if (!line) continue; // 上で報告済み
+    for (const m of line.matchAll(/'([^']*)'/g)) {
+      if (!allowed.includes(m[1])) ng('README', `題材を足す例の ${field} "${m[1]}" は実装に無い`);
+    }
+  }
 }
 
 console.log(`題材 ${LESSONS.length} 本・分類 ${GROUPS.length} 個を検査`);
