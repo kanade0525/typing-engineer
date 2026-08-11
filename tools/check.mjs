@@ -268,6 +268,12 @@ if (!chromeBin && process.env.CI) {
       return r.result?.result?.value;
     };
 
+    // Page を開けておかないと addScriptToEvaluateOnNewDocument が効かない。
+    // これが無いあいだ window.__err はずっと undefined で、読み込みで落ちた
+    // ときの理由が「(見当たらない)」になっていた。仕込みが空振りしていても
+    // 検査は緑になるので、気づくのに時間がかかった
+    await send('Page.enable');
+
     // 読み込みで落ちたら、その中身を後で読めるように控えておく
     await send('Page.addScriptToEvaluateOnNewDocument', {
       source: 'addEventListener("error", (e) => { window.__err = String(e.message); });',
